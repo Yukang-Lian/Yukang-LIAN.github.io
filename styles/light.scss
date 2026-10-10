@@ -1,0 +1,29 @@
+/*-- scss:defaults --*/
+// Tufte-style handout: one serif, black on white, notes in the right margin.
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=Noto+Serif+SC:wght@400;600&display=swap");
+
+$font-family-sans-serif: "Crimson Pro", "Noto Serif SC", Palatino, "Book Antiqua", Georgia, serif;
+$font-family-monospace: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+$font-size-root: 21px;
+$line-height-base: 1.5;
+$headings-font-weight: 400;
+
+$body-bg: #ffffff;
+$body-color: #111111;
+$text-muted: #5a5a5a;
+$link-color: #111111;
+$border-color: #dcdcdc;
+// Code (option C2): black ink, rules above and below.
+$code-color: $body-color;
+$code-bg: transparent;
+$code-block-bg: transparent;
+$code-block-border-left: false;
+
+$navbar-bg: $body-bg;
+$navbar-fg: $body-color;
+$navbar-hl: $body-color;
+$footer-bg: $body-bg;
+$footer-fg: $text-muted;
+
+// Chinese essays: system kai fonts have thin strokes, so use a deeper ink.
+$essay-ink: #000000;

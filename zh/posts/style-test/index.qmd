@@ -1,0 +1,79 @@
+---
+title: "示例文章"
+subtitle: "用于测试样式：公式、旁注、引用、图和表。这不是一篇正式文章。"
+date: 2026-10-10
+bibliography: references.bib
+---
+
+[大语言模型]{.newthought}逐个 token 地生成文本。每一步都要为每个请求的一个新 token 跑完整个网络，因此 GPU 必须从显存中读出全部权重，却只做很少的计算。本文说明为什么这会让解码受限于内存带宽而不是算力，以及为什么批处理和 KV cache 管理对 vLLM [@kwon2023] 这样的推理引擎如此重要。
+
+## 注意力与 KV cache
+
+每个 Transformer 层都会计算缩放点积注意力 [@vaswani2017]：
+
+$$
+\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right) V.
+$$ {#eq-attn}
+
+在解码过程中，之前 token 的 key 和 value 不会改变，所以推理引擎把它们存进 *KV cache*，而不是每次重新计算。对于一个有 $L$ 层、$n_{kv}$ 个维度为 $d_h$ 的 key-value 头的模型，当批中有 $b$ 条长度为 $s$ 的序列、每个元素占 $p$ 字节时，cache 需要
+
+$$
+M_{\mathrm{KV}} = 2 \cdot L \cdot n_{kv} \cdot d_h \cdot s \cdot b \cdot p \ \text{字节},
+$$ {#eq-kv}
+
+其中系数 2 同时计入了 key 和 value。[^gqa]
+
+[^gqa]: 分组查询注意力（GQA）[@ainslie2023] 让多个 query 头共享同一个 key-value 头，从而按相同比例减小 $n_{kv}$ 和 cache 的大小。
+
+以一个 7B 模型为例：32 层，32 个维度为 128 的注意力头（即 Llama 2 7B 的结构），以 FP16 存储。由 @eq-kv 可得每个 token 需要 0.5 MiB，因此单条 4,096 token 的序列就需要 2 GiB（@lst-kv、@tbl-kv）。
+
+::: {#lst-kv}
+```python
+def kv_cache_bytes(layers, kv_heads, head_dim, seq_len, batch,
+                   bytes_per_elem=2):
+    return 2 * layers * kv_heads * head_dim * seq_len * batch * bytes_per_elem
+
+kv_cache_bytes(32, 32, 128, 4096, 1) / 2**30   # 2.0 GiB
+```
+
+按 @eq-kv 计算 KV cache 的字节数。
+:::
+
+| 序列长度 | $b = 1$ | $b = 8$ |
+|:------:|:-------:|:-------:|
+| 2,048  | 1 GiB   | 8 GiB   |
+| 4,096  | 2 GiB   | 16 GiB  |
+| 32,768 | 16 GiB  | 128 GiB |
+
+: 由 @eq-kv 计算的 KV cache 大小（上述 7B 结构，FP16）。 {#tbl-kv}
+
+## 为什么解码受限于内存带宽
+
+一个算子的*算术强度* $I$ 是它每搬运一个字节所做的浮点运算次数。Roofline 模型 [@williams2009] 指出，在峰值算力为 $P$、内存带宽为 $B$ 的机器上，这个算子最多能达到
+
+$$
+\text{可达 FLOP/s} = \min(P,\; I \cdot B).
+$$ {#eq-roofline}
+
+::: {#prp-intensity}
+## 解码步骤的算术强度
+将以 FP16 存储的权重矩阵 $W \in \mathbb{R}^{m \times n}$ 与一批 $b$ 个激活向量相乘，其算术强度满足 $I \le b$ FLOP/字节；当 $b \ll \min(m, n)$ 时，$I \approx b$。
+:::
+
+::: {.proof}
+这次乘法需要 $2mnb$ 次浮点运算，即每个权重对每个向量做一次乘法和一次加法。它要读取 $mn$ 个权重和 $bn$ 个输入，并写出 $bm$ 个输出，每个元素 2 字节，因此
+$$
+I = \frac{2mnb}{2mn + 2b(m + n)} \le \frac{2mnb}{2mn} = b.
+$$
+当 $b \ll \min(m, n)$ 时，$2b(m + n)$ 相对 $2mn$ 很小，所以 $I \approx b$。
+:::
+
+于是，单个请求的解码大约每字节只做 1 次浮点运算。NVIDIA H100 SXM 的标称稠密 BF16 算力约为 989 TFLOP/s，显存带宽为 3.35 TB/s，两者之比约为 295 FLOP/字节。[^kv-reads]由 @eq-roofline 可知，在一个批中凑够约 295 条序列之前，GPU 一直受限于带宽（@fig-roofline）。这就是推理引擎想尽办法把请求合批的原因；也正因为 @tbl-kv 中的 KV cache 要和批处理争夺显存，它成了推理引擎最需要精细管理的资源。
+
+[^kv-reads]: 这里忽略了读取 KV cache 本身的开销。它让每一步多读了字节，却没有增加权重相关的浮点运算，所以实际的解码受带宽的限制更严重。
+
+::: {#fig-roofline}
+{{< include _chart.html >}}
+
+由 @eq-roofline 得到的权重乘法 roofline 上界，取 $I = b$，使用 H100 SXM 的峰值参数。两个坐标轴均为对数刻度。
+:::

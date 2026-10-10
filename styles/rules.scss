@@ -1,0 +1,99 @@
+/*-- scss:rules --*/
+// Shared by the light and dark themes; colors come from the Bootstrap variables above.
+
+// Titles and headings: regular weight, italic section heads, no rules under them.
+h1.title { font-size: 2.2rem; font-weight: 400; line-height: 1.2; text-wrap: balance; }
+h2, h3 { font-style: italic; font-weight: 400; border-bottom: none !important; text-wrap: balance; }
+h2 { font-size: 1.45rem; margin-top: 2rem; }
+h3 { font-size: 1.2rem; }
+.quarto-title .subtitle { font-style: italic; color: $text-muted; }
+
+// Byline: one italic line instead of labelled metadata boxes.
+.quarto-title-meta { display: flex !important; flex-wrap: wrap; gap: 0 .6em; font-style: italic; margin-top: .4rem; }
+.quarto-title-meta-heading { display: none; }
+.quarto-title-meta-contents p { margin: 0; }
+#title-block-header { margin-bottom: 1.5rem; }
+.quarto-categories { display: none; }
+
+// Links: underlined in the text color, thin.
+a { text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.navbar a, .listing-title a { text-decoration: none; }
+
+// Opening words in small caps: [A query optimizer]{.newthought}
+.newthought { font-variant: small-caps; letter-spacing: .04em; }
+
+// Margin notes: smaller, numbered; the number links back to the text (see notes.html).
+.column-margin, .csl-entry, #quarto-margin-sidebar { font-size: .78rem; line-height: 1.4; }
+.column-margin a { color: inherit; }  // citations inside a note match the note text
+.column-margin a.note-back { text-decoration: none; font-weight: 600; }
+.column-margin a.note-back:hover { text-decoration: underline; }
+a.footnote-ref { text-decoration: none; }
+// Citations: [1] in the text links to the numbered list at the end; the number there links back.
+a[role="doc-biblioref"], .csl-left-margin a { text-decoration: none; }
+#refs .csl-entry { font-size: .85rem; margin-bottom: .35rem; }
+#refs .csl-left-margin { font-variant-numeric: tabular-nums; min-width: 2.2em; }
+#refs .csl-right-inline { margin-left: 2.2em; padding-left: 0; }
+:target { scroll-margin-top: 5rem; }
+.column-margin :target, .column-margin [id^="fn"]:target, #refs :target { background: rgba($body-color, .06); }
+figcaption, caption { font-style: italic; color: $text-muted; font-size: .85rem; }
+.figure-caption .quarto-figure-caption-prefix, figcaption strong { font-style: normal; }
+// Code listings: caption centered above the code, like a table caption.
+figcaption.quarto-float-lst { text-align: center; }
+figure.quarto-float-lst div.sourceCode { margin-top: .5rem; }
+
+// Theorem-style blocks.
+.theorem .theorem-title, .proposition .proposition-title, .lemma .lemma-title,
+.definition .definition-title { font-variant: small-caps; letter-spacing: .04em; font-weight: 400; }
+.proof .proof-title { font-style: italic; }
+
+// Code (option C2): black ink only, a rule above and below, bold keywords, italic comments.
+div.sourceCode, pre.sourceCode { border-radius: 0; background: transparent; }
+div.sourceCode { margin: 1.3rem 0; border: 0; border-top: 1px solid $body-color; border-bottom: 1px solid $body-color; }
+pre.sourceCode { padding: .7em 0; border: 0; margin: 0; }
+pre code { font-size: .72rem; line-height: 1.6; }
+code { font-size: .78em; color: $body-color; }
+div.sourceCode, div.sourceCode pre.sourceCode, div.sourceCode pre code, div.sourceCode pre code span { color: $body-color; font-style: normal; }
+div.sourceCode code span:is(.kw, .cf, .im, .pp, .fu) { font-weight: 600; }
+div.sourceCode code span:is(.co, .do, .an, .cv, .in, .wa) { color: $text-muted; font-style: italic; }
+
+// Tables in booktabs style (not the post list, which is a plain list).
+table { font-variant-numeric: tabular-nums; }
+.table:not(.quarto-listing-table) > thead { border-top: 1.5px solid $body-color; border-bottom: .8px solid $body-color; }
+.table:not(.quarto-listing-table) > tbody > tr:last-child { border-bottom: 1.5px solid $body-color; }
+.table > :not(caption) > * > * { border-bottom-width: 0; background: transparent; }
+// Center every column, overriding the per-column alignment Markdown writes inline.
+.table:not(.quarto-listing-table) :is(th, td) { text-align: center !important; }
+
+// Chinese pages: body text and headings a little smaller than English (margin notes stay as they are).
+html:lang(zh) main.content { font-size: .9rem; }
+html:lang(zh) h1.title { font-size: 1.85rem; }
+html:lang(zh) main.content h2 { font-size: 1.25rem; }
+html:lang(zh) main.content h3 { font-size: 1.08rem; }
+html:lang(zh) .quarto-title .subtitle { font-size: 1.05rem; }
+
+// Chinese essays (front matter `body-classes: essay`) use the reader's system kai font.
+html:lang(zh) body.essay main.content {
+  font-family: "Kaiti SC", "STKaiti", "KaiTi", "楷体", "Noto Serif SC", serif;
+  font-size: .95rem; color: $essay-ink;
+  -webkit-text-stroke: .012em currentColor;  // thicken the thin kai strokes slightly
+}
+html:lang(zh) body.essay main.content :is(.column-margin, .quarto-title-meta, .subtitle) { -webkit-text-stroke: 0; }
+
+// Chinese text needs a little more leading, and Chinese has no italics:
+// the browser would fake them by slanting the glyphs, so keep it upright.
+:lang(zh) p, p:lang(zh) { line-height: 1.75; }
+:lang(zh) .column-margin p { line-height: 1.55; }
+:lang(zh) :is(h1, h2, h3, .subtitle, .quarto-title-meta, figcaption, .margin-caption, caption, em) { font-style: normal; }
+
+// Post list on the home page: date and title only.
+.quarto-listing-table { font-size: 1rem; }
+.quarto-listing-table th { display: none; }
+.quarto-listing-table td { border: none; padding: .35rem 1.6rem .35rem 0; }
+.quarto-listing-table td:has(.listing-date) { width: 1%; }  // dates take only the room they need
+.quarto-listing-table .listing-date { color: $text-muted; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+// Navbar: plain text, no shadow.
+.navbar { box-shadow: none; border-bottom: 1px solid $border-color; }
+.navbar-brand .navbar-title { font-style: italic; }
+// The 中文 link: CJK glyphs fill the whole em square, so shrink them to match the Latin letters beside them.
+.navbar a.nav-link[href*="zh/index"] .menu-text { font-size: .82em; }

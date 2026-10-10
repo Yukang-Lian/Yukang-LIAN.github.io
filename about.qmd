@@ -1,0 +1,9 @@
+---
+title: "About"
+---
+
+<!-- TODO(Yukang): rewrite this in your own words. -->
+
+Hi, I'm Yukang Lian. This is where I write down what I think about: the world, myself, and whatever I happen to be learning, from mathematics to everyday life. Most posts are in English, and each one also has a Chinese version under 中文.
+
+You can find my code on [GitHub](https://github.com/Yukang-Lian).

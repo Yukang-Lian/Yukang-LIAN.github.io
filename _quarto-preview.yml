@@ -1,0 +1,3 @@
+# Used only with QUARTO_PROFILE=preview: show draft posts while previewing locally.
+website:
+  draft-mode: visible

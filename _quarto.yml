@@ -1,0 +1,38 @@
+project:
+  type: website
+  output-dir: _site
+
+website:
+  title: "Yukang Lian"
+  site-url: https://yukang-lian.github.io/
+  description: "Thoughts on the world, on myself, and on everything in between."
+  navbar:
+    left:
+      - href: index.qmd
+        text: Posts
+      - href: about.qmd
+        text: About
+    right:
+      - href: zh/index.qmd
+        text: 中文
+      - href: https://github.com/Yukang-Lian
+        text: GitHub
+  page-footer:
+    center: "© Yukang Lian"
+
+format:
+  html:
+    theme:
+      light: [default, styles/light.scss, styles/rules.scss]
+      dark: [default, styles/dark.scss, styles/rules.scss]
+    html-math-method: mathjax
+    code-overflow: wrap
+    lang: en
+    anchor-sections: false
+    smooth-scroll: false
+    include-after-body: styles/notes.html
+    grid:
+      sidebar-width: 190px
+      body-width: 960px
+      margin-width: 250px
+      gutter-width: 1.4rem

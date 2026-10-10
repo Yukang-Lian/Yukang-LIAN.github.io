@@ -1,0 +1,29 @@
+/*-- scss:defaults --*/
+// Same handout, reversed: light text on near-black.
+@import url("https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;600&family=Noto+Serif+SC:wght@400;600&display=swap");
+
+$font-family-sans-serif: "Crimson Pro", "Noto Serif SC", Palatino, "Book Antiqua", Georgia, serif;
+$font-family-monospace: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+$font-size-root: 21px;
+$line-height-base: 1.5;
+$headings-font-weight: 400;
+
+$body-bg: #151515;
+$body-color: #dddddd;
+$text-muted: #9c9c9c;
+$link-color: #dddddd;
+$border-color: #353535;
+// Code (option C2), reversed for the dark page.
+$code-color: $body-color;
+$code-bg: transparent;
+$code-block-bg: transparent;
+$code-block-border-left: false;
+
+$navbar-bg: $body-bg;
+$navbar-fg: $body-color;
+$navbar-hl: $body-color;
+$footer-bg: $body-bg;
+$footer-fg: $text-muted;
+
+// Chinese essays: system kai fonts have thin strokes, so use a deeper ink.
+$essay-ink: #eeeeee;

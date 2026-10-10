@@ -1,0 +1,13 @@
+---
+title: "Yukang Lian"
+subtitle: "Thoughts on the world, on myself, and on everything in between."
+listing:
+  contents: "/posts/*/index.qmd"
+  sort: "date desc"
+  type: table
+  fields: [date, title]
+  date-format: "YYYY-MM-DD"
+  sort-ui: false
+  filter-ui: false
+page-layout: article
+---

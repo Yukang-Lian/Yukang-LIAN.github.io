@@ -1,0 +1,18 @@
+# Shared options for every post. The right margin holds only numbered explanation notes.
+# Citations are numbered [1] in the text and listed once, in order, at the end.
+# Captions stay with their figure/table/listing.
+reference-location: margin
+citation-location: document
+# No hover popups: notes sit beside the text, and citations jump to the list.
+footnotes-hover: false
+citations-hover: false
+csl: ../styles/csl/ieee.csl
+fig-cap-location: bottom
+tbl-cap-location: top
+lst-cap-location: top
+toc: true
+toc-location: left
+toc-depth: 3
+toc-title: "Contents"
+title-block-banner: false
+freeze: true

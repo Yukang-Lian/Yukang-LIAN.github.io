@@ -1,0 +1,79 @@
+---
+title: "Sample Post"
+subtitle: "A style test with math, notes, citations, a figure and a table. This is not a real article."
+date: 2026-10-10
+bibliography: references.bib
+---
+
+[A large language model]{.newthought} generates text one token at a time. Each step runs the whole network on one new token per request, so the GPU must read every weight from memory to do only a little arithmetic. This post shows why that makes decoding limited by memory bandwidth rather than compute, and why batching and KV-cache management matter so much to inference engines such as vLLM [@kwon2023].
+
+## Attention and the KV cache
+
+Each Transformer layer computes scaled dot-product attention [@vaswani2017]:
+
+$$
+\mathrm{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{QK^{\top}}{\sqrt{d_k}}\right) V.
+$$ {#eq-attn}
+
+During decoding, the keys and values of earlier tokens never change, so engines store them in a *KV cache* instead of recomputing them. For a model with $L$ layers and $n_{kv}$ key-value heads of dimension $d_h$, serving a batch of $b$ sequences of length $s$ with $p$ bytes per element, the cache needs
+
+$$
+M_{\mathrm{KV}} = 2 \cdot L \cdot n_{kv} \cdot d_h \cdot s \cdot b \cdot p \ \text{bytes},
+$$ {#eq-kv}
+
+where the factor 2 counts both keys and values.[^gqa]
+
+[^gqa]: Grouped-query attention [@ainslie2023] shares each key-value head across several query heads, which shrinks $n_{kv}$, and the cache, by the same factor.
+
+Take a 7B model with 32 layers and 32 heads of dimension 128 (the shape of Llama 2 7B), stored in FP16. @eq-kv gives 0.5 MiB per token, so a single 4,096-token sequence already needs 2 GiB (@lst-kv, @tbl-kv).
+
+::: {#lst-kv}
+```python
+def kv_cache_bytes(layers, kv_heads, head_dim, seq_len, batch,
+                   bytes_per_elem=2):
+    return 2 * layers * kv_heads * head_dim * seq_len * batch * bytes_per_elem
+
+kv_cache_bytes(32, 32, 128, 4096, 1) / 2**30   # 2.0 GiB
+```
+
+The KV cache size from @eq-kv, in bytes.
+:::
+
+| Sequence length | $b = 1$ | $b = 8$ |
+|:---------------:|:-------:|:-------:|
+| 2,048           | 1 GiB   | 8 GiB   |
+| 4,096           | 2 GiB   | 16 GiB  |
+| 32,768          | 16 GiB  | 128 GiB |
+
+: KV cache size from @eq-kv for the 7B shape above in FP16. {#tbl-kv}
+
+## Why decoding is memory-bound
+
+The *arithmetic intensity* $I$ of a kernel is the number of floating-point operations it performs per byte it moves. The roofline model [@williams2009] says that on a machine with peak compute $P$ and memory bandwidth $B$, the kernel can reach at most
+
+$$
+\text{attainable FLOP/s} = \min(P,\; I \cdot B).
+$$ {#eq-roofline}
+
+::: {#prp-intensity}
+## Intensity of a decode step
+Multiply a weight matrix $W \in \mathbb{R}^{m \times n}$ stored in FP16 by a batch of $b$ activation vectors. The arithmetic intensity satisfies $I \le b$ FLOP/byte, and $I \approx b$ when $b \ll \min(m, n)$.
+:::
+
+::: {.proof}
+The product takes $2mnb$ FLOPs: one multiply and one add per weight per vector. It reads the $mn$ weights and the $bn$ inputs and writes the $bm$ outputs, at 2 bytes each, so
+$$
+I = \frac{2mnb}{2mn + 2b(m + n)} \le \frac{2mnb}{2mn} = b.
+$$
+When $b \ll \min(m, n)$, the term $2b(m + n)$ is small next to $2mn$, so $I \approx b$.
+:::
+
+So a single request decodes at about 1 FLOP per byte. NVIDIA's H100 SXM is specified at about 989 TFLOP/s of dense BF16 compute and 3.35 TB/s of memory bandwidth, a ratio of roughly 295 FLOP/byte.[^kv-reads] By @eq-roofline, the GPU stays bandwidth-limited until a batch holds about 295 sequences (@fig-roofline). That is why inference engines work so hard to batch requests together, and why the KV cache in @tbl-kv, which competes with the batch for GPU memory, is the resource they manage most carefully.
+
+[^kv-reads]: This ignores reading the KV cache itself. That adds bytes at every step without adding weight FLOPs, so real decoding is even more memory-bound.
+
+::: {#fig-roofline}
+{{< include _chart.html >}}
+
+Roofline bound from @eq-roofline for weight multiplication with $I = b$, using H100 SXM peak figures. Both axes are logarithmic.
+:::

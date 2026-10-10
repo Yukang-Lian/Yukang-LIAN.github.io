@@ -1,0 +1,13 @@
+---
+title: "中文"
+subtitle: "关于世界、关于自我，以及其间种种的一些思考。"
+listing:
+  contents: posts
+  sort: "date desc"
+  type: table
+  fields: [date, title]
+  date-format: "YYYY-MM-DD"
+  sort-ui: false
+  filter-ui: false
+page-layout: article
+---

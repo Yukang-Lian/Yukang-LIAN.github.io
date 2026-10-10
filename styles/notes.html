@@ -1,0 +1,31 @@
+<script>
+// Margin footnotes come out as <div id="fnN"><p><sup>N</sup> ...: turn that number into a link back to the
+// reference in the text (id="fnrefN"), so every note and its marker point at each other.
+document.querySelectorAll('.column-margin div[id^="fn"]').forEach(function (note) {
+  var n = note.id.slice(2);
+  var ref = document.getElementById('fnref' + n);
+  var sup = note.querySelector('p > sup:first-child');
+  if (!ref || !sup) return;
+  var a = document.createElement('a');
+  a.href = '#fnref' + n;
+  a.className = 'note-back';
+  a.setAttribute('aria-label', 'Back to text, note ' + n);
+  a.textContent = sup.textContent;
+  sup.textContent = '';
+  sup.appendChild(a);
+});
+
+// Reference list: the [N] in front of each entry links back to where the text first cites it.
+document.querySelectorAll('#refs .csl-entry[id^="ref-"]').forEach(function (entry) {
+  var cite = document.querySelector('main a[href="#' + entry.id + '"]:not(#refs a)');
+  var label = entry.querySelector('.csl-left-margin');
+  if (!cite || !label) return;
+  if (!cite.id) cite.id = 'cite-' + entry.id.slice(4);
+  var a = document.createElement('a');
+  a.href = '#' + cite.id;
+  a.setAttribute('aria-label', 'Back to first citation');
+  a.textContent = label.textContent.trim();
+  label.textContent = '';
+  label.appendChild(a);
+});
+</script>
