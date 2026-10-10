@@ -1,0 +1,14 @@
+[
+  {
+    "listing": "/zh/index.html",
+    "items": [
+      "/zh/posts/style-test/index.html"
+    ]
+  },
+  {
+    "listing": "/index.html",
+    "items": [
+      "/posts/style-test/index.html"
+    ]
+  }
+]

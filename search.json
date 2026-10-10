@@ -1,0 +1,65 @@
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "Hi, I’m Yukang Lian. This is where I write down what I think about: the world, myself, and whatever I happen to be learning, from mathematics to everyday life. Most posts are in English, and each one also has a Chinese version under 中文.\nYou can find my code on GitHub."
+  },
+  {
+    "objectID": "zh/index.html",
+    "href": "zh/index.html",
+    "title": "中文",
+    "section": "",
+    "text": "日期\n\n\n\n标题\n\n\n\n\n\n\n\n\n2026-10-10\n\n\n示例文章\n\n\n\n\n\n\n无匹配项"
+  },
+  {
+    "objectID": "posts/style-test/index.html",
+    "href": "posts/style-test/index.html",
+    "title": "Sample Post",
+    "section": "",
+    "text": "A large language model generates text one token at a time. Each step runs the whole network on one new token per request, so the GPU must read every weight from memory to do only a little arithmetic. This post shows why that makes decoding limited by memory bandwidth rather than compute, and why batching and KV-cache management matter so much to inference engines such as vLLM [1]."
+  },
+  {
+    "objectID": "posts/style-test/index.html#attention-and-the-kv-cache",
+    "href": "posts/style-test/index.html#attention-and-the-kv-cache",
+    "title": "Sample Post",
+    "section": "Attention and the KV cache",
+    "text": "Attention and the KV cache\nEach Transformer layer computes scaled dot-product attention [2]:\n\\[\n\\mathrm{Attention}(Q, K, V) = \\mathrm{softmax}\\!\\left(\\frac{QK^{\\top}}{\\sqrt{d_k}}\\right) V.\n\\tag{1}\\]\nDuring decoding, the keys and values of earlier tokens never change, so engines store them in a KV cache instead of recomputing them. For a model with \\(L\\) layers and \\(n_{kv}\\) key-value heads of dimension \\(d_h\\), serving a batch of \\(b\\) sequences of length \\(s\\) with \\(p\\) bytes per element, the cache needs\n\\[\nM_{\\mathrm{KV}} = 2 \\cdot L \\cdot n_{kv} \\cdot d_h \\cdot s \\cdot b \\cdot p \\ \\text{bytes},\n\\tag{2}\\]\nwhere the factor 2 counts both keys and values.1\n1 Grouped-query attention [3] shares each key-value head across several query heads, which shrinks \\(n_{kv}\\), and the cache, by the same factor.Take a 7B model with 32 layers and 32 heads of dimension 128 (the shape of Llama 2 7B), stored in FP16. Equation 2 gives 0.5 MiB per token, so a single 4,096-token sequence already needs 2 GiB (Listing 1, Table 1).\n\n\n\nListing 1: The KV cache size from Equation 2, in bytes.\n\n\ndef kv_cache_bytes(layers, kv_heads, head_dim, seq_len, batch,\n                   bytes_per_elem=2):\n    return 2 * layers * kv_heads * head_dim * seq_len * batch * bytes_per_elem\n\nkv_cache_bytes(32, 32, 128, 4096, 1) / 2**30   # 2.0 GiB\n\n\n\n\n\n\nTable 1: KV cache size from Equation 2 for the 7B shape above in FP16.\n\n\n\n\n\nSequence length\n\\(b = 1\\)\n\\(b = 8\\)\n\n\n\n\n2,048\n1 GiB\n8 GiB\n\n\n4,096\n2 GiB\n16 GiB\n\n\n32,768\n16 GiB\n128 GiB"
+  },
+  {
+    "objectID": "posts/style-test/index.html#why-decoding-is-memory-bound",
+    "href": "posts/style-test/index.html#why-decoding-is-memory-bound",
+    "title": "Sample Post",
+    "section": "Why decoding is memory-bound",
+    "text": "Why decoding is memory-bound\nThe arithmetic intensity \\(I\\) of a kernel is the number of floating-point operations it performs per byte it moves. The roofline model [4] says that on a machine with peak compute \\(P\\) and memory bandwidth \\(B\\), the kernel can reach at most\n\\[\n\\text{attainable FLOP/s} = \\min(P,\\; I \\cdot B).\n\\tag{3}\\]\n\nProposition 1 (Intensity of a decode step) Multiply a weight matrix \\(W \\in \\mathbb{R}^{m \\times n}\\) stored in FP16 by a batch of \\(b\\) activation vectors. The arithmetic intensity satisfies \\(I \\le b\\) FLOP/byte, and \\(I \\approx b\\) when \\(b \\ll \\min(m, n)\\).\n\n\nProof. The product takes \\(2mnb\\) FLOPs: one multiply and one add per weight per vector. It reads the \\(mn\\) weights and the \\(bn\\) inputs and writes the \\(bm\\) outputs, at 2 bytes each, so \\[\nI = \\frac{2mnb}{2mn + 2b(m + n)} \\le \\frac{2mnb}{2mn} = b.\n\\] When \\(b \\ll \\min(m, n)\\), the term \\(2b(m + n)\\) is small next to \\(2mn\\), so \\(I \\approx b\\).\n\nSo a single request decodes at about 1 FLOP per byte. NVIDIA’s H100 SXM is specified at about 989 TFLOP/s of dense BF16 compute and 3.35 TB/s of memory bandwidth, a ratio of roughly 295 FLOP/byte.2 By Equation 3, the GPU stays bandwidth-limited until a batch holds about 295 sequences (Figure 1). That is why inference engines work so hard to batch requests together, and why the KV cache in Table 1, which competes with the batch for GPU memory, is the resource they manage most carefully.\n2 This ignores reading the KV cache itself. That adds bytes at every step without adding weight FLOPs, so real decoding is even more memory-bound.\n\n\n\n1101001,0001416642561,024ridge ≈ 295memory-boundcompute-boundBatch size, bAttainable TFLOP/s\n\n\n\nFigure 1: Roofline bound from Equation 3 for weight multiplication with \\(I = b\\), using H100 SXM peak figures. Both axes are logarithmic."
+  },
+  {
+    "objectID": "zh/posts/style-test/index.html",
+    "href": "zh/posts/style-test/index.html",
+    "title": "示例文章",
+    "section": "",
+    "text": "大语言模型逐个 token 地生成文本。每一步都要为每个请求的一个新 token 跑完整个网络，因此 GPU 必须从显存中读出全部权重，却只做很少的计算。本文说明为什么这会让解码受限于内存带宽而不是算力，以及为什么批处理和 KV cache 管理对 vLLM[1] 这样的推理引擎如此重要。"
+  },
+  {
+    "objectID": "zh/posts/style-test/index.html#注意力与-kv-cache",
+    "href": "zh/posts/style-test/index.html#注意力与-kv-cache",
+    "title": "示例文章",
+    "section": "注意力与 KV cache",
+    "text": "注意力与 KV cache\n每个 Transformer 层都会计算缩放点积注意力[2]：\n\\[\n\\mathrm{Attention}(Q, K, V) = \\mathrm{softmax}\\!\\left(\\frac{QK^{\\top}}{\\sqrt{d_k}}\\right) V.\n\\tag{1}\\]\n在解码过程中，之前 token 的 key 和 value 不会改变，所以推理引擎把它们存进 KV cache，而不是每次重新计算。对于一个有 \\(L\\) 层、\\(n_{kv}\\) 个维度为 \\(d_h\\) 的 key-value 头的模型，当批中有 \\(b\\) 条长度为 \\(s\\) 的序列、每个元素占 \\(p\\) 字节时，cache 需要\n\\[\nM_{\\mathrm{KV}} = 2 \\cdot L \\cdot n_{kv} \\cdot d_h \\cdot s \\cdot b \\cdot p \\ \\text{字节},\n\\tag{2}\\]\n其中系数 2 同时计入了 key 和 value。1\n1 分组查询注意力（GQA）[3] 让多个 query 头共享同一个 key-value 头，从而按相同比例减小 \\(n_{kv}\\) 和 cache 的大小。以一个 7B 模型为例：32 层，32 个维度为 128 的注意力头（即 Llama 2 7B 的结构），以 FP16 存储。由 式 2 可得每个 token 需要 0.5 MiB，因此单条 4,096 token 的序列就需要 2 GiB（代码 1、表 1）。\n\n\n\n代码 1: 按 式 2 计算 KV cache 的字节数。\n\n\ndef kv_cache_bytes(layers, kv_heads, head_dim, seq_len, batch,\n                   bytes_per_elem=2):\n    return 2 * layers * kv_heads * head_dim * seq_len * batch * bytes_per_elem\n\nkv_cache_bytes(32, 32, 128, 4096, 1) / 2**30   # 2.0 GiB\n\n\n\n\n\n\n表 1: 由 式 2 计算的 KV cache 大小（上述 7B 结构，FP16）。\n\n\n\n\n\n序列长度\n\\(b = 1\\)\n\\(b = 8\\)\n\n\n\n\n2,048\n1 GiB\n8 GiB\n\n\n4,096\n2 GiB\n16 GiB\n\n\n32,768\n16 GiB\n128 GiB"
+  },
+  {
+    "objectID": "zh/posts/style-test/index.html#为什么解码受限于内存带宽",
+    "href": "zh/posts/style-test/index.html#为什么解码受限于内存带宽",
+    "title": "示例文章",
+    "section": "为什么解码受限于内存带宽",
+    "text": "为什么解码受限于内存带宽\n一个算子的算术强度 \\(I\\) 是它每搬运一个字节所做的浮点运算次数。Roofline 模型[4] 指出，在峰值算力为 \\(P\\)、内存带宽为 \\(B\\) 的机器上，这个算子最多能达到\n\\[\n\\text{可达 FLOP/s} = \\min(P,\\; I \\cdot B).\n\\tag{3}\\]\n\n命题 1 (解码步骤的算术强度) 将以 FP16 存储的权重矩阵 \\(W \\in \\mathbb{R}^{m \\times n}\\) 与一批 \\(b\\) 个激活向量相乘，其算术强度满足 \\(I \\le b\\) FLOP/字节；当 \\(b \\ll \\min(m, n)\\) 时，\\(I \\approx b\\)。\n\n\n证明. 这次乘法需要 \\(2mnb\\) 次浮点运算，即每个权重对每个向量做一次乘法和一次加法。它要读取 \\(mn\\) 个权重和 \\(bn\\) 个输入，并写出 \\(bm\\) 个输出，每个元素 2 字节，因此 \\[\nI = \\frac{2mnb}{2mn + 2b(m + n)} \\le \\frac{2mnb}{2mn} = b.\n\\] 当 \\(b \\ll \\min(m, n)\\) 时，\\(2b(m + n)\\) 相对 \\(2mn\\) 很小，所以 \\(I \\approx b\\)。\n\n于是，单个请求的解码大约每字节只做 1 次浮点运算。NVIDIA H100 SXM 的标称稠密 BF16 算力约为 989 TFLOP/s，显存带宽为 3.35 TB/s，两者之比约为 295 FLOP/字节。2由 式 3 可知，在一个批中凑够约 295 条序列之前，GPU 一直受限于带宽（图 1）。这就是推理引擎想尽办法把请求合批的原因；也正因为 表 1 中的 KV cache 要和批处理争夺显存，它成了推理引擎最需要精细管理的资源。\n2 这里忽略了读取 KV cache 本身的开销。它让每一步多读了字节，却没有增加权重相关的浮点运算，所以实际的解码受带宽的限制更严重。\n\n\n\n1101001,0001416642561,024拐点 ≈ 295受限于带宽受限于算力批大小 b可达 TFLOP/s\n\n\n\n图 1: 由 式 3 得到的权重乘法 roofline 上界，取 \\(I = b\\)，使用 H100 SXM 的峰值参数。两个坐标轴均为对数刻度。"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Yukang Lian",
+    "section": "",
+    "text": "Date\n\n\n\nTitle\n\n\n\n\n\n\n\n\n2026-10-10\n\n\nSample Post\n\n\n\n\n\n\nNo matching items"
+  }
+]
