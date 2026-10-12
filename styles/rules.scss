@@ -1,11 +1,19 @@
 /*-- scss:rules --*/
 // Shared by the light and dark themes; colors come from the Bootstrap variables above.
 
-// Titles and headings: regular weight, italic section heads, no rules under them.
+// Titles and headings: a large regular-weight title; level-1 sections upright semibold, level-2 italic semibold,
+// so each layer is distinct from the next and from the body text. No rules under them.
 h1.title { font-size: 2.2rem; font-weight: 400; line-height: 1.2; text-wrap: balance; }
-h2, h3 { font-style: italic; font-weight: 400; border-bottom: none !important; text-wrap: balance; }
-h2 { font-size: 1.45rem; margin-top: 2rem; }
-h3 { font-size: 1.2rem; }
+h2, h3 { font-weight: 600; border-bottom: none !important; text-wrap: balance; }
+h2 { font-size: 1.55rem; font-style: normal; margin-top: 2.6rem; }
+h3 { font-size: 1.2rem; font-style: italic; margin-top: 1.8rem; }
+// Section numbers stay light so the words carry the emphasis.
+.header-section-number { font-weight: 400; color: $text-muted; }
+// The sidebar's "Contents" label is an h2 too; keep it quiet.
+#toc-title { font-style: italic; font-weight: 400; }
+// Chinese posts translated from English: a quiet note under the title linking to the original.
+.translation-note { font-size: .88rem; color: $text-muted; margin-bottom: 1.6rem; }
+.translation-note a { color: inherit; }
 .quarto-title .subtitle { font-style: italic; color: $text-muted; }
 
 // Byline: one italic line instead of labelled metadata boxes.

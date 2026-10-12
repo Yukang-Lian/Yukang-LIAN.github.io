@@ -1,0 +1,6 @@
+<script>
+// MathJax normally sizes math by measuring the surrounding text, but if it measures before the web font
+// has loaded it measures the fallback font, so math comes out a different size on each page load.
+// Pin the scale instead (0.95 is what the measurement gives once Crimson Pro is in place).
+window.MathJax = { output: { matchFontHeight: false, scale: 0.95 } };
+</script>

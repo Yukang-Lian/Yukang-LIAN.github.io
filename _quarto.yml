@@ -30,9 +30,10 @@ format:
     lang: en
     anchor-sections: false
     smooth-scroll: false
+    include-in-header: styles/mathjax.html
     include-after-body: styles/notes.html
     grid:
-      sidebar-width: 190px
+      sidebar-width: 260px
       body-width: 960px
       margin-width: 250px
       gutter-width: 1.4rem

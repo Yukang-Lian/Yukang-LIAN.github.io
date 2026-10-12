@@ -1,0 +1,137 @@
+<style>
+.vfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+body.quarto-dark .vfig { --va:#3987e5; --vb:#d95926; }
+.vfig .va { stroke:var(--va); } .vfig .vb { stroke:var(--vb); } .vfig .ink { stroke:currentColor; }
+.vfig .ha { fill:var(--va); } .vfig .hb { fill:var(--vb); }
+.vfig line, .vfig path.arc { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.vfig path.arc { stroke:currentColor; stroke-width:1.2; }
+.vfig .grid { stroke:currentColor; stroke-width:1; opacity:.08; }
+.vfig .axis { stroke:currentColor; stroke-width:1; opacity:.25; }
+.vfig .bline { stroke:var(--vb); stroke-width:1; opacity:.35; stroke-dasharray:2 4; }
+.vfig .dash { stroke:currentColor; stroke-width:1.3; stroke-dasharray:5 5; opacity:.6; }
+.vfig .proj { stroke:currentColor; stroke-width:6; opacity:.35; stroke-linecap:butt; }
+.vfig text { fill:currentColor; font-family:inherit; font-size:17px; }
+.vfig text.v { font-style:italic; font-size:18px; }
+.vfig .vecarrow { fill:none; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; } .vfig text.ta { fill:var(--va); } .vfig text.tb { fill:var(--vb); }
+.vfig text.g { font-style:italic; font-size:16px; }
+.vfig .handle { fill:transparent; stroke-width:1.5; cursor:grab; touch-action:none; }
+.vfig .handle.a { stroke:var(--va); } .vfig .handle.b { stroke:var(--vb); }
+.vproj-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.8; min-height:5.6em; }
+.vproj-read .ca { color:var(--va); } .vproj-read .cb { color:var(--vb); }
+.vproj-wrap { --va:#2a78d6; --vb:#eb6834; }
+body.quarto-dark .vproj-wrap { --va:#3987e5; --vb:#d95926; }
+</style>
+<div class="vproj-wrap" id="vproj">
+<svg class="vfig" viewBox="0 0 460 300" width="460" role="img" aria-label="Interactive figure: drag vectors a and b to see the projection of a onto b and the dot product.">
+  <g class="gridg"></g>
+  <line class="bline"/>
+  <line class="proj"/>
+  <line class="dash"/>
+  <path class="arc"/>
+  <text class="g th">θ</text>
+  <line class="va sa"/><path class="ha hda"/>
+  <line class="vb sb"/><path class="hb hdb"/>
+  <text class="v ta la" data-vec="0">a</text><text class="v tb lb" data-vec="0">b</text>
+  <circle class="handle a" r="11"/><circle class="handle b" r="11"/>
+</svg>
+<div class="vproj-read"></div>
+</div>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      a.style.stroke = col;
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function () {
+  var root = document.getElementById('vproj'), svg = root.querySelector('svg');
+  var S = 40, OX = 200, OY = 190;                       // px per unit, origin
+  var v = { a: [3, 1], b: [2, 2.5] };
+  var q = function (s) { return svg.querySelector(s); };
+  var px = function (m) { return [OX + S * m[0], OY - S * m[1]]; };
+  var set = function (el, o) { for (var k in o) el.setAttribute(k, o[k]); };
+  var f = function (x) { return (Math.round(x * 100) / 100).toFixed(2); };
+
+  var g = q('.gridg'), h = '';
+  for (var x = -5; x <= 6; x++) h += '<line class="' + (x ? 'grid' : 'axis') + '" x1="' + (OX + S * x) + '" y1="0" x2="' + (OX + S * x) + '" y2="300"/>';
+  for (var y = -2; y <= 4; y++) h += '<line class="' + (y ? 'grid' : 'axis') + '" x1="0" y1="' + (OY - S * y) + '" x2="460" y2="' + (OY - S * y) + '"/>';
+  g.innerHTML = h;
+
+  function arrow(line, head, m) {
+    var p = px(m), d = Math.hypot(p[0] - OX, p[1] - OY) || 1, ux = (p[0] - OX) / d, uy = (p[1] - OY) / d;
+    var L = Math.min(13, d * .5), W = L * .42, bx = p[0] - ux * L, by = p[1] - uy * L;
+    set(line, { x1: OX, y1: OY, x2: bx + ux * 2, y2: by + uy * 2 });
+    head.setAttribute('d', 'M' + p[0] + ',' + p[1] + ' L' + (bx - uy * W) + ',' + (by + ux * W) + ' L' + (bx + uy * W) + ',' + (by - ux * W) + ' Z');
+  }
+
+  function draw() {
+    var a = v.a, b = v.b, nb = Math.hypot(b[0], b[1]), na = Math.hypot(a[0], a[1]);
+    var dot = a[0] * b[0] + a[1] * b[1];
+    arrow(q('.sa'), q('.hda'), a); arrow(q('.sb'), q('.hdb'), b);
+    var pa = px(a), pb = px(b);
+    set(q('.handle.a'), { cx: pa[0], cy: pa[1] }); set(q('.handle.b'), { cx: pb[0], cy: pb[1] });
+    // labels just past each tip
+    var lab = function (el, m) { var n = Math.hypot(m[0], m[1]) || 1, p = px([m[0] + m[0] / n * .45, m[1] + m[1] / n * .45]); set(el, { x: p[0], y: p[1], 'text-anchor': 'middle', 'dominant-baseline': 'middle' }); };
+    lab(q('.la'), a); lab(q('.lb'), b); vecArrows(svg);
+    if (nb < 1e-9 || na < 1e-9) return;
+    var e0 = px([-b[0] / nb * 12, -b[1] / nb * 12]), e1 = px([b[0] / nb * 12, b[1] / nb * 12]);
+    set(q('.bline'), { x1: e0[0], y1: e0[1], x2: e1[0], y2: e1[1] });
+    var t = dot / (nb * nb), P = px([b[0] * t, b[1] * t]);
+    set(q('.proj'), { x1: OX, y1: OY, x2: P[0], y2: P[1] });
+    set(q('.dash'), { x1: pa[0], y1: pa[1], x2: P[0], y2: P[1] });
+    // angle arc from b to a, the short way round
+    var ta = Math.atan2(a[1], a[0]), tb = Math.atan2(b[1], b[0]), d = ta - tb;
+    while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    var r = 30, s0 = [OX + r * Math.cos(tb), OY - r * Math.sin(tb)], s1 = [OX + r * Math.cos(tb + d), OY - r * Math.sin(tb + d)];
+    q('.arc').setAttribute('d', 'M' + s0[0] + ',' + s0[1] + ' A' + r + ',' + r + ' 0 0 ' + (d > 0 ? 0 : 1) + ' ' + s1[0] + ',' + s1[1]);
+    var tm = tb + d / 2;
+    set(q('.th'), { x: OX + 46 * Math.cos(tm), y: OY - 46 * Math.sin(tm), 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+    var th = Math.abs(d), deg = th * 180 / Math.PI;
+    var A = '\\class{ca}{\\vec{a}}', B = '\\class{cb}{\\vec{b}}', n1 = function (x) { return x.toFixed(1); };
+    typeset(
+      '\\(' + A + '=(' + n1(a[0]) + ',\\ ' + n1(a[1]) + ')\\qquad ' + B + '=(' + n1(b[0]) + ',\\ ' + n1(b[1]) + ')\\qquad \\theta=' + deg.toFixed(1) + '^\\circ\\)<br>' +
+      '\\(' + A + '\\cdot' + B + '=' + n1(a[0]) + '\\times' + n1(b[0]) + '+' + n1(a[1]) + '\\times' + n1(b[1]) + '=' + f(dot) + '\\)<br>' +
+      '\\(\\|' + A + '\\|\\cos\\theta\\times\\|' + B + '\\|=' + f(na * Math.cos(th)) + '\\times' + f(nb) + '=' + f(na * Math.cos(th) * nb) + '\\)');
+  }
+
+  var out = root.querySelector('.vproj-read'), busy = false, next = null;
+  function typeset(html) {
+    next = html;
+    if (busy) return;
+    if (!(window.MathJax && MathJax.typesetPromise)) { busy = true; return setTimeout(function () { busy = false; typeset(next); }, 200); }
+    busy = true; var h = next; next = null;
+    MathJax.typesetClear([out]); out.innerHTML = h;
+    MathJax.typesetPromise([out]).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+  }
+
+  var drag = null;
+  function toMath(ev) {
+    var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    var c = function (x, lo, hi) { return Math.max(lo, Math.min(hi, Math.round(x * 10) / 10)); };
+    return [c((p.x - OX) / S, -4.8, 6.3), c((OY - p.y) / S, -2.6, 4.6)];
+  }
+  ['a', 'b'].forEach(function (k) {
+    var hd = q('.handle.' + k);
+    hd.addEventListener('pointerdown', function (ev) { drag = k; hd.setPointerCapture(ev.pointerId); ev.preventDefault(); });
+    hd.addEventListener('pointermove', function (ev) {
+      if (drag !== k) return;
+      var m = toMath(ev); if (Math.hypot(m[0], m[1]) < .3) return;
+      v[k] = m; draw();
+    });
+    hd.addEventListener('pointerup', function () { drag = null; });
+  });
+  draw();
+  if (document.fonts) document.fonts.ready.then(function () { vecArrows(svg); });
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>

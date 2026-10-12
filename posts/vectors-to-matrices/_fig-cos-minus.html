@@ -1,0 +1,51 @@
+<style>
+.vfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+body.quarto-dark .vfig { --va:#3987e5; --vb:#d95926; }
+.vfig .va { stroke:var(--va); } .vfig .vb { stroke:var(--vb); }
+.vfig .ink { stroke:currentColor; }
+.vfig .ha { fill:var(--va); } .vfig .hb { fill:var(--vb); } .vfig .hi { fill:currentColor; }
+.vfig line, .vfig path.arc { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.vfig path.arc { stroke-width:1.2; }
+.vfig .dash { stroke-dasharray:5 5; stroke-width:1.3; opacity:.6; }
+.vfig text { fill:currentColor; font-family:inherit; font-size:17px; }
+.vfig text.v { font-style:italic; font-size:18px; }
+.vfig .vecarrow { fill:none; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.vfig text.ta { fill:var(--va); } .vfig text.tb { fill:var(--vb); }
+.vfig text.g { font-style:italic; font-size:16px; }
+</style>
+<svg class="vfig" viewBox="0 0 300 200" width="300" role="img" aria-label="Vectors a and b from a common point O; the third side, from the tip of b to the tip of a, is a minus b.">
+<line class="va" x1="40.0" y1="170.0" x2="213.3" y2="126.7"/>
+<path class="ha" d="M224.0,124.0 L212.7,132.5 L210.1,121.8 Z"/>
+<line class="vb" x1="40.0" y1="170.0" x2="103.5" y2="59.9"/>
+<path class="hb" d="M109.0,50.4 L107.3,64.4 L97.7,58.9 Z"/>
+<line class="ink" x1="109.0" y1="50.4" x2="214.7" y2="118.1"/>
+<path class="hi" d="M224.0,124.0 L210.1,121.6 L216.0,112.4 Z"/>
+<path class="arc ink" d="M73.0,161.8 A34,34 0 0 0 57.0,140.5"/>
+<text class="g" x="79.9" y="139.9" text-anchor="middle" dominant-baseline="middle">θ</text>
+<text class="v ta" x="135.9" y="162.5" text-anchor="middle" dominant-baseline="middle" data-vec="0">a</text>
+<text class="v tb" x="60.6" y="102.2" text-anchor="middle" dominant-baseline="middle" data-vec="0">b</text>
+<text class="v" x="180.5" y="65.3" text-anchor="middle" dominant-baseline="middle" data-vec="0,4">a − b</text>
+<text class="g" x="30.1" y="179.9" text-anchor="middle" dominant-baseline="middle">O</text>
+</svg>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      a.style.stroke = col;
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function (svg) {
+  var go = function () { vecArrows(svg); };
+  go(); if (document.fonts) document.fonts.ready.then(go);
+  new MutationObserver(go).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})(document.currentScript.previousElementSibling);
+</script>

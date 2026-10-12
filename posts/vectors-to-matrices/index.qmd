@@ -1,0 +1,342 @@
+---
+title: "From Vectors to Matrices"
+subtitle: "Why the operations of linear algebra work, and what they mean in space"
+date: 2026-10-13
+categories: [Linear algebra]
+number-sections: true
+---
+
+## Vector
+
+### Vector and Basic Operations
+
+We can think of a **vector** as an arrow in space. It could be in two-dimensional space, three-dimensional space, or even higher-dimensional space. Unlike an ordinary line segment, a vector has both magnitude and direction.
+
+We usually represent a vector using a column of numbers. For example:
+
+$$
+\vec{v} =
+\begin{bmatrix}
+v_1 \\
+v_2 \\
+\vdots \\
+v_n
+\end{bmatrix}
+$$
+
+A vector has two basic operations: **vector addition** and **scalar multiplication**.
+
+Vector addition is simply adding the corresponding coordinates of two vectors:
+
+$$
+\vec{a}+\vec{b} =
+\begin{bmatrix}
+a_1+b_1\\
+a_2+b_2\\
+\vdots\\
+a_n+b_n
+\end{bmatrix}
+$$
+
+Scalar multiplication means multiplying every coordinate by a number:
+
+$$
+c\vec{v} =
+\begin{bmatrix}
+cv_1\\
+cv_2\\
+\vdots\\
+cv_n
+\end{bmatrix}
+$$
+
+These operations are simple and intuitive. They are also the foundation of the linear structure of vector spaces.
+
+### Dot Product and Inner Product
+
+The next operation is a little different: the **dot product**.
+
+Unlike vector addition, the dot product of two vectors produces a scalar, not another vector.
+
+$$
+\vec{a}\cdot\vec{b}
+=\sum_{i=1}^{n}a_ib_i
+$$
+
+But why should we multiply the corresponding coordinates and add them together? What does this number actually mean?
+
+To understand this, we can first look at a more general mathematical concept: the **inner product**.
+
+An inner product is an operation that takes two vectors and produces a scalar. In a real vector space, it must satisfy three properties:
+
+**1. Linearity**
+
+$$
+\langle \alpha\vec{a}+\beta\vec{b},\vec{c}\rangle
+=
+\alpha\langle\vec{a},\vec{c}\rangle
++
+\beta\langle\vec{b},\vec{c}\rangle
+$$
+
+**2. Symmetry**
+
+$$
+\langle\vec{a},\vec{b}\rangle
+=
+\langle\vec{b},\vec{a}\rangle
+$$
+
+**3. Positive definiteness**
+
+$$
+\langle\vec{a},\vec{a}\rangle\geq 0
+$$
+
+The result is zero if and only if $\vec{a}=\vec{0}$.
+
+The familiar dot product satisfies all three properties, so it is an inner product.
+
+But an inner product does not have to be the ordinary dot product. For example, in two dimensions, we could define:
+
+$$
+\langle\vec{a},\vec{b}\rangle
+=a_1b_1+2a_2b_2
+$$
+
+This also satisfies the three properties and is therefore a valid inner product.
+
+The dot product is simply the standard inner product in Euclidean space, and its geometric meaning is especially natural.
+
+But these properties do not answer the question above yet. They tell us how an inner product must behave, not why multiplying coordinates and adding them gives a meaningful number. The answer comes from geometry, which we will reach in a moment.
+
+### Vector Length and Unit Vector
+
+Now that we have the dot product, we can define the **length**, or **magnitude**, of a vector.
+
+$$
+\|\vec{v}\|
+=
+\sqrt{\vec{v}\cdot\vec{v}}
+=
+\sqrt{v_1^2+v_2^2+\cdots+v_n^2}
+$$
+
+It is interesting that the length of a vector can be calculated by taking the dot product of the vector with itself, and then taking the square root.
+
+This also means that length is not something separate from the inner product. It comes *from* the inner product. If we use a different inner product, lengths change. With $\langle\vec{a},\vec{b}\rangle=a_1b_1+2a_2b_2$ from above, the vector $(0,1)$ has length $\sqrt{2}$, not $1$. Angles change too: $(1,1)$ and $(1,-1)$ are perpendicular under the ordinary dot product, but under this inner product
+
+$$
+\langle(1,1),(1,-1)\rangle = 1\cdot 1 + 2\cdot 1\cdot(-1) = -1 \neq 0,
+$$
+
+so they are no longer perpendicular. In other words, the inner product decides what "length" and "angle" mean in a space. The ordinary dot product is the choice that matches the geometry we draw on paper.
+
+Once we know the length, we can define a **unit vector**, which is simply a vector with length equal to one.
+
+For a nonzero vector:
+
+$$
+\vec{u}
+=
+\frac{\vec{v}}{\|\vec{v}\|}
+$$
+
+This operation preserves the direction of the vector but changes its length to one.
+
+### The Geometric Meaning of Dot Product
+
+So far, the dot product looks like an operation on coordinates. But it actually describes something much more interesting: **the geometric relationship between two vectors**. This is the answer to the question we asked earlier.
+
+We have the following formula:
+
+$$
+\vec{a}\cdot\vec{b}
+=
+\|\vec{a}\|\|\vec{b}\|\cos\theta
+$$
+
+Here, $\theta$ is the angle between the two nonzero vectors.
+
+How can we derive this formula from the coordinate definition of dot product?
+
+First, we can express two vectors in a two-dimensional space using their lengths and directions:
+
+$$
+\vec{a}
+=
+\|\vec{a}\|
+\begin{bmatrix}
+\cos\alpha\\
+\sin\alpha
+\end{bmatrix}
+$$
+
+$$
+\vec{b}
+=
+\|\vec{b}\|
+\begin{bmatrix}
+\cos\beta\\
+\sin\beta
+\end{bmatrix}
+$$
+
+Then their dot product is:
+
+$$
+\begin{aligned}
+\vec{a}\cdot\vec{b}
+&=\|\vec{a}\|\|\vec{b}\|
+(\cos\alpha\cos\beta+\sin\alpha\sin\beta)\\
+&=\|\vec{a}\|\|\vec{b}\|\cos(\alpha-\beta)\\
+&=\|\vec{a}\|\|\vec{b}\|\cos\theta
+\end{aligned}
+$$
+
+So we get the geometric formula.
+
+This calculation is done in two dimensions, but the result holds in any dimension. Two vectors always lie in one plane, so the angle between them is an angle inside that plane. The law of cosines at the end of this section gives a way to see this without any coordinates.
+
+This means that if we know the coordinates of two nonzero vectors, we can directly calculate the cosine of the angle between them:
+
+$$
+\cos\theta
+=
+\frac{\vec{a}\cdot\vec{b}}
+{\|\vec{a}\|\|\vec{b}\|}
+$$
+
+That is the interesting part of the dot product. It looks like a simple arithmetic operation on coordinates, but it actually contains information about directions and angles.
+
+We can also understand this using **projection** (@fig-proj).
+
+The signed scalar projection of $\vec{a}$ onto the direction of $\vec{b}$ is:
+
+$$
+\|\vec{a}\|\cos\theta
+$$
+
+Multiplying it by the length of $\vec{b}$ gives:
+
+$$
+\vec{a}\cdot\vec{b}
+=
+(\|\vec{a}\|\cos\theta)\|\vec{b}\|
+$$
+
+So the dot product measures how much one vector is aligned with another, scaled by their lengths.
+
+::: {#fig-proj}
+```{=html}
+{{< include _fig-proj.html >}}
+```
+Drag the tips of $\vec{a}$ and $\vec{b}$. The dashed line drops $\vec{a}$ onto the direction of $\vec{b}$. The thick segment is the signed projection $\|\vec{a}\|\cos\theta$, and it becomes negative when $\theta$ passes $90^\circ$.
+:::
+
+This is the kind of thing I find interesting about linear algebra. We can perform calculations using coordinates, but behind those calculations, there are actual geometric meanings.
+
+Later, when we study matrices, we will see many more examples of this. A matrix is not just a collection of numbers used for calculation. We should also try to understand what it represents in space, what transformation it performs, and what is really happening behind the operations.
+
+### Squared Vector Length and the Law of Cosines
+
+Now let's consider another question.
+
+We already know the familiar algebraic identity:
+
+$$
+(a+b)^2=a^2+b^2+2ab
+$$
+
+Does something similar hold for vectors?
+
+Let's calculate the squared length of the sum of two vectors. We don't need coordinates for this. The properties of the inner product are enough, so the result holds in any dimension:
+
+$$
+\begin{aligned}
+\|\vec{a}+\vec{b}\|^2
+&=(\vec{a}+\vec{b})\cdot(\vec{a}+\vec{b})\\
+&=\vec{a}\cdot\vec{a}+\vec{a}\cdot\vec{b}
++\vec{b}\cdot\vec{a}+\vec{b}\cdot\vec{b}\\
+&=\|\vec{a}\|^2+\|\vec{b}\|^2
++2\vec{a}\cdot\vec{b}
+\end{aligned}
+$$
+
+The second line uses linearity, and the third uses symmetry ($\vec{a}\cdot\vec{b}=\vec{b}\cdot\vec{a}$). This is where those abstract properties earn their place: they are exactly what lets us expand the square of a vector sum like the square of an ordinary sum.
+
+Using the geometric formula for the dot product, we get:
+
+$$
+\|\vec{a}+\vec{b}\|^2
+=
+\|\vec{a}\|^2+\|\vec{b}\|^2
++2\|\vec{a}\|\|\vec{b}\|\cos\theta
+$$
+
+Interesting. From an algebraic perspective, this looks very similar to the familiar square-of-a-sum formula.
+
+It also looks familiar from geometry. In fact, it is closely related to the **law of cosines**.
+
+But there seems to be a difference in the sign.
+
+The law of cosines is usually written as:
+
+$$
+c^2=a^2+b^2-2ab\cos\theta
+$$
+
+Why is there a minus sign instead of a plus sign?
+
+We can understand this by drawing a triangle (@fig-cos-minus).
+
+If two vectors $\vec{a}$ and $\vec{b}$ start from the same point, the third side of the triangle is represented by the difference between the vectors, $\vec{a}-\vec{b}$, rather than their sum.
+
+::: {#fig-cos-minus}
+```{=html}
+{{< include _fig-cos-minus.html >}}
+```
+$\vec{a}$ and $\vec{b}$ start from the same point $O$. The third side goes from the tip of $\vec{b}$ to the tip of $\vec{a}$, and it is $\vec{a}-\vec{b}$, because $\vec{b}+(\vec{a}-\vec{b})=\vec{a}$. The angle $\theta$ between $\vec{a}$ and $\vec{b}$ is the angle of the triangle at $O$.
+:::
+
+So we should calculate:
+
+$$
+\begin{aligned}
+\|\vec{a}-\vec{b}\|^2
+&=(\vec{a}-\vec{b})\cdot(\vec{a}-\vec{b})\\
+&=\|\vec{a}\|^2+\|\vec{b}\|^2
+-2\vec{a}\cdot\vec{b}\\
+&=\|\vec{a}\|^2+\|\vec{b}\|^2
+-2\|\vec{a}\|\|\vec{b}\|\cos\theta
+\end{aligned}
+$$
+
+And now we have exactly the law of cosines.
+
+But the plus version was not wrong either. It is also the law of cosines, just measured with a different angle. If we put $\vec{b}$ at the tip of $\vec{a}$ instead (@fig-cos-plus), the three sides of the triangle are $\vec{a}$, $\vec{b}$ and $\vec{a}+\vec{b}$. The angle inside the triangle, between $\vec{a}$ and $\vec{b}$, is no longer $\theta$ but $\pi-\theta$. Since $\cos(\pi-\theta)=-\cos\theta$, the law of cosines gives
+
+$$
+\|\vec{a}+\vec{b}\|^2
+=\|\vec{a}\|^2+\|\vec{b}\|^2-2\|\vec{a}\|\|\vec{b}\|\cos(\pi-\theta)
+=\|\vec{a}\|^2+\|\vec{b}\|^2+2\|\vec{a}\|\|\vec{b}\|\cos\theta,
+$$
+
+which is exactly our plus formula. The two formulas describe the same geometry. The sign only depends on which angle we measure.
+
+::: {#fig-cos-plus}
+```{=html}
+{{< include _fig-cos-plus.html >}}
+```
+Here $\vec{b}$ starts at the tip of $\vec{a}$, and the third side is $\vec{a}+\vec{b}$. The angle inside the triangle is $\pi-\theta$; the original angle $\theta$ appears outside, between $\vec{b}$ and the extension of $\vec{a}$.
+:::
+
+We can also read this argument backwards, and that closes the gap left earlier, when we derived $\vec{a}\cdot\vec{b}=\|\vec{a}\|\|\vec{b}\|\cos\theta$ only in two dimensions. In any dimension, the triangle formed by $\vec{a}$, $\vec{b}$ and $\vec{a}-\vec{b}$ is a flat triangle, so the law of cosines from plane geometry holds for it. The algebra gives $\|\vec{a}-\vec{b}\|^2=\|\vec{a}\|^2+\|\vec{b}\|^2-2\vec{a}\cdot\vec{b}$. Comparing the two, $\vec{a}\cdot\vec{b}$ must equal $\|\vec{a}\|\|\vec{b}\|\cos\theta$, in any number of dimensions.
+
+What looks like a formula from elementary geometry can be derived naturally from vector operations and the dot product.
+
+This is what I want to understand when learning linear algebra: not just how to calculate something, but why these mathematical operations work and how they connect to geometry.
+
+## Matrix
+
+*To be continued.*
