@@ -2,14 +2,16 @@
   {
     "listing": "/zh/index.html",
     "items": [
-      "/zh/posts/vectors-to-matrices/index.html",
+      "/zh/posts/matrices/index.html",
+      "/zh/posts/vectors/index.html",
       "/zh/posts/style-test/index.html"
     ]
   },
   {
     "listing": "/index.html",
     "items": [
-      "/posts/vectors-to-matrices/index.html",
+      "/posts/matrices/index.html",
+      "/posts/vectors/index.html",
       "/posts/style-test/index.html"
     ]
   }

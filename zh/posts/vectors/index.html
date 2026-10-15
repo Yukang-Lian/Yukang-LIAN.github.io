@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>向量与点积 – Yukang Lian</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-176b1e44b272a30ec08500e73512b2cc.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-2e366b5af1927b8352462c4a9d1c03d0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-176b1e44b272a30ec08500e73512b2cc.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-f81e4ec0d78db9619a68a7b608d84f41.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-f1437a26a929661b051ce0b63f5f3908.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-f81e4ec0d78db9619a68a7b608d84f41.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<script>
+// MathJax normally sizes math by measuring the surrounding text, but if it measures before the web font
+// has loaded it measures the fallback font, so math comes out a different size on each page load.
+// Pin the scale instead (0.95 is what the measurement gives once Crimson Pro is in place).
+window.MathJax = { output: { matchFontHeight: false, scale: 0.95 } };
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">Yukang Lian</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../zh/index.html"> 
+<span class="menu-text">中文</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/Yukang-Lian"> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">目录</h2>
+   
+  <ul>
+  <li><a href="#向量及其基本运算" id="toc-向量及其基本运算" class="nav-link active" data-scroll-target="#向量及其基本运算"><span class="header-section-number">1</span> 向量及其基本运算</a></li>
+  <li><a href="#点积与内积" id="toc-点积与内积" class="nav-link" data-scroll-target="#点积与内积"><span class="header-section-number">2</span> 点积与内积</a></li>
+  <li><a href="#向量长度与单位向量" id="toc-向量长度与单位向量" class="nav-link" data-scroll-target="#向量长度与单位向量"><span class="header-section-number">3</span> 向量长度与单位向量</a></li>
+  <li><a href="#点积的几何意义" id="toc-点积的几何意义" class="nav-link" data-scroll-target="#点积的几何意义"><span class="header-section-number">4</span> 点积的几何意义</a></li>
+  <li><a href="#向量长度的平方与余弦定理" id="toc-向量长度的平方与余弦定理" class="nav-link" data-scroll-target="#向量长度的平方与余弦定理"><span class="header-section-number">5</span> 向量长度的平方与余弦定理</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">向量与点积</h1>
+<p class="subtitle lead">点积为什么成立，又在空间中意味着什么</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">线性代数</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2026年10月13日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="translation-note">
+<p>本文译自英文原文 <a href="../../../posts/vectors/index.html"><em>Vectors and the Dot Product</em></a>，如有出入，以英文版为准。</p>
+</div>
+<section id="向量及其基本运算" class="level2" data-number="1">
+<h2 data-number="1" data-anchor-id="向量及其基本运算"><span class="header-section-number">1</span> 向量及其基本运算</h2>
+<p>我们可以把<strong>向量</strong>看作空间中的一个箭头。它可以在二维空间、三维空间，甚至更高维的空间里。和普通的线段不同，向量既有大小，也有方向。</p>
+<p>我们通常用一列数来表示一个向量，例如：</p>
+<p><span class="math display">\[
+\vec{v} =
+\begin{bmatrix}
+v_1 \\
+v_2 \\
+\vdots \\
+v_n
+\end{bmatrix}
+\]</span></p>
+<p>向量有两种基本运算：<strong>向量加法</strong>和<strong>数乘</strong>。</p>
+<p>向量加法就是把两个向量的对应坐标相加：</p>
+<p><span class="math display">\[
+\vec{a}+\vec{b} =
+\begin{bmatrix}
+a_1+b_1\\
+a_2+b_2\\
+\vdots\\
+a_n+b_n
+\end{bmatrix}
+\]</span></p>
+<p>数乘就是把每个坐标都乘以同一个数：</p>
+<p><span class="math display">\[
+c\vec{v} =
+\begin{bmatrix}
+cv_1\\
+cv_2\\
+\vdots\\
+cv_n
+\end{bmatrix}
+\]</span></p>
+<p>这些运算简单直观，同时也是向量空间线性结构的基础。</p>
+</section>
+<section id="点积与内积" class="level2" data-number="2">
+<h2 data-number="2" data-anchor-id="点积与内积"><span class="header-section-number">2</span> 点积与内积</h2>
+<p>下一个运算有点不一样：<strong>点积</strong>。</p>
+<p>和向量加法不同，两个向量的点积得到的是一个标量，而不是另一个向量。</p>
+<p><span class="math display">\[
+\vec{a}\cdot\vec{b}
+=\sum_{i=1}^{n}a_ib_i
+\]</span></p>
+<p>可是，为什么要把对应坐标相乘再加起来？这个数到底意味着什么？</p>
+<p>要理解这一点，可以先看一个更一般的数学概念：<strong>内积</strong>。</p>
+<p>内积是一种运算，它接收两个向量，得到一个标量。在实向量空间中，它必须满足三条性质：</p>
+<p><strong>1. 线性</strong></p>
+<p><span class="math display">\[
+\langle \alpha\vec{a}+\beta\vec{b},\vec{c}\rangle
+=
+\alpha\langle\vec{a},\vec{c}\rangle
++
+\beta\langle\vec{b},\vec{c}\rangle
+\]</span></p>
+<p><strong>2. 对称性</strong></p>
+<p><span class="math display">\[
+\langle\vec{a},\vec{b}\rangle
+=
+\langle\vec{b},\vec{a}\rangle
+\]</span></p>
+<p><strong>3. 正定性</strong></p>
+<p><span class="math display">\[
+\langle\vec{a},\vec{a}\rangle\geq 0
+\]</span></p>
+<p>并且当且仅当 <span class="math inline">\(\vec{a}=\vec{0}\)</span> 时结果为零。</p>
+<p>我们熟悉的点积满足这三条性质，所以它是一种内积。</p>
+<p>但内积不一定就是普通的点积。比如在二维空间中，我们可以定义：</p>
+<p><span class="math display">\[
+\langle\vec{a},\vec{b}\rangle
+=a_1b_1+2a_2b_2
+\]</span></p>
+<p>它同样满足这三条性质，因此也是一个合法的内积。</p>
+<p>点积只是欧几里得空间中的标准内积，而它的几何意义尤其自然。</p>
+<p>不过，这些性质还没有回答上面的问题。它们只规定了内积必须怎样表现，并没有说明为什么把坐标相乘再相加会得到一个有意义的数。答案来自几何，我们马上就会讲到。</p>
+</section>
+<section id="向量长度与单位向量" class="level2" data-number="3">
+<h2 data-number="3" data-anchor-id="向量长度与单位向量"><span class="header-section-number">3</span> 向量长度与单位向量</h2>
+<p>有了点积，就可以定义向量的<strong>长度</strong>，也叫<strong>模</strong>。</p>
+<p><span class="math display">\[
+\|\vec{v}\|
+=
+\sqrt{\vec{v}\cdot\vec{v}}
+=
+\sqrt{v_1^2+v_2^2+\cdots+v_n^2}
+\]</span></p>
+<p>有意思的是，向量的长度可以这样算：先求向量与自身的点积，再开平方。</p>
+<p>这也说明，长度并不是独立于内积之外的东西，它正是<em>由</em>内积得来的。换一个内积，长度就会改变。用上面的 <span class="math inline">\(\langle\vec{a},\vec{b}\rangle=a_1b_1+2a_2b_2\)</span>，向量 <span class="math inline">\((0,1)\)</span> 的长度是 <span class="math inline">\(\sqrt{2}\)</span> 而不是 <span class="math inline">\(1\)</span>。角度也会变：在普通点积下，<span class="math inline">\((1,1)\)</span> 和 <span class="math inline">\((1,-1)\)</span> 互相垂直，但在这个内积下</p>
+<p><span class="math display">\[
+\langle(1,1),(1,-1)\rangle = 1\cdot 1 + 2\cdot 1\cdot(-1) = -1 \neq 0,
+\]</span></p>
+<p>所以它们不再垂直。换句话说，内积决定了一个空间里“长度”和“角度”的含义。普通点积，正是与我们在纸上画出的几何相吻合的那个选择。</p>
+<p>知道了长度，就可以定义<strong>单位向量</strong>，也就是长度为 1 的向量。</p>
+<p>对一个非零向量：</p>
+<p><span class="math display">\[
+\vec{u}
+=
+\frac{\vec{v}}{\|\vec{v}\|}
+\]</span></p>
+<p>这个运算保持向量的方向不变，只把它的长度变成 1。</p>
+</section>
+<section id="点积的几何意义" class="level2" data-number="4">
+<h2 data-number="4" data-anchor-id="点积的几何意义"><span class="header-section-number">4</span> 点积的几何意义</h2>
+<p>到目前为止，点积看起来只是对坐标的一种运算。但它实际上描述了更有意思的东西：<strong>两个向量之间的几何关系</strong>。这就是前面那个问题的答案。</p>
+<p>我们有下面这个公式：</p>
+<p><span class="math display">\[
+\vec{a}\cdot\vec{b}
+=
+\|\vec{a}\|\|\vec{b}\|\cos\theta
+\]</span></p>
+<p>其中 <span class="math inline">\(\theta\)</span> 是两个非零向量之间的夹角。</p>
+<p>怎样从点积的坐标定义推出这个公式呢？</p>
+<p>首先，在二维空间中，我们可以用长度和方向来表示两个向量：</p>
+<p><span class="math display">\[
+\vec{a}
+=
+\|\vec{a}\|
+\begin{bmatrix}
+\cos\alpha\\
+\sin\alpha
+\end{bmatrix}
+\]</span></p>
+<p><span class="math display">\[
+\vec{b}
+=
+\|\vec{b}\|
+\begin{bmatrix}
+\cos\beta\\
+\sin\beta
+\end{bmatrix}
+\]</span></p>
+<p>于是它们的点积是：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\vec{a}\cdot\vec{b}
+&amp;=\|\vec{a}\|\|\vec{b}\|
+(\cos\alpha\cos\beta+\sin\alpha\sin\beta)\\
+&amp;=\|\vec{a}\|\|\vec{b}\|\cos(\alpha-\beta)\\
+&amp;=\|\vec{a}\|\|\vec{b}\|\cos\theta
+\end{aligned}
+\]</span></p>
+<p>这样就得到了几何形式的公式。</p>
+<p>这个计算是在二维中做的，但结论在任何维数下都成立。两个向量总是落在同一个平面里，所以它们的夹角就是这个平面里的一个角。最后一节的余弦定理，会给出一种不借助任何坐标的看法。</p>
+<p>这意味着，只要知道两个非零向量的坐标，就能直接算出它们夹角的余弦：</p>
+<p><span class="math display">\[
+\cos\theta
+=
+\frac{\vec{a}\cdot\vec{b}}
+{\|\vec{a}\|\|\vec{b}\|}
+\]</span></p>
+<p>这正是点积有意思的地方。它看起来只是对坐标的简单算术，却包含了方向和角度的信息。</p>
+<p>我们也可以用<strong>投影</strong>来理解它（<a href="#fig-proj" class="quarto-xref">图&nbsp;1</a>）。</p>
+<p><span class="math inline">\(\vec{a}\)</span> 在 <span class="math inline">\(\vec{b}\)</span> 方向上的有向标量投影是：</p>
+<p><span class="math display">\[
+\|\vec{a}\|\cos\theta
+\]</span></p>
+<p>再乘以 <span class="math inline">\(\vec{b}\)</span> 的长度，就得到：</p>
+<p><span class="math display">\[
+\vec{a}\cdot\vec{b}
+=
+(\|\vec{a}\|\cos\theta)\|\vec{b}\|
+\]</span></p>
+<p>所以，点积衡量的是一个向量与另一个向量有多“同向”，再按它们的长度放大。</p>
+<div id="fig-proj" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-proj-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<style>
+.vfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+body.quarto-dark .vfig { --va:#3987e5; --vb:#d95926; }
+.vfig .va { stroke:var(--va); } .vfig .vb { stroke:var(--vb); } .vfig .ink { stroke:currentColor; }
+.vfig .ha { fill:var(--va); } .vfig .hb { fill:var(--vb); }
+.vfig line, .vfig path.arc { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.vfig path.arc { stroke:currentColor; stroke-width:1.2; }
+.vfig .grid { stroke:currentColor; stroke-width:1; opacity:.08; }
+.vfig .axis { stroke:currentColor; stroke-width:1; opacity:.25; }
+.vfig .bline { stroke:var(--vb); stroke-width:1; opacity:.35; stroke-dasharray:2 4; }
+.vfig .dash { stroke:currentColor; stroke-width:1.3; stroke-dasharray:5 5; opacity:.6; }
+.vfig .proj { stroke:currentColor; stroke-width:6; opacity:.35; stroke-linecap:butt; }
+.vfig text { fill:currentColor; font-family:inherit; font-size:17px; }
+.vfig text.v { font-style:italic; font-size:18px; }
+.vfig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; } .vfig text.ta { fill:var(--va); } .vfig text.tb { fill:var(--vb); }
+.vfig text.g { font-style:italic; font-size:16px; }
+.vfig .handle { fill:transparent; stroke-width:1.5; cursor:grab; touch-action:none; }
+.vfig .handle.a { stroke:var(--va); } .vfig .handle.b { stroke:var(--vb); }
+.vproj-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.8; min-height:5.6em; }
+.vproj-read .ca { color:var(--va); } .vproj-read .cb { color:var(--vb); }
+.vproj-wrap { --va:#2a78d6; --vb:#eb6834; }
+body.quarto-dark .vproj-wrap { --va:#3987e5; --vb:#d95926; }
+</style>
+<div class="vproj-wrap" id="vproj">
+<svg class="vfig" viewbox="0 0 460 300" width="460" role="img" aria-label="Interactive figure: drag vectors a and b to see the projection of a onto b and the dot product.">
+  <g class="gridg"></g>
+  <line class="bline"></line>
+  <line class="proj"></line>
+  <line class="dash"></line>
+  <path class="arc"></path>
+  <text class="g th">θ</text>
+  <line class="va sa"></line><path class="ha hda"></path>
+  <line class="vb sb"></line><path class="hb hdb"></path>
+  <text class="v ta la" data-vec="0">a</text><text class="v tb lb" data-vec="0">b</text>
+  <circle class="handle a" r="11"></circle><circle class="handle b" r="11"></circle>
+</svg>
+<div class="vproj-read"></div>
+</div>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function () {
+  var root = document.getElementById('vproj'), svg = root.querySelector('svg');
+  var S = 40, OX = 200, OY = 190;                       // px per unit, origin
+  var v = { a: [3, 1], b: [2, 2.5] };
+  var q = function (s) { return svg.querySelector(s); };
+  var px = function (m) { return [OX + S * m[0], OY - S * m[1]]; };
+  var set = function (el, o) { for (var k in o) el.setAttribute(k, o[k]); };
+  var f = function (x) { return (Math.round(x * 100) / 100).toFixed(2); };
+
+  var g = q('.gridg'), h = '';
+  for (var x = -5; x <= 6; x++) h += '<line class="' + (x ? 'grid' : 'axis') + '" x1="' + (OX + S * x) + '" y1="0" x2="' + (OX + S * x) + '" y2="300"/>';
+  for (var y = -2; y <= 4; y++) h += '<line class="' + (y ? 'grid' : 'axis') + '" x1="0" y1="' + (OY - S * y) + '" x2="460" y2="' + (OY - S * y) + '"/>';
+  g.innerHTML = h;
+
+  function arrow(line, head, m) {
+    var p = px(m), d = Math.hypot(p[0] - OX, p[1] - OY) || 1, ux = (p[0] - OX) / d, uy = (p[1] - OY) / d;
+    var L = Math.min(13, d * .5), W = L * .42, bx = p[0] - ux * L, by = p[1] - uy * L;
+    set(line, { x1: OX, y1: OY, x2: bx + ux * 2, y2: by + uy * 2 });
+    head.setAttribute('d', 'M' + p[0] + ',' + p[1] + ' L' + (bx - uy * W) + ',' + (by + ux * W) + ' L' + (bx + uy * W) + ',' + (by - ux * W) + ' Z');
+  }
+
+  function draw() {
+    var a = v.a, b = v.b, nb = Math.hypot(b[0], b[1]), na = Math.hypot(a[0], a[1]);
+    var dot = a[0] * b[0] + a[1] * b[1];
+    arrow(q('.sa'), q('.hda'), a); arrow(q('.sb'), q('.hdb'), b);
+    var pa = px(a), pb = px(b);
+    set(q('.handle.a'), { cx: pa[0], cy: pa[1] }); set(q('.handle.b'), { cx: pb[0], cy: pb[1] });
+    // labels just past each tip
+    var lab = function (el, m) { var n = Math.hypot(m[0], m[1]) || 1, p = px([m[0] + m[0] / n * .45, m[1] + m[1] / n * .45]); set(el, { x: p[0], y: p[1], 'text-anchor': 'middle', 'dominant-baseline': 'middle' }); };
+    lab(q('.la'), a); lab(q('.lb'), b); vecArrows(svg);
+    if (nb < 1e-9 || na < 1e-9) return;
+    var e0 = px([-b[0] / nb * 12, -b[1] / nb * 12]), e1 = px([b[0] / nb * 12, b[1] / nb * 12]);
+    set(q('.bline'), { x1: e0[0], y1: e0[1], x2: e1[0], y2: e1[1] });
+    var t = dot / (nb * nb), P = px([b[0] * t, b[1] * t]);
+    set(q('.proj'), { x1: OX, y1: OY, x2: P[0], y2: P[1] });
+    set(q('.dash'), { x1: pa[0], y1: pa[1], x2: P[0], y2: P[1] });
+    // angle arc from b to a, the short way round
+    var ta = Math.atan2(a[1], a[0]), tb = Math.atan2(b[1], b[0]), d = ta - tb;
+    while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI;
+    var r = 30, s0 = [OX + r * Math.cos(tb), OY - r * Math.sin(tb)], s1 = [OX + r * Math.cos(tb + d), OY - r * Math.sin(tb + d)];
+    q('.arc').setAttribute('d', 'M' + s0[0] + ',' + s0[1] + ' A' + r + ',' + r + ' 0 0 ' + (d > 0 ? 0 : 1) + ' ' + s1[0] + ',' + s1[1]);
+    var tm = tb + d / 2;
+    set(q('.th'), { x: OX + 46 * Math.cos(tm), y: OY - 46 * Math.sin(tm), 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+    var th = Math.abs(d), deg = th * 180 / Math.PI;
+    var A = '\\class{ca}{\\vec{a}}', B = '\\class{cb}{\\vec{b}}', n1 = function (x) { return x.toFixed(1); };
+    typeset(
+      '\\(' + A + '=(' + n1(a[0]) + ',\\ ' + n1(a[1]) + ')\\qquad ' + B + '=(' + n1(b[0]) + ',\\ ' + n1(b[1]) + ')\\qquad \\theta=' + deg.toFixed(1) + '^\\circ\\)<br>' +
+      '\\(' + A + '\\cdot' + B + '=' + n1(a[0]) + '\\times' + n1(b[0]) + '+' + n1(a[1]) + '\\times' + n1(b[1]) + '=' + f(dot) + '\\)<br>' +
+      '\\(\\|' + A + '\\|\\cos\\theta\\times\\|' + B + '\\|=' + f(na * Math.cos(th)) + '\\times' + f(nb) + '=' + f(na * Math.cos(th) * nb) + '\\)');
+  }
+
+  var out = root.querySelector('.vproj-read'), busy = false, next = null;
+  function typeset(html) {
+    next = html;
+    if (busy) return;
+    busy = true;
+    var ready = window.MathJax && MathJax.startup && MathJax.startup.promise;
+    if (!ready) return setTimeout(function () { busy = false; typeset(next); }, 200);
+    MathJax.startup.promise.then(function () {
+      var h = next; next = null;
+      MathJax.typesetClear([out]); out.innerHTML = h;
+      return MathJax.typesetPromise([out]);
+    }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+  }
+
+  var drag = null;
+  function toMath(ev) {
+    var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    var c = function (x, lo, hi) { return Math.max(lo, Math.min(hi, Math.round(x * 10) / 10)); };
+    return [c((p.x - OX) / S, -4.8, 6.3), c((OY - p.y) / S, -2.6, 4.6)];
+  }
+  ['a', 'b'].forEach(function (k) {
+    var hd = q('.handle.' + k);
+    hd.addEventListener('pointerdown', function (ev) { drag = k; hd.setPointerCapture(ev.pointerId); ev.preventDefault(); });
+    hd.addEventListener('pointermove', function (ev) {
+      if (drag !== k) return;
+      var m = toMath(ev); if (Math.hypot(m[0], m[1]) < .3) return;
+      v[k] = m; draw();
+    });
+    hd.addEventListener('pointerup', function () { drag = null; });
+  });
+  draw();
+  if (document.fonts) document.fonts.ready.then(function () { vecArrows(svg); });
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-proj-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;1: 拖动 <span class="math inline">\(\vec{a}\)</span> 和 <span class="math inline">\(\vec{b}\)</span> 的箭头末端。虚线把 <span class="math inline">\(\vec{a}\)</span> 投到 <span class="math inline">\(\vec{b}\)</span> 的方向上，粗线段就是有向投影 <span class="math inline">\(\|\vec{a}\|\cos\theta\)</span>；当 <span class="math inline">\(\theta\)</span> 超过 <span class="math inline">\(90^\circ\)</span> 时，它变为负值。
+</figcaption>
+</figure>
+</div>
+<p>这正是我觉得线性代数有意思的地方：我们可以用坐标来计算，但在这些计算背后，有真实的几何意义。</p>
+<p>后面学<a href="../../../zh/posts/matrices/index.html">矩阵</a>时，我们会看到更多这样的例子。矩阵不只是一堆用来计算的数。我们还应该去理解它在空间中代表什么、进行了怎样的变换，以及这些运算背后到底发生了什么。</p>
+</section>
+<section id="向量长度的平方与余弦定理" class="level2" data-number="5">
+<h2 data-number="5" data-anchor-id="向量长度的平方与余弦定理"><span class="header-section-number">5</span> 向量长度的平方与余弦定理</h2>
+<p>现在来考虑另一个问题。</p>
+<p>我们早就熟悉这个代数恒等式：</p>
+<p><span class="math display">\[
+(a+b)^2=a^2+b^2+2ab
+\]</span></p>
+<p>对向量来说，有没有类似的结论？</p>
+<p>我们来算两个向量之和的长度的平方。这里不需要坐标，内积的性质就足够了，所以结论在任何维数下都成立：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\|\vec{a}+\vec{b}\|^2
+&amp;=(\vec{a}+\vec{b})\cdot(\vec{a}+\vec{b})\\
+&amp;=\vec{a}\cdot\vec{a}+\vec{a}\cdot\vec{b}
++\vec{b}\cdot\vec{a}+\vec{b}\cdot\vec{b}\\
+&amp;=\|\vec{a}\|^2+\|\vec{b}\|^2
++2\vec{a}\cdot\vec{b}
+\end{aligned}
+\]</span></p>
+<p>第二行用到了线性，第三行用到了对称性（<span class="math inline">\(\vec{a}\cdot\vec{b}=\vec{b}\cdot\vec{a}\)</span>）。那些抽象的性质正是在这里派上用场：有了它们，我们才能像展开普通的和的平方一样，展开向量和的平方。</p>
+<p>再用点积的几何公式，得到：</p>
+<p><span class="math display">\[
+\|\vec{a}+\vec{b}\|^2
+=
+\|\vec{a}\|^2+\|\vec{b}\|^2
++2\|\vec{a}\|\|\vec{b}\|\cos\theta
+\]</span></p>
+<p>有意思。从代数上看，它和熟悉的和的平方公式非常像。</p>
+<p>从几何上看，它也很眼熟。事实上，它和<strong>余弦定理</strong>密切相关。</p>
+<p>但符号似乎不太一样。</p>
+<p>余弦定理通常写成：</p>
+<p><span class="math display">\[
+c^2=a^2+b^2-2ab\cos\theta
+\]</span></p>
+<p>为什么这里是减号而不是加号？</p>
+<p>画一个三角形就能理解（<a href="#fig-cos-minus" class="quarto-xref">图&nbsp;2</a>）。</p>
+<p>如果两个向量 <span class="math inline">\(\vec{a}\)</span> 和 <span class="math inline">\(\vec{b}\)</span> 从同一点出发，三角形的第三条边对应的是两个向量的差 <span class="math inline">\(\vec{a}-\vec{b}\)</span>，而不是它们的和。</p>
+<div id="fig-cos-minus" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cos-minus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<style>
+.vfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+body.quarto-dark .vfig { --va:#3987e5; --vb:#d95926; }
+.vfig .va { stroke:var(--va); } .vfig .vb { stroke:var(--vb); }
+.vfig .ink { stroke:currentColor; }
+.vfig .ha { fill:var(--va); } .vfig .hb { fill:var(--vb); } .vfig .hi { fill:currentColor; }
+.vfig line, .vfig path.arc { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.vfig path.arc { stroke-width:1.2; }
+.vfig .dash { stroke-dasharray:5 5; stroke-width:1.3; opacity:.6; }
+.vfig text { fill:currentColor; font-family:inherit; font-size:17px; }
+.vfig text.v { font-style:italic; font-size:18px; }
+.vfig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.vfig text.ta { fill:var(--va); } .vfig text.tb { fill:var(--vb); }
+.vfig text.g { font-style:italic; font-size:16px; }
+</style>
+<svg class="vfig" viewbox="0 0 300 200" width="300" role="img" aria-label="Vectors a and b from a common point O; the third side, from the tip of b to the tip of a, is a minus b.">
+<line class="va" x1="40.0" y1="170.0" x2="213.3" y2="126.7"></line>
+<path class="ha" d="M224.0,124.0 L212.7,132.5 L210.1,121.8 Z"></path>
+<line class="vb" x1="40.0" y1="170.0" x2="103.5" y2="59.9"></line>
+<path class="hb" d="M109.0,50.4 L107.3,64.4 L97.7,58.9 Z"></path>
+<line class="ink" x1="109.0" y1="50.4" x2="214.7" y2="118.1"></line>
+<path class="hi" d="M224.0,124.0 L210.1,121.6 L216.0,112.4 Z"></path>
+<path class="arc ink" d="M73.0,161.8 A34,34 0 0 0 57.0,140.5"></path>
+<text class="g" x="79.9" y="139.9" text-anchor="middle" dominant-baseline="middle">θ</text>
+<text class="v ta" x="135.9" y="162.5" text-anchor="middle" dominant-baseline="middle" data-vec="0">a</text>
+<text class="v tb" x="60.6" y="102.2" text-anchor="middle" dominant-baseline="middle" data-vec="0">b</text>
+<text class="v" x="180.5" y="65.3" text-anchor="middle" dominant-baseline="middle" data-vec="0,4">a − b</text>
+<text class="g" x="30.1" y="179.9" text-anchor="middle" dominant-baseline="middle">O</text>
+</svg>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function (svg) {
+  var go = function () { vecArrows(svg); };
+  go(); if (document.fonts) document.fonts.ready.then(go);
+  new MutationObserver(go).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})(document.currentScript.previousElementSibling);
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cos-minus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;2: <span class="math inline">\(\vec{a}\)</span> 和 <span class="math inline">\(\vec{b}\)</span> 从同一点 <span class="math inline">\(O\)</span> 出发。第三条边从 <span class="math inline">\(\vec{b}\)</span> 的末端指向 <span class="math inline">\(\vec{a}\)</span> 的末端，它就是 <span class="math inline">\(\vec{a}-\vec{b}\)</span>，因为 <span class="math inline">\(\vec{b}+(\vec{a}-\vec{b})=\vec{a}\)</span>。<span class="math inline">\(\vec{a}\)</span> 与 <span class="math inline">\(\vec{b}\)</span> 的夹角 <span class="math inline">\(\theta\)</span> 就是三角形在 <span class="math inline">\(O\)</span> 处的内角。
+</figcaption>
+</figure>
+</div>
+<p>所以我们应该计算：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\|\vec{a}-\vec{b}\|^2
+&amp;=(\vec{a}-\vec{b})\cdot(\vec{a}-\vec{b})\\
+&amp;=\|\vec{a}\|^2+\|\vec{b}\|^2
+-2\vec{a}\cdot\vec{b}\\
+&amp;=\|\vec{a}\|^2+\|\vec{b}\|^2
+-2\|\vec{a}\|\|\vec{b}\|\cos\theta
+\end{aligned}
+\]</span></p>
+<p>这正好就是余弦定理。</p>
+<p>不过，加号的版本也没有错。它同样是余弦定理，只是量的是另一个角。如果改为把 <span class="math inline">\(\vec{b}\)</span> 接在 <span class="math inline">\(\vec{a}\)</span> 的末端（<a href="#fig-cos-plus" class="quarto-xref">图&nbsp;3</a>），三角形的三条边就是 <span class="math inline">\(\vec{a}\)</span>、<span class="math inline">\(\vec{b}\)</span> 和 <span class="math inline">\(\vec{a}+\vec{b}\)</span>。三角形里 <span class="math inline">\(\vec{a}\)</span> 与 <span class="math inline">\(\vec{b}\)</span> 之间的内角不再是 <span class="math inline">\(\theta\)</span>，而是 <span class="math inline">\(\pi-\theta\)</span>。由于 <span class="math inline">\(\cos(\pi-\theta)=-\cos\theta\)</span>，余弦定理给出</p>
+<p><span class="math display">\[
+\|\vec{a}+\vec{b}\|^2
+=\|\vec{a}\|^2+\|\vec{b}\|^2-2\|\vec{a}\|\|\vec{b}\|\cos(\pi-\theta)
+=\|\vec{a}\|^2+\|\vec{b}\|^2+2\|\vec{a}\|\|\vec{b}\|\cos\theta,
+\]</span></p>
+<p>正是我们的加号公式。两个公式描述的是同一个几何事实，符号只取决于我们量的是哪个角。</p>
+<div id="fig-cos-plus" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-cos-plus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<style>
+.vfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+body.quarto-dark .vfig { --va:#3987e5; --vb:#d95926; }
+.vfig .va { stroke:var(--va); } .vfig .vb { stroke:var(--vb); }
+.vfig .ink { stroke:currentColor; }
+.vfig .ha { fill:var(--va); } .vfig .hb { fill:var(--vb); } .vfig .hi { fill:currentColor; }
+.vfig line, .vfig path.arc { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.vfig path.arc { stroke-width:1.2; }
+.vfig .dash { stroke-dasharray:5 5; stroke-width:1.3; opacity:.6; }
+.vfig text { fill:currentColor; font-family:inherit; font-size:17px; }
+.vfig text.v { font-style:italic; font-size:18px; }
+.vfig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.vfig text.ta { fill:var(--va); } .vfig text.tb { fill:var(--vb); }
+.vfig text.g { font-style:italic; font-size:16px; }
+</style>
+<svg class="vfig" viewbox="0 0 330 225" width="330" role="img" aria-label="Vector b placed at the tip of a; the third side is a plus b, the inside angle is pi minus theta and theta appears outside.">
+<line class="ink dash" x1="214.0" y1="154.0" x2="272.9" y2="139.3"></line>
+<line class="va" x1="30.0" y1="200.0" x2="203.3" y2="156.7"></line>
+<path class="ha" d="M214.0,154.0 L202.7,162.5 L200.1,151.8 Z"></path>
+<line class="vb" x1="214.0" y1="154.0" x2="277.5" y2="43.9"></line>
+<path class="hb" d="M283.0,34.4 L281.3,48.4 L271.7,42.9 Z"></path>
+<line class="ink" x1="30.0" y1="200.0" x2="273.8" y2="40.4"></line>
+<path class="hi" d="M283.0,34.4 L275.1,46.1 L269.1,36.9 Z"></path>
+<path class="arc ink" d="M223.0,138.4 A18,18 0 0 0 196.5,158.4"></path>
+<text class="g" x="179.4" y="134.0" text-anchor="middle" dominant-baseline="middle">π − θ</text>
+<path class="arc ink" d="M252.8,144.3 A40,40 0 0 0 234.0,119.4"></path>
+<text class="g" x="262.4" y="125.9" text-anchor="middle" dominant-baseline="middle">θ</text>
+<text class="v ta" x="125.9" y="192.5" text-anchor="middle" dominant-baseline="middle" data-vec="0">a</text>
+<text class="v tb" x="262.4" y="102.2" text-anchor="middle" dominant-baseline="middle" data-vec="0">b</text>
+<text class="v" x="142.3" y="95.4" text-anchor="middle" dominant-baseline="middle" data-vec="0,4">a + b</text>
+<text class="g" x="20.1" y="209.9" text-anchor="middle" dominant-baseline="middle">O</text>
+</svg>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function (svg) {
+  var go = function () { vecArrows(svg); };
+  go(); if (document.fonts) document.fonts.ready.then(go);
+  new MutationObserver(go).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})(document.currentScript.previousElementSibling);
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-cos-plus-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;3: 这里 <span class="math inline">\(\vec{b}\)</span> 从 <span class="math inline">\(\vec{a}\)</span> 的末端出发，第三条边是 <span class="math inline">\(\vec{a}+\vec{b}\)</span>。三角形的内角是 <span class="math inline">\(\pi-\theta\)</span>；原来的角 <span class="math inline">\(\theta\)</span> 出现在外侧，位于 <span class="math inline">\(\vec{b}\)</span> 与 <span class="math inline">\(\vec{a}\)</span> 的延长线之间。
+</figcaption>
+</figure>
+</div>
+<p>这个论证也可以反过来读，这样就补上了前面留下的缺口：当时我们只在二维中推出了 <span class="math inline">\(\vec{a}\cdot\vec{b}=\|\vec{a}\|\|\vec{b}\|\cos\theta\)</span>。在任何维数下，由 <span class="math inline">\(\vec{a}\)</span>、<span class="math inline">\(\vec{b}\)</span> 和 <span class="math inline">\(\vec{a}-\vec{b}\)</span> 构成的三角形都是一个平面三角形，所以平面几何中的余弦定理对它成立。而代数给出 <span class="math inline">\(\|\vec{a}-\vec{b}\|^2=\|\vec{a}\|^2+\|\vec{b}\|^2-2\vec{a}\cdot\vec{b}\)</span>。两者一比较，<span class="math inline">\(\vec{a}\cdot\vec{b}\)</span> 就必然等于 <span class="math inline">\(\|\vec{a}\|\|\vec{b}\|\cos\theta\)</span>，无论多少维。</p>
+<p>一个看起来属于初等几何的公式，可以从向量运算和点积中自然地推导出来。</p>
+<p>这就是我学线性代数时想弄明白的东西：不只是怎么计算，而是这些数学运算为什么成立，以及它们和几何之间有怎样的联系。</p>
+<p><em>下一篇：<a href="../../../zh/posts/matrices/index.html">把矩阵看作变换</a>，对矩阵问同样的问题。</em></p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+// Margin footnotes come out as <div id="fnN"><p><sup>N</sup> ...: turn that number into a link back to the
+// reference in the text (id="fnrefN"), so every note and its marker point at each other.
+document.querySelectorAll('.column-margin div[id^="fn"]').forEach(function (note) {
+  var n = note.id.slice(2);
+  var ref = document.getElementById('fnref' + n);
+  var sup = note.querySelector('p > sup:first-child');
+  if (!ref || !sup) return;
+  var a = document.createElement('a');
+  a.href = '#fnref' + n;
+  a.className = 'note-back';
+  a.setAttribute('aria-label', 'Back to text, note ' + n);
+  a.textContent = sup.textContent;
+  sup.textContent = '';
+  sup.appendChild(a);
+});
+
+// Reference list: the [N] in front of each entry links back to where the text first cites it.
+document.querySelectorAll('#refs .csl-entry[id^="ref-"]').forEach(function (entry) {
+  var cite = document.querySelector('main a[href="#' + entry.id + '"]:not(#refs a)');
+  var label = entry.querySelector('.csl-left-margin');
+  if (!cite || !label) return;
+  if (!cite.id) cite.id = 'cite-' + entry.id.slice(4);
+  var a = document.createElement('a');
+  a.href = '#' + cite.id;
+  a.setAttribute('aria-label', 'Back to first citation');
+  a.textContent = label.textContent.trim();
+  label.textContent = '';
+  label.appendChild(a);
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/yukang-lian\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Yukang Lian</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
