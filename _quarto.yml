@@ -1,6 +1,12 @@
 project:
   type: website
   output-dir: _site
+  # Self-hosted MathJax and fonts, so the site does not depend on outside servers.
+  resources:
+    - assets/
+
+# The version this site was built and checked with.
+quarto-required: ">=1.10.18 <1.11.0"
 
 website:
   title: "Yukang Lian"
@@ -25,7 +31,9 @@ format:
     theme:
       light: [default, styles/light.scss, styles/rules.scss]
       dark: [default, styles/dark.scss, styles/rules.scss]
-    html-math-method: mathjax
+    html-math-method:
+      method: mathjax
+      url: /assets/mathjax/tex-chtml.js
     code-overflow: wrap
     lang: en
     anchor-sections: false

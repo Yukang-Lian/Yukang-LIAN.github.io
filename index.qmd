@@ -2,7 +2,10 @@
 title: "Yukang Lian"
 subtitle: "Thoughts on the world, on myself, and on everything in between."
 listing:
-  contents: "/posts/*/index.qmd"
+  id: recent
+  # Posts live at posts/<year>/<slug>/; the home page shows only the latest ones.
+  contents: "/posts/*/*/index.qmd"
+  max-items: 20
   sort: "date desc"
   type: table
   fields: [date, title]
@@ -11,3 +14,8 @@ listing:
   filter-ui: false
 page-layout: article
 ---
+
+::: {#recent}
+:::
+
+[All posts, by year →](archive.qmd)

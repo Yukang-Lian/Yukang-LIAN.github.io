@@ -1,0 +1,12 @@
+---
+title: "Archive"
+listing:
+  # One page per year: posts/<year>/index.qmd.
+  contents: "/posts/*/index.qmd"
+  sort: "title desc"
+  type: table
+  fields: [title]
+  sort-ui: false
+  filter-ui: false
+page-layout: article
+---

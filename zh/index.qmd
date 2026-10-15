@@ -2,7 +2,9 @@
 title: "中文"
 subtitle: "关于世界、关于自我，以及其间种种的一些思考。"
 listing:
-  contents: posts
+  id: recent
+  contents: "posts/*/*/index.qmd"
+  max-items: 20
   sort: "date desc"
   type: table
   fields: [date, title]
@@ -11,3 +13,8 @@ listing:
   filter-ui: false
 page-layout: article
 ---
+
+::: {#recent}
+:::
+
+[全部文章，按年份 →](archive.qmd)

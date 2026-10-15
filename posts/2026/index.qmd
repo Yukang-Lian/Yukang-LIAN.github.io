@@ -1,0 +1,14 @@
+---
+title: "2026"
+listing:
+  # Every year folder needs one of these: copy it and change the title.
+  contents: "*/index.qmd"
+  sort: "date desc"
+  type: table
+  fields: [date, title]
+  date-format: "YYYY-MM-DD"
+  sort-ui: false
+  filter-ui: false
+page-layout: article
+toc: false
+---

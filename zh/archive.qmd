@@ -1,0 +1,11 @@
+---
+title: "归档"
+listing:
+  contents: "posts/*/index.qmd"
+  sort: "title desc"
+  type: table
+  fields: [title]
+  sort-ui: false
+  filter-ui: false
+page-layout: article
+---
