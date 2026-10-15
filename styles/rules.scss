@@ -92,6 +92,13 @@ html:lang(zh) body.essay main.content :is(.column-margin, .quarto-title-meta, .s
 :lang(zh) p, p:lang(zh) { line-height: 1.75; }
 :lang(zh) .column-margin p { line-height: 1.55; }
 :lang(zh) :is(h1, h2, h3, .subtitle, .quarto-title-meta, figcaption, .margin-caption, caption, em) { font-style: normal; }
+// Without italics, Chinese captions would look just like the body text: set them in kai, a little smaller.
+// Crimson Pro stays first so Latin letters and digits match the rest of the page.
+html:lang(zh) main.content :is(figcaption, caption) {
+  font-family: "Crimson Pro", "Kaiti SC", "STKaiti", "KaiTi", "楷体", "Noto Serif SC", serif;
+  font-size: .82rem;
+  -webkit-text-stroke: .012em currentColor;
+}
 
 // Post list on the home page: date and title only.
 .quarto-listing-table { font-size: 1rem; }

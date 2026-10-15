@@ -1,0 +1,41 @@
+<div class="m3d" id="m3-combo">
+<svg role="img" aria-label="Interactive 3D figure: u, v and w start at the origin; scaled by x1, x2 and x3 and added parallelogram by parallelogram, they give b. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-combo'), ctl = root.querySelector('.m3d-ctl');
+  var u = [1, -1, 0], v = [0, 1, -1], w = [0, 0, 1], x = [1, 0.5, 1.5];
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var fig = M.create(root, {
+    scale: 72, az: 20, el: 20, dy: -10, axes: ['x_1', 'x_2', 'x_3'], axisLen: 2.2, ticks: true,
+    scene: function () {
+      // all three scaled columns start at the origin; dashed lines complete the two parallelograms
+      var a = M.scale(x[0], u), bb = M.scale(x[1], v), c = M.scale(x[2], w), ab = M.add(a, bb), b = M.add(ab, c), O = [0, 0, 0];
+      return [
+        { k: 'line', pts: [O, u], c: 'ghost' }, { k: 'line', pts: [O, v], c: 'ghost' }, { k: 'line', pts: [O, w], c: 'ghost' },
+        { k: 'line', pts: [a, ab], c: 'trail' }, { k: 'line', pts: [bb, ab], c: 'trail' },
+        { k: 'line', pts: [O, ab], c: 'trail' }, { k: 'line', pts: [ab, b], c: 'trail' }, { k: 'line', pts: [c, b], c: 'trail' },
+        { k: 'dot', p: ab, r: 2.2 },
+        { k: 'arrow', a: O, b: a, c: 'a', label: 'x_1u', vec: 2 },
+        { k: 'arrow', a: O, b: bb, c: 'b', label: 'x_2v', vec: 2 },
+        { k: 'arrow', a: O, b: c, c: 'm', label: 'x_3w', vec: 2 },
+        { k: 'arrow', a: O, b: b, c: 'i', label: 'b', vec: 0, off: 13, coord: '(' + b.map(function (z) { return M.f1(z).replace('-', '−'); }).join(', ') + ')' },
+        { k: 'dot', p: O, r: 2.5 }
+      ];
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function update() {
+    var b = [x[0], x[1] - x[0], x[2] - x[1]].map(M.f1), c = x.map(M.f1);
+    read('\\(' + c[0] + '\\,\\class{ca}{\\vec{u}}+' + c[1] + '\\,\\class{cb}{\\vec{v}}+' + c[2] + '\\,\\vec{w}=(' + b.join(',\\ ') + ')=\\vec{b}\\)');
+    fig.render();
+  }
+  ['x<sub>1</sub>', 'x<sub>2</sub>', 'x<sub>3</sub>'].forEach(function (l, i) {
+    M.slider(ctl, '<i>' + l + '</i>', -2, 2, 0.1, x[i], function (val) { x[i] = val; update(); });
+  });
+  update();
+})();
+</script>

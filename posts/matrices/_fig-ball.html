@@ -1,0 +1,53 @@
+<div class="m3d" id="m3-ball">
+<svg role="img" aria-label="Interactive 3D figure: the unit ball and the basis vectors e1, e2, e3 transformed by the example matrices I, P1, P2, a stretched P2, the stretch S and the rotation R. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-ball'), ctl = root.querySelector('.m3d-ctl');
+  var mats = [
+    { n: 'I', M: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], tex: 'I', say: { en: 'Nothing moves.', zh: '什么都没有动。' } },
+    { n: 'P<sub>1</sub>', M: [[1, 0, 0], [0, 0, 0], [0, 0, 0]], tex: 'P_1', say: { en: 'The ball is flattened onto the \\(x_1\\)-axis: a line segment.', zh: '球被压到 \\(x_1\\) 轴上：一条线段。' } },
+    { n: 'P<sub>2</sub>', M: [[1, 0, 0], [0, 1, 0], [0, 0, 0]], tex: 'P_2', say: { en: 'The ball is flattened onto the \\(x_1x_2\\)-plane: a disk.', zh: '球被压到 \\(x_1x_2\\) 平面上：一个圆盘。' } },
+    { n: { en: 'P<sub>2</sub> with a 2', zh: 'P<sub>2</sub> 改一个 2' }, M: [[2, 0, 0], [0, 1, 0], [0, 0, 0]], tex: '', say: { en: 'With a 2 on the diagonal, the disk is stretched into an elliptical disk.', zh: '对角线上换成 2，圆盘被拉成椭圆盘。' } },
+    { n: 'S', M: [[1.5, 0, 0], [0, 1, 0], [0, 0, 0.5]], tex: 'S', say: { en: 'The ball is stretched along \\(x_1\\) and squeezed along \\(x_3\\): an ellipsoid, still three-dimensional.', zh: '球沿 \\(x_1\\) 方向被拉长、沿 \\(x_3\\) 方向被压扁：一个椭球，仍然是三维的。' } },
+    { n: 'R', M: [[1, 0, 0], [0, 0, -1], [0, 1, 0]], tex: 'R', rot: true, say: { en: 'The ball looks the same, but the arrows show that it has turned 90° about the \\(x_1\\)-axis.', zh: '球看起来没变，但箭头显示它绕 \\(x_1\\) 轴转了 90°。' } }
+  ];
+  var cur = 2, s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Pick a matrix, then drag the figure to rotate it.', zh: '选一个矩阵，再拖动图形旋转视角。' });
+  var circles = [], N = 48, k, t;
+  [-60, -30, 0, 30, 60].forEach(function (lat) {
+    var z = Math.sin(lat * Math.PI / 180), r = Math.cos(lat * Math.PI / 180), c = [];
+    for (k = 0; k <= N; k++) { t = k / N * 2 * Math.PI; c.push([r * Math.cos(t), r * Math.sin(t), z]); }
+    circles.push(c);
+  });
+  [0, 30, 60, 90, 120, 150].forEach(function (lon) {
+    var a = lon * Math.PI / 180, c = [];
+    for (k = 0; k <= N; k++) { t = k / N * 2 * Math.PI; c.push([Math.cos(t) * Math.cos(a), Math.cos(t) * Math.sin(a), Math.sin(t)]); }
+    circles.push(c);
+  });
+  var fig = M.create(root, {
+    scale: 70, az: -35, el: 22, axes: ['x_1', 'x_2', 'x_3'], axisLen: 2.1, ticks: true,
+    scene: function () {
+      var m = mats[cur], T = m.rot ? M.rotX(s * Math.PI / 2) : M.toward(m.M, s), f = function (p) { return M.mul(T, p); };
+      var it = circles.map(function (c) { return { k: 'line', pts: c.map(f), c: 'wire' }; });
+      it.push(
+        { k: 'arrow', a: [0, 0, 0], b: f([1, 0, 0]), c: 'a', label: 'e_1', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 1, 0]), c: 'b', label: 'e_2', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 0, 1]), c: 'm', label: 'e_3', vec: 0 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    var m = mats[cur], rows = m.M.map(function (r) { return r.join('&'); }).join('\\\\');
+    read('\\(' + (m.tex ? m.tex + '=' : '') + '\\begin{bmatrix}' + rows + '\\end{bmatrix}\\)<br>' + (s >= 1 ? M.tr(m.say) : '&nbsp;'));
+  }
+  var prog;
+  M.buttons(ctl, mats.map(function (m) { return m.n; }), function (i) { cur = i; prog.set(0); prog.run(); }, cur);
+  prog = M.progress(ctl, function (v) { var was = s >= 1; s = v; fig.render(); if ((s >= 1) !== was || v === 0) show(); });
+  show();
+})();
+</script>

@@ -1,0 +1,47 @@
+<div class="m3d" id="m3-morph">
+<svg role="img" aria-label="Interactive 3D figure: the unit cube and an input vector x are transformed step by step by the matrix A; the edges along e1, e2, e3 become the columns u, v, w, and x becomes b. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-morph'), ctl = root.querySelector('.m3d-ctl');
+  var A = [[1, 0, 0], [-1, 1, 0], [0, -1, 1]], x = [1, 0.5, 1.5], s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var V = [], E = [];
+  for (var i = 0; i < 8; i++) V.push([i & 1, (i >> 1) & 1, (i >> 2) & 1]);
+  for (i = 0; i < 8; i++) for (var j = i + 1; j < 8; j++) { var d = i ^ j; if (d === 1 || d === 2 || d === 4) E.push([i, j]); }
+  var fig = M.create(root, {
+    scale: 75, az: 20, el: 20, dy: 10, axes: ['x_1', 'x_2', 'x_3'], axisLen: 1.9, ticks: true,
+    scene: function () {
+      var T = M.toward(A, s), f = function (p) { return M.mul(T, p); }, it = [], end = s >= .5;
+      E.forEach(function (e) {
+        it.push({ k: 'line', pts: [V[e[0]], V[e[1]]], c: 'ghost' });
+        if (e[0] !== 0) it.push({ k: 'line', pts: [f(V[e[0]]), f(V[e[1]])], c: 'wire' });
+      });
+      var fx = f(x);
+      it.push(
+        { k: 'arrow', a: [0, 0, 0], b: f([1, 0, 0]), c: 'a', label: end ? 'u' : 'e_1', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 1, 0]), c: 'b', label: end ? 'v' : 'e_2', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 0, 1]), c: 'm', label: end ? 'w' : 'e_3', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: fx, c: 'i', label: end ? 'b' : 'x', vec: 0, off: 16 },
+        { k: 'line', pts: [x, fx], c: 'trail' },
+        { k: 'dot', p: [0, 0, 0], r: 2.5 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  var last = null;
+  function update(v) {
+    s = v; fig.render();
+    var st = s >= 1 ? 2 : s > 0 ? 1 : 0;
+    if (st === last) return; last = st;
+    read(st === 0 ? '\\(\\vec{x}=(1.0,\\ 0.5,\\ 1.5)=1.0\\,\\vec{e}_1+0.5\\,\\vec{e}_2+1.5\\,\\vec{e}_3\\)'
+      : st === 2 ? '\\(\\vec{b}=A\\vec{x}=1.0\\,\\class{ca}{\\vec{u}}+0.5\\,\\class{cb}{\\vec{v}}+1.5\\,\\vec{w}=(1.0,\\ {-0.5},\\ 1.0)\\)'
+      : M.tr({ en: 'The whole space is being transformed…', zh: '整个空间正在被变换……' }));
+  }
+  M.progress(ctl, update);
+  update(0);
+})();
+</script>

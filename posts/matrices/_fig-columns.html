@@ -1,0 +1,42 @@
+<div class="m3d" id="m3-cols">
+<svg role="img" aria-label="Interactive 3D figure: the columns of C all lie on the plane spanned by u and v, while the third column w of A sticks out of it. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-cols'), ctl = root.querySelector('.m3d-ctl'), cur = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var u = [1, -1, 0], v = [0, 1, -1], n = M.unit([1, 1, 1]), e1 = M.unit(u), e2 = M.cross(n, e1), pl = M.plane(e1, e2, 1.5, 6), corner = M.add(M.scale(1.5, e1), M.scale(-1.5, e2));
+  var fig = M.create(root, {
+    scale: 70, az: -15, el: 15, axes: ['b_1', 'b_2', 'b_3'], axisLen: 1.9, ticks: true,
+    scene: function () {
+      var it = pl.concat([{ k: 'text', p: corner, t: 'b_1 + b_2 + b_3 = 0', c: 's', dy: 16 },
+        { k: 'arrow', a: [0, 0, 0], b: u, c: 'a', label: 'u', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: v, c: 'b', label: 'v', vec: 0 },
+        { k: 'dot', p: [0, 0, 0], r: 2.5 }]);
+      if (cur === 0) {
+        var T = 1.45 * Math.sqrt(3);
+        it.push({ k: 'arrow', a: [0, 0, 0], b: [-1, 0, 1], c: 'i', label: 'w*', vec: 0, ldx: -14 },
+          { k: 'line', pts: [M.scale(-T, n), M.scale(T, n)], c: 'dash' },
+          { k: 'text', p: M.scale(T, n), t: '(1, 1, 1)', c: 's', dx: 30 });
+      } else {
+        var w = [0, 0, 1], foot = M.add(w, M.scale(-M.dot(w, n), n));
+        it.push({ k: 'arrow', a: [0, 0, 0], b: w, c: 'i', label: 'w', vec: 0 },
+          { k: 'line', pts: [w, foot], c: 'dash' }, { k: 'dot', p: foot, r: 2.5 });
+      }
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    read(cur === 0
+      ? '\\(\\class{ca}{\\vec{u}}+\\class{cb}{\\vec{v}}+\\vec{w}^*=\\vec{0}\\)' + M.tr({ en: ': all three columns of \\(C\\) lie on one plane, so \\(\\operatorname{rank}C=2\\).', zh: '：\\(C\\) 的三列都在同一个平面上，所以 \\(\\operatorname{rank}C=2\\)。' })
+      : M.tr({ en: '\\(\\vec{w}\\) sticks out of the plane of \\(\\class{ca}{\\vec{u}}\\) and \\(\\class{cb}{\\vec{v}}\\), so the columns of \\(A\\) span all of space: \\(\\operatorname{rank}A=3\\).', zh: '\\(\\vec{w}\\) 伸出了 \\(\\class{ca}{\\vec{u}}\\) 和 \\(\\class{cb}{\\vec{v}}\\) 所在的平面，所以 \\(A\\) 的各列张成整个空间：\\(\\operatorname{rank}A=3\\)。' }));
+  }
+  M.buttons(ctl, [{ en: 'Columns of C', zh: 'C 的列' }, { en: 'Columns of A', zh: 'A 的列' }], function (i) { cur = i; fig.render(); show(); }, 0);
+  M.button(ctl, { en: 'Edge-on view', zh: '侧面视角' }, function () { fig.setView(-45, 0); });
+  show();
+})();
+</script>

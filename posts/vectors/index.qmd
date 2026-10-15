@@ -1,14 +1,14 @@
 ---
-title: "From Vectors to Matrices"
-subtitle: "Why the operations of linear algebra work, and what they mean in space"
+title: "Vectors and the Dot Product"
+subtitle: "Why the dot product works, and what it means in space"
+aliases:
+  - /posts/vectors-to-matrices/index.html
 date: 2026-10-13
 categories: [Linear algebra]
 number-sections: true
 ---
 
-## Vector
-
-### Vector and Basic Operations
+## Vector and Basic Operations
 
 We can think of a **vector** as an arrow in space. It could be in two-dimensional space, three-dimensional space, or even higher-dimensional space. Unlike an ordinary line segment, a vector has both magnitude and direction.
 
@@ -52,7 +52,7 @@ $$
 
 These operations are simple and intuitive. They are also the foundation of the linear structure of vector spaces.
 
-### Dot Product and Inner Product
+## Dot Product and Inner Product
 
 The next operation is a little different: the **dot product**.
 
@@ -110,7 +110,7 @@ The dot product is simply the standard inner product in Euclidean space, and its
 
 But these properties do not answer the question above yet. They tell us how an inner product must behave, not why multiplying coordinates and adding them gives a meaningful number. The answer comes from geometry, which we will reach in a moment.
 
-### Vector Length and Unit Vector
+## Vector Length and Unit Vector
 
 Now that we have the dot product, we can define the **length**, or **magnitude**, of a vector.
 
@@ -144,7 +144,7 @@ $$
 
 This operation preserves the direction of the vector but changes its length to one.
 
-### The Geometric Meaning of Dot Product
+## The Geometric Meaning of Dot Product
 
 So far, the dot product looks like an operation on coordinates. But it actually describes something much more interesting: **the geometric relationship between two vectors**. This is the answer to the question we asked earlier.
 
@@ -196,7 +196,7 @@ $$
 
 So we get the geometric formula.
 
-This calculation is done in two dimensions, but the result holds in any dimension. Two vectors always lie in one plane, so the angle between them is an angle inside that plane. The law of cosines at the end of this section gives a way to see this without any coordinates.
+This calculation is done in two dimensions, but the result holds in any dimension. Two vectors always lie in one plane, so the angle between them is an angle inside that plane. The law of cosines in the last section gives a way to see this without any coordinates.
 
 This means that if we know the coordinates of two nonzero vectors, we can directly calculate the cosine of the angle between them:
 
@@ -236,9 +236,9 @@ Drag the tips of $\vec{a}$ and $\vec{b}$. The dashed line drops $\vec{a}$ onto t
 
 This is the kind of thing I find interesting about linear algebra. We can perform calculations using coordinates, but behind those calculations, there are actual geometric meanings.
 
-Later, when we study matrices, we will see many more examples of this. A matrix is not just a collection of numbers used for calculation. We should also try to understand what it represents in space, what transformation it performs, and what is really happening behind the operations.
+Later, when we study [matrices](../matrices/index.qmd), we will see many more examples of this. A matrix is not just a collection of numbers used for calculation. We should also try to understand what it represents in space, what transformation it performs, and what is really happening behind the operations.
 
-### Squared Vector Length and the Law of Cosines
+## Squared Vector Length and the Law of Cosines
 
 Now let's consider another question.
 
@@ -337,6 +337,4 @@ What looks like a formula from elementary geometry can be derived naturally from
 
 This is what I want to understand when learning linear algebra: not just how to calculate something, but why these mathematical operations work and how they connect to geometry.
 
-## Matrix
-
-*To be continued.*
+*Next: [Matrices as Transformations](../matrices/index.qmd), which asks the same kind of question about matrices.*

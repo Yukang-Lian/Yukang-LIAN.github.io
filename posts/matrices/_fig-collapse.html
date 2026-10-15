@@ -1,0 +1,42 @@
+<div class="m3d" id="m3-collapse">
+<svg role="img" aria-label="Interactive 3D figure: 27 input vectors on a grid are transformed by C, which puts every output on the plane b1 + b2 + b3 = 0, or by A, which spreads them through space. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-collapse'), ctl = root.querySelector('.m3d-ctl');
+  var mats = { C: [[1, 0, -1], [-1, 1, 0], [0, -1, 1]], A: [[1, 0, 0], [-1, 1, 0], [0, -1, 1]] }, cur = 'C', s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var pts = [];
+  for (var a = -1; a <= 1; a++) for (var b = -1; b <= 1; b++) for (var c = -1; c <= 1; c++) pts.push([a, b, c]);
+  var G = 1.5;   // grid spacing: inputs sit at −1.5, 0 and 1.5 along each axis
+  var n = M.unit([1, 1, 1]), e1 = M.unit([1, -1, 0]), e2 = M.cross(n, e1), corner = M.add(M.scale(3.8, e1), M.scale(3.8, e2));
+  var fig = M.create(root, {
+    scale: 30, az: -15, el: 15, axes: ['x_1', 'x_2', 'x_3'], axisLen: 3.2, ticks: true,
+    scene: function () {
+      // the plane fades in as C squeezes the points onto it
+      var T = M.toward(mats[cur], s), op = cur === 'C' ? s : 0, it = [];
+      if (op > 0) it = it.concat(M.plane(e1, e2, 3.8, 6, op), [{ k: 'text', p: corner, t: 'b_1 + b_2 + b_3 = 0', c: 's', dy: 16 }]);
+      pts.forEach(function (p) { it.push({ k: 'dot', p: M.mul(T, M.scale(G, p)), r: 3.2 }); });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    if (s < 1) return read(M.tr({ en: '27 input vectors: every point of the grid with coordinates −1.5, 0 or 1.5.', zh: '27 个输入向量：坐标取 −1.5、0 或 1.5 的所有网格点。' }));
+    var seen = {};
+    pts.forEach(function (p) { seen[M.mul(mats[cur], p).join(',')] = 1; });
+    var d = Object.keys(seen).length;
+    read(cur === 'C'
+      ? M.tr({ en: 'Every output lies on the plane. Turn it edge-on and they all line up. 27 inputs give only ' + d + ' different outputs.', zh: '所有输出都落在这个平面上。把平面转到侧面，它们会排成一条线。27 个输入只得到 ' + d + ' 个不同的输出。' })
+      : M.tr({ en: 'The outputs spread through all of space: no plane holds them. 27 inputs give 27 different outputs.', zh: '输出散布在整个空间里，没有哪个平面能装下它们。27 个输入得到 27 个不同的输出。' }));
+  }
+  var prog;
+  M.buttons(ctl, [{ en: 'Matrix C', zh: '矩阵 C' }, { en: 'Matrix A', zh: '矩阵 A' }], function (i) { cur = i ? 'A' : 'C'; prog.set(0); prog.run(); }, 0);
+  prog = M.progress(ctl, function (v) { var was = s >= 1; s = v; fig.render(); if ((s >= 1) !== was || v === 0) show(); });
+  M.button(ctl, { en: 'Edge-on view', zh: '侧面视角' }, function () { fig.setView(-45, 0); });
+  show();
+})();
+</script>

@@ -1,0 +1,40 @@
+<div class="m3d" id="m3-inv">
+<svg role="img" aria-label="Interactive 3D figure: five inputs on a line in the direction (1, 1, 1) are all sent by C to the same output b, and nothing reaches b-prime off the plane; A sends them to five different outputs. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-inv'), ctl = root.querySelector('.m3d-ctl');
+  var mats = [[[1, 0, -1], [-1, 1, 0], [0, -1, 1]], [[1, 0, 0], [-1, 1, 0], [0, -1, 1]]], cur = 0, s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var base = [0, 0, -1], dir = [1, 1, 1], ins = [-1, -.5, 0, .5, 1].map(function (t) { return M.add(base, M.scale(t, dir)); });
+  var n = M.unit(dir), e1 = M.unit([1, -1, 0]), e2 = M.cross(n, e1), pl = M.plane(e1, e2, 1.8, 6);
+  var fig = M.create(root, {
+    scale: 55, az: -15, el: 15, dy: -15, axes: ['x_1', 'x_2', 'x_3'], axisLen: 2, ticks: true,
+    scene: function () {
+      var T = M.toward(mats[cur], s), it = [];
+      if (cur === 0) it = it.concat(pl);
+      it.push({ k: 'line', pts: [M.add(base, M.scale(-1.4, dir)), M.add(base, M.scale(1.4, dir))], c: 'ghost' });
+      ins.forEach(function (p) { var q = M.mul(T, p); it.push({ k: 'dot', p: p, r: 3.5, c: 'hole' }, { k: 'line', pts: [p, q], c: 'trail' }, { k: 'dot', p: q, r: 3.5 }); });
+      if (cur === 0) {
+        it.push({ k: 'dot', p: [1, 0, -1], r: 8, c: 'ring ra' }, { k: 'text', p: [1, 0, -1], t: 'b', c: 'v ta', dx: 18, dy: 4, vec: 0 },
+          { k: 'dot', p: [0, 1, 1], r: 8, c: 'ring rb' }, { k: 'line', pts: [[0, 1, 1], [-2 / 3, 1 / 3, 1 / 3]], c: 'dash' }, { k: 'dot', p: [-2 / 3, 1 / 3, 1 / 3], r: 2.5 }, { k: 'text', p: [0, 1, 1], t: 'b′', c: 'v tb', dx: 20, dy: 0, vec: 0 });
+      }
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    if (s < 1) return read(M.tr({ en: 'Five different inputs, all on one line in the direction \\((1,1,1)\\).', zh: '五个不同的输入，都在方向为 \\((1,1,1)\\) 的一条直线上。' }));
+    read(cur === 0
+      ? M.tr({ en: '\\(C\\) sends all five to the same \\(\\class{ca}{\\vec{b}}\\): knowing \\(\\class{ca}{\\vec{b}}\\), we can’t tell which input it came from. And no input at all reaches \\(\\class{cb}{\\vec{b}\'}\\), which is off the plane.', zh: '\\(C\\) 把五个输入都送到了同一个 \\(\\class{ca}{\\vec{b}}\\)：只知道 \\(\\class{ca}{\\vec{b}}\\)，无法判断它来自哪个输入。而平面外的 \\(\\class{cb}{\\vec{b}\'}\\)，没有任何输入能到达。' })
+      : M.tr({ en: '\\(A\\) sends the five inputs to five different outputs, so each output leads back to exactly one input.', zh: '\\(A\\) 把五个输入送到五个不同的输出，所以每个输出都能唯一地追溯到一个输入。' }));
+  }
+  var prog;
+  M.buttons(ctl, [{ en: 'Matrix C', zh: '矩阵 C' }, { en: 'Matrix A', zh: '矩阵 A' }], function (i) { cur = i; prog.set(0); prog.run(); }, 0);
+  prog = M.progress(ctl, function (v) { var was = s >= 1; s = v; fig.render(); if ((s >= 1) !== was || v === 0) show(); });
+  show();
+})();
+</script>

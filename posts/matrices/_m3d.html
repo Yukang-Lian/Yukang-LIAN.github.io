@@ -1,0 +1,253 @@
+<style>
+/* Shared look of the 3D figures in this post (drag to rotate). */
+.m3d { --va:#2a78d6; --vb:#eb6834; margin-bottom:.9rem; }
+body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; }
+.m3d svg { display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+.m3d svg.grabbing { cursor:grabbing; }
+.m3d text { fill:currentColor; font-family:inherit; font-size:16px; }
+.m3d text.axl { font-style:italic; font-size:14px; opacity:.55; }
+.m3d text.v { font-style:italic; font-size:17px; }
+.m3d text.s { font-size:14px; }
+.m3d text.ta { fill:var(--va); } .m3d text.tb { fill:var(--vb); } .m3d text.tm { opacity:.6; }
+.m3d text.tk { font-size:11px; opacity:.5; }
+.m3d .ax { stroke:currentColor; stroke-width:1; opacity:.28; fill:none; }
+.m3d .tick { stroke:currentColor; stroke-width:1; opacity:.4; }
+.m3d line.arr { stroke-width:2.4; stroke-linecap:round; }
+.m3d .va { stroke:var(--va); } .m3d .vb { stroke:var(--vb); } .m3d .vi { stroke:currentColor; } .m3d .vm { stroke:currentColor; opacity:.5; }
+.m3d .ha { fill:var(--va); } .m3d .hb { fill:var(--vb); } .m3d .hi { fill:currentColor; } .m3d .hm { fill:currentColor; opacity:.5; }
+.m3d .wire { fill:none; stroke:currentColor; stroke-width:1; opacity:.35; }
+.m3d .ghost { fill:none; stroke:currentColor; stroke-width:1; opacity:.18; stroke-dasharray:3 4; }
+.m3d .grid { fill:none; stroke:currentColor; stroke-width:.8; stroke-opacity:.16; }
+.m3d .plane { fill:currentColor; fill-opacity:.07; stroke:currentColor; stroke-opacity:.3; stroke-width:1; }
+.m3d .dash { fill:none; stroke:currentColor; stroke-width:1.4; stroke-dasharray:5 5; opacity:.7; }
+.m3d .trail { fill:none; stroke:currentColor; stroke-width:1; stroke-dasharray:2 4; opacity:.45; }
+.m3d .dot { fill:currentColor; }
+.m3d .hole { fill:none; stroke:currentColor; stroke-width:1.2; opacity:.45; }
+.m3d .ring { fill:none; stroke-width:2; } .m3d .ring.ra { stroke:var(--va); } .m3d .ring.rb { stroke:var(--vb); }
+.m3d .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.m3d-ctl { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:.45rem .9rem; margin-top:.5rem; font-size:.85rem; }
+.m3d-ctl .grp { display:inline-flex; flex-wrap:wrap; gap:.35rem; }
+.m3d-ctl button { font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:3px; padding:.1rem .6rem; opacity:.6; cursor:pointer; }
+.m3d-ctl button:hover, .m3d-ctl button.on { opacity:1; }
+.m3d-ctl button.on { box-shadow:inset 0 -2px 0 currentColor; }
+.m3d-ctl label { display:inline-flex; align-items:center; gap:.35rem; font-variant-numeric:tabular-nums; }
+.m3d-ctl input[type=range] { width:110px; accent-color:currentColor; }
+.m3d-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:1.7em; }
+.m3d-read.tall { min-height:3.4em; }
+.m3d-read .ca { color:var(--va); } .m3d-read .cb { color:var(--vb); }
+.m3d-hint { text-align:center; font-size:.75rem; opacity:.55; margin-top:.1rem; }
+.m3d-hint button { font:inherit; color:inherit; background:none; border:0; padding:0 0 0 .5em; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+.m3d-hint button:hover { opacity:.8; }
+</style>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+
+// A tiny 3D renderer for the figures in this post: orthographic projection, drag to rotate,
+// and a scene described as a list of arrows, lines, polygons, dots and labels in math coordinates.
+window.M3D = window.M3D || (function () {
+  var zh = /^zh/.test(document.documentElement.lang);
+  var tr = function (s) { return s == null ? '' : typeof s === 'string' ? s : (zh ? s.zh : s.en); };
+  var dot = function (a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; };
+  var cross = function (a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; };
+  var unit = function (a) { var l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  var add = function (a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; };
+  var scale = function (c, a) { return [c * a[0], c * a[1], c * a[2]]; };
+  var mul = function (M, p) { return [dot(M[0], p), dot(M[1], p), dot(M[2], p)]; };
+  var I3 = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  // the matrix part way from the identity to M: (1 - s) I + s M
+  var toward = function (M, s) { return M.map(function (r, i) { return r.map(function (x, j) { return (1 - s) * I3[i][j] + s * x; }); }); };
+  var rotX = function (t) { var c = Math.cos(t), s = Math.sin(t); return [[1, 0, 0], [0, c, -s], [0, s, c]]; };
+  var f1 = function (x) { var r = Math.round(x * 10) / 10; return (r === 0 ? 0 : r).toFixed(1); };
+  var ease = function (s) { return s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2; };
+
+  function tween(ms, step, done) {
+    var t0 = performance.now(), live = true;
+    (function go(now) {
+      if (!live) return;
+      var s = Math.min(1, (now - t0) / ms); step(ease(s));
+      if (s < 1) requestAnimationFrame(go); else if (done) done();
+    })(t0);
+    return function () { live = false; };
+  }
+
+  // MathJax readouts: typeset the latest content once MathJax is ready, never two at a time
+  function typesetter(out) {
+    var busy = false, next = null;
+    return function typeset(html) {
+      next = html;
+      if (busy) return;
+      busy = true;
+      if (!(window.MathJax && MathJax.startup && MathJax.startup.promise)) return setTimeout(function () { busy = false; typeset(next); }, 200);
+      MathJax.startup.promise.then(function () {
+        var h = next; next = null;
+        MathJax.typesetClear([out]); out.innerHTML = h;
+        return MathJax.typesetPromise([out]);
+      }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+    };
+  }
+
+  function create(root, cfg) {
+    var svg = root.querySelector('svg'), W = cfg.w || 460, H = cfg.h || 340, S = cfg.scale || 60;
+    var OX = W / 2 + (cfg.dx || 0), OY = H / 2 + (cfg.dy || 0), rad = Math.PI / 180;
+    var view = { az: (cfg.az == null ? -25 : cfg.az) * rad, el: (cfg.el == null ? 22 : cfg.el) * rad }, C, R, U;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W);
+    var P = function (p) { return [OX + S * dot(p, R), OY - S * dot(p, U)]; };
+    var xy = function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); };
+    var esc = function (s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/_(\w)/g, '<tspan baseline-shift="-28%" font-size="72%">$1</tspan>');
+    };
+    var COL = { a: ['va', 'ha', 'ta'], b: ['vb', 'hb', 'tb'], i: ['vi', 'hi', ''], m: ['vm', 'hm', 'tm'] };
+
+    function render() {
+      C = [Math.cos(view.el) * Math.cos(view.az), Math.cos(view.el) * Math.sin(view.az), Math.sin(view.el)];
+      R = unit([-C[1], C[0], 0]); U = cross(C, R);
+      var items = [];
+      (cfg.axes || []).forEach(function (lab, i) {
+        var L = cfg.axisLen || 1.6, e = [0, 0, 0], n = [0, 0, 0]; e[i] = L; n[i] = -L;
+        items.push({ k: 'line', pts: [n, e], c: 'ax' }, { k: 'text', p: scale(1.12, e), t: lab, c: 'axl' });
+      });
+      items = items.concat(cfg.scene());
+      var h = '', labels = '';
+      // integer ticks on each axis, drawn flat on the screen; skipped when an axis is seen end-on
+      if (cfg.ticks) (cfg.axes || []).forEach(function (lab, i) {
+        var e = [0, 0, 0]; e[i] = 1;
+        var o = P([0, 0, 0]), q = P(e), ax = q[0] - o[0], ay = q[1] - o[1], d = Math.hypot(ax, ay);
+        if (d < 14) return;
+        var nx = -ay / d, ny = ax / d;
+        if (Math.abs(ny) < .35 ? nx < 0 : ny < 0) { nx = -nx; ny = -ny; }
+        for (var t = -Math.floor(cfg.axisLen || 1.6); t <= (cfg.axisLen || 1.6); t++) {
+          if (!t) continue;
+          var x = o[0] + ax * t, y = o[1] + ay * t;
+          h += '<line class="tick" x1="' + (x - nx * 3.5).toFixed(1) + '" y1="' + (y - ny * 3.5).toFixed(1) + '" x2="' + (x + nx * 3.5).toFixed(1) + '" y2="' + (y + ny * 3.5).toFixed(1) + '"/>';
+          h += '<text class="tk" x="' + (x + nx * 11).toFixed(1) + '" y="' + (y + ny * 11).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle">' + (t < 0 ? '−' + -t : t) + '</text>';
+        }
+      });
+      var back = [], mid = [], front = [];
+      items.forEach(function (it) {
+        if (it.k === 'poly') back.push(it); else if (it.k === 'text') front.push(it); else mid.push(it);
+        var pts = it.pts || (it.k === 'arrow' ? [it.a, it.b] : [it.p]);
+        it.z = pts.reduce(function (z, p) { return z + dot(p, C); }, 0) / pts.length;
+      });
+      mid.sort(function (u, v) { return u.z - v.z; });
+      back.concat(mid).forEach(function (it) {
+        if (it.k === 'poly' || it.k === 'line') {
+          h += '<path class="' + it.c + '"' + (it.op != null ? ' style="opacity:' + it.op.toFixed(2) + '"' : '') + ' d="M' + it.pts.map(function (p) { return xy(P(p)); }).join(' L') + (it.k === 'poly' ? ' Z' : '') + '"/>';
+        } else if (it.k === 'dot') {
+          var q = P(it.p); h += '<circle class="' + (it.c || 'dot') + '" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (it.r || 3) + '"/>';
+        } else if (it.k === 'arrow') {
+          var a = P(it.a), b = P(it.b), d = Math.hypot(b[0] - a[0], b[1] - a[1]), c = COL[it.c || 'i'];
+          if (d < 3) return;
+          var ux = (b[0] - a[0]) / d, uy = (b[1] - a[1]) / d, L = Math.min(12, d * .5), Wd = L * .42, bx = b[0] - ux * L, by = b[1] - uy * L;
+          h += '<line class="arr ' + c[0] + '" x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + (bx + ux * 2).toFixed(1) + '" y2="' + (by + uy * 2).toFixed(1) + '"/>';
+          h += '<path class="' + c[1] + '" d="M' + xy(b) + ' L' + (bx - uy * Wd).toFixed(1) + ',' + (by + ux * Wd).toFixed(1) + ' L' + (bx + uy * Wd).toFixed(1) + ',' + (by - ux * Wd).toFixed(1) + ' Z"/>';
+          if (it.label) {
+            var o = it.off || 15, lx = b[0] + ux * o, ly = b[1] + uy * o;
+            if (it.mid) { var sd = (it.mid > 0 ? 1 : -1) * 16; lx = (a[0] + b[0]) / 2 - uy * sd; ly = (a[1] + b[1]) / 2 + ux * sd; }
+            labels += '<text class="v ' + c[2] + '" x="' + (lx + (it.ldx || 0)).toFixed(1) + '" y="' + (ly + (it.ldy || 0)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle"' + (it.vec != null ? ' data-vec="' + it.vec + '"' : '') + '>' + esc(it.label) + '</text>';
+            // an optional coordinate readout, stacked beyond the label so it never sits on the arrow
+            if (it.coord) labels += '<text class="s" x="' + (lx + (it.ldx || 0)).toFixed(1) + '" y="' + (ly + (it.ldy || 0) + (uy < 0 ? -18 : 18)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle">' + esc(it.coord) + '</text>';
+          }
+        }
+      });
+      front.forEach(function (it) {
+        var q = P(it.p);
+        labels += '<text class="' + (it.c || 's') + '" x="' + (q[0] + (it.dx || 0)).toFixed(1) + '" y="' + (q[1] + (it.dy || 0)).toFixed(1) + '" text-anchor="' + (it.anchor || 'middle') + '" dominant-baseline="middle"' + (it.vec != null ? ' data-vec="' + it.vec + '"' : '') + '>' + esc(it.t) + '</text>';
+      });
+      svg.innerHTML = h + labels;
+      vecArrows(svg);
+    }
+
+    var stop = null, drag = null;
+    svg.addEventListener('pointerdown', function (ev) {
+      if (stop) { stop(); stop = null; }
+      drag = [ev.clientX, ev.clientY]; svg.setPointerCapture(ev.pointerId); svg.classList.add('grabbing'); ev.preventDefault();
+    });
+    svg.addEventListener('pointermove', function (ev) {
+      if (!drag) return;
+      view.az -= (ev.clientX - drag[0]) * .008;
+      view.el = Math.max(-1.5, Math.min(1.5, view.el + (ev.clientY - drag[1]) * .008));
+      drag = [ev.clientX, ev.clientY]; render();
+    });
+    var up = function () { drag = null; svg.classList.remove('grabbing'); };
+    svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+
+    function setView(az, el) {
+      if (stop) stop();
+      var a0 = view.az, e0 = view.el, a1 = az * rad, e1 = el * rad;
+      while (a1 - a0 > Math.PI) a1 -= 2 * Math.PI; while (a1 - a0 < -Math.PI) a1 += 2 * Math.PI;
+      stop = tween(700, function (s) { view.az = a0 + (a1 - a0) * s; view.el = e0 + (e1 - e0) * s; render(); }, function () { stop = null; });
+    }
+    var home = [view.az / rad, view.el / rad], reset = function () { setView(home[0], home[1]); }, hint = root.querySelector('.m3d-hint');
+    if (hint) { var rb = document.createElement('button'); rb.type = 'button'; rb.textContent = tr({ en: 'Reset view', zh: '还原视角' }); rb.addEventListener('click', reset); hint.appendChild(rb); }
+    if (document.fonts) document.fonts.ready.then(render);
+    new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    render();
+    return { render: render, setView: setView, reset: reset };
+  }
+
+  // a square patch of the plane through the origin spanned by the unit vectors e1, e2, with grid lines
+  function plane(e1, e2, half, n, op) {
+    var at = function (x, y) { return add(scale(x, e1), scale(y, e2)); }, it = [];
+    it.push({ k: 'poly', pts: [at(-half, -half), at(half, -half), at(half, half), at(-half, half)], c: 'plane', op: op });
+    for (var i = 1; i < n; i++) {
+      var t = -half + 2 * half * i / n;
+      it.push({ k: 'line', pts: [at(t, -half), at(t, half)], c: 'grid', op: op }, { k: 'line', pts: [at(-half, t), at(half, t)], c: 'grid', op: op });
+    }
+    return it;
+  }
+
+  // controls under a figure
+  function buttons(box, labels, on, init) {
+    var g = document.createElement('span'); g.className = 'grp'; box.appendChild(g);
+    var bs = labels.map(function (l, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.innerHTML = tr(l); g.appendChild(b);
+      b.addEventListener('click', function () { pick(i); on(i); });
+      return b;
+    });
+    function pick(i) { bs.forEach(function (b, j) { b.classList.toggle('on', i === j); }); }
+    if (init != null) pick(init);
+    return { pick: pick };
+  }
+  function button(box, label, on) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = tr(label); box.appendChild(b);
+    b.addEventListener('click', on); return b;
+  }
+  function slider(box, label, min, max, step, value, on) {
+    var l = document.createElement('label'), i = document.createElement('input'), v = document.createElement('span');
+    l.innerHTML = label; i.type = 'range'; i.min = min; i.max = max; i.step = step; i.value = value;
+    l.appendChild(i); l.appendChild(v); box.appendChild(l);
+    var fmt = function () { v.textContent = (+i.value).toFixed(step < 1 ? 1 : 0); };
+    i.addEventListener('input', function () { fmt(); on(+i.value); }); fmt();
+    return { get: function () { return +i.value; }, set: function (x) { i.value = x; fmt(); } };
+  }
+  // a 0 → 1 "transform" slider with a play button that animates it
+  function progress(box, on) {
+    var stop = null;
+    var play = button(box, { en: 'Play', zh: '播放' }, function () { run(); });
+    var sl = slider(box, tr({ en: 'transform', zh: '变换' }), 0, 1, 0.01, 0, function (s) { if (stop) stop(); on(s); });
+    function run(done) {
+      if (stop) stop();
+      stop = tween(1600, function (s) { sl.set(s); on(s); }, function () { stop = null; if (done) done(); });
+    }
+    return { run: run, set: function (s) { if (stop) stop(); sl.set(s); on(s); }, get: sl.get };
+  }
+
+  return { create: create, plane: plane, tween: tween, typesetter: typesetter, buttons: buttons, button: button, slider: slider, progress: progress,
+    tr: tr, zh: zh, dot: dot, cross: cross, unit: unit, add: add, scale: scale, mul: mul, toward: toward, rotX: rotX, f1: f1 };
+})();
+</script>

@@ -9,7 +9,7 @@ body.quarto-dark .vfig { --va:#3987e5; --vb:#d95926; }
 .vfig .dash { stroke-dasharray:5 5; stroke-width:1.3; opacity:.6; }
 .vfig text { fill:currentColor; font-family:inherit; font-size:17px; }
 .vfig text.v { font-style:italic; font-size:18px; }
-.vfig .vecarrow { fill:none; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.vfig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
 .vfig text.ta { fill:var(--va); } .vfig text.tb { fill:var(--vb); }
 .vfig text.g { font-style:italic; font-size:16px; }
 </style>
@@ -38,7 +38,7 @@ window.vecArrows = window.vecArrows || function (svg) {
       var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
       a.setAttribute('class', 'vecarrow');
       a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
-      a.style.stroke = col;
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
       t.parentNode.appendChild(a);
     });
   });
