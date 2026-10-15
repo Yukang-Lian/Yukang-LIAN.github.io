@@ -1,0 +1,2109 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-Hans" xml:lang="zh-Hans"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>把矩阵看作变换 – Yukang Lian</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../../">
+<script src="../../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-176b1e44b272a30ec08500e73512b2cc.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-2e366b5af1927b8352462c4a9d1c03d0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../../site_libs/quarto-html/quarto-syntax-highlighting-176b1e44b272a30ec08500e73512b2cc.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../../site_libs/bootstrap/bootstrap-79e7014afae10fe6ed2dc68f400d214f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../../site_libs/bootstrap/bootstrap-dark-6fc51dafa5539fe137859b575937c765.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../../site_libs/bootstrap/bootstrap-79e7014afae10fe6ed2dc68f400d214f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "没有结果",
+    "search-matching-documents-text": "匹配的文档",
+    "search-copy-link-title": "复制搜索链接",
+    "search-hide-matches-text": "隐藏其它匹配结果",
+    "search-more-match-text": "更多匹配结果",
+    "search-more-matches-text": "更多匹配结果",
+    "search-clear-button-title": "清除",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "取消",
+    "search-submit-button-title": "提交",
+    "search-label": "搜索"
+  }
+}</script>
+<script>
+// MathJax normally sizes math by measuring the surrounding text, but if it measures before the web font
+// has loaded it measures the fallback font, so math comes out a different size on each page load.
+// Pin the scale instead (0.95 is what the measurement gives once Crimson Pro is in place).
+// MathJax is served from /assets/mathjax; point it at the math font stored there too.
+window.MathJax = {
+  loader: { paths: { fonts: '/assets/mathjax/fonts' } },
+  output: { matchFontHeight: false, scale: 0.95 }
+};
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="../../../../assets/mathjax/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="floating nav-fixed slimcontent quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../../index.html">
+    <span class="navbar-title">Yukang Lian</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="搜索"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="展开或折叠导航栏" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../index.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../../zh/index.html"> 
+<span class="menu-text">中文</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/Yukang-Lian"> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="切换深色模式"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">目录</h2>
+   
+  <ul>
+  <li><a href="#从向量的组合到矩阵" id="toc-从向量的组合到矩阵" class="nav-link active" data-scroll-target="#从向量的组合到矩阵"><span class="header-section-number">1</span> 从向量的组合到矩阵</a></li>
+  <li><a href="#把矩阵看作线性变换" id="toc-把矩阵看作线性变换" class="nav-link" data-scroll-target="#把矩阵看作线性变换"><span class="header-section-number">2</span> 把矩阵看作线性变换</a>
+  <ul class="collapse">
+  <li><a href="#线性变换的几个例子" id="toc-线性变换的几个例子" class="nav-link" data-scroll-target="#线性变换的几个例子"><span class="header-section-number">2.1</span> 线性变换的几个例子</a></li>
+  <li><a href="#关于神经网络和计算的一点想法" id="toc-关于神经网络和计算的一点想法" class="nav-link" data-scroll-target="#关于神经网络和计算的一点想法"><span class="header-section-number">2.2</span> 关于神经网络和计算的一点想法</a></li>
+  </ul></li>
+  <li><a href="#从正向变换到逆问题" id="toc-从正向变换到逆问题" class="nav-link" data-scroll-target="#从正向变换到逆问题"><span class="header-section-number">3</span> 从正向变换到逆问题</a></li>
+  <li><a href="#线性相关与线性无关" id="toc-线性相关与线性无关" class="nav-link" data-scroll-target="#线性相关与线性无关"><span class="header-section-number">4</span> 线性相关与线性无关</a>
+  <ul class="collapse">
+  <li><a href="#丢掉的那个维度去哪了" id="toc-丢掉的那个维度去哪了" class="nav-link" data-scroll-target="#丢掉的那个维度去哪了"><span class="header-section-number">4.1</span> 丢掉的那个维度去哪了？</a></li>
+  <li><a href="#看看矩阵的列" id="toc-看看矩阵的列" class="nav-link" data-scroll-target="#看看矩阵的列"><span class="header-section-number">4.2</span> 看看矩阵的列</a></li>
+  </ul></li>
+  <li><a href="#秩与维数" id="toc-秩与维数" class="nav-link" data-scroll-target="#秩与维数"><span class="header-section-number">5</span> 秩与维数</a></li>
+  <li><a href="#秩线性相关与可逆性" id="toc-秩线性相关与可逆性" class="nav-link" data-scroll-target="#秩线性相关与可逆性"><span class="header-section-number">6</span> 秩、线性相关与可逆性</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">把矩阵看作变换</h1>
+<p class="subtitle lead">从向量的组合到秩，以及矩阵会丢掉什么</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">线性代数</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">发布于</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">2026年10月15日</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="translation-note">
+<p>本文译自英文原文 <a href="../../../../posts/2026/matrices/index.html"><em>Matrices as Transformations</em></a>，如有出入，以英文版为准。</p>
+</div>
+<style>
+/* Shared look of the 3D figures in this post (drag to rotate). */
+.m3d { --va:#2a78d6; --vb:#eb6834; margin-bottom:.9rem; }
+body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; }
+.m3d svg { display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+.m3d svg.grabbing { cursor:grabbing; }
+.m3d text { fill:currentColor; font-family:inherit; font-size:16px; }
+.m3d text.axl { font-style:italic; font-size:14px; opacity:.55; }
+.m3d text.v { font-style:italic; font-size:17px; }
+.m3d text.s { font-size:14px; }
+.m3d text.ta { fill:var(--va); } .m3d text.tb { fill:var(--vb); } .m3d text.tm { opacity:.6; }
+.m3d text.tk { font-size:11px; opacity:.5; }
+.m3d .ax { stroke:currentColor; stroke-width:1; opacity:.28; fill:none; }
+.m3d .tick { stroke:currentColor; stroke-width:1; opacity:.4; }
+.m3d line.arr { stroke-width:2.4; stroke-linecap:round; }
+.m3d .va { stroke:var(--va); } .m3d .vb { stroke:var(--vb); } .m3d .vi { stroke:currentColor; } .m3d .vm { stroke:currentColor; opacity:.5; }
+.m3d .ha { fill:var(--va); } .m3d .hb { fill:var(--vb); } .m3d .hi { fill:currentColor; } .m3d .hm { fill:currentColor; opacity:.5; }
+.m3d .wire { fill:none; stroke:currentColor; stroke-width:1; opacity:.35; }
+.m3d .ghost { fill:none; stroke:currentColor; stroke-width:1; opacity:.18; stroke-dasharray:3 4; }
+.m3d .grid { fill:none; stroke:currentColor; stroke-width:.8; stroke-opacity:.16; }
+.m3d .plane { fill:currentColor; fill-opacity:.07; stroke:currentColor; stroke-opacity:.3; stroke-width:1; }
+.m3d .dash { fill:none; stroke:currentColor; stroke-width:1.4; stroke-dasharray:5 5; opacity:.7; }
+.m3d .trail { fill:none; stroke:currentColor; stroke-width:1; stroke-dasharray:2 4; opacity:.45; }
+.m3d .dot { fill:currentColor; }
+.m3d .hole { fill:none; stroke:currentColor; stroke-width:1.2; opacity:.45; }
+.m3d .ring { fill:none; stroke-width:2; } .m3d .ring.ra { stroke:var(--va); } .m3d .ring.rb { stroke:var(--vb); }
+.m3d .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.m3d-ctl { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:.45rem .9rem; margin-top:.5rem; font-size:.85rem; }
+.m3d-ctl .grp { display:inline-flex; flex-wrap:wrap; gap:.35rem; }
+.m3d-ctl button { font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:3px; padding:.1rem .6rem; opacity:.6; cursor:pointer; }
+.m3d-ctl button:hover, .m3d-ctl button.on { opacity:1; }
+.m3d-ctl button.on { box-shadow:inset 0 -2px 0 currentColor; }
+.m3d-ctl label { display:inline-flex; align-items:center; gap:.35rem; font-variant-numeric:tabular-nums; }
+.m3d-ctl input[type=range] { width:110px; accent-color:currentColor; }
+.m3d-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:1.7em; }
+.m3d-read.tall { min-height:3.4em; }
+.m3d-read .ca { color:var(--va); } .m3d-read .cb { color:var(--vb); }
+.m3d-hint { text-align:center; font-size:.75rem; opacity:.55; margin-top:.1rem; }
+.m3d-hint button { font:inherit; color:inherit; background:none; border:0; padding:0 0 0 .5em; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+.m3d-hint button:hover { opacity:.8; }
+</style>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+
+// A tiny 3D renderer for the figures in this post: orthographic projection, drag to rotate,
+// and a scene described as a list of arrows, lines, polygons, dots and labels in math coordinates.
+window.M3D = window.M3D || (function () {
+  var zh = /^zh/.test(document.documentElement.lang);
+  var tr = function (s) { return s == null ? '' : typeof s === 'string' ? s : (zh ? s.zh : s.en); };
+  var dot = function (a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; };
+  var cross = function (a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; };
+  var unit = function (a) { var l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  var add = function (a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; };
+  var scale = function (c, a) { return [c * a[0], c * a[1], c * a[2]]; };
+  var mul = function (M, p) { return [dot(M[0], p), dot(M[1], p), dot(M[2], p)]; };
+  var I3 = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  // the matrix part way from the identity to M: (1 - s) I + s M
+  var toward = function (M, s) { return M.map(function (r, i) { return r.map(function (x, j) { return (1 - s) * I3[i][j] + s * x; }); }); };
+  var rotX = function (t) { var c = Math.cos(t), s = Math.sin(t); return [[1, 0, 0], [0, c, -s], [0, s, c]]; };
+  var f1 = function (x) { var r = Math.round(x * 10) / 10; return (r === 0 ? 0 : r).toFixed(1); };
+  var ease = function (s) { return s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2; };
+
+  function tween(ms, step, done) {
+    var t0 = performance.now(), live = true;
+    (function go(now) {
+      if (!live) return;
+      var s = Math.min(1, (now - t0) / ms); step(ease(s));
+      if (s < 1) requestAnimationFrame(go); else if (done) done();
+    })(t0);
+    return function () { live = false; };
+  }
+
+  // MathJax readouts: typeset the latest content once MathJax is ready, never two at a time
+  function typesetter(out) {
+    var busy = false, next = null;
+    return function typeset(html) {
+      next = html;
+      if (busy) return;
+      busy = true;
+      if (!(window.MathJax && MathJax.startup && MathJax.startup.promise)) return setTimeout(function () { busy = false; typeset(next); }, 200);
+      MathJax.startup.promise.then(function () {
+        var h = next; next = null;
+        MathJax.typesetClear([out]); out.innerHTML = h;
+        return MathJax.typesetPromise([out]);
+      }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+    };
+  }
+
+  function create(root, cfg) {
+    var svg = root.querySelector('svg'), W = cfg.w || 460, H = cfg.h || 340, S = cfg.scale || 60;
+    var OX = W / 2 + (cfg.dx || 0), OY = H / 2 + (cfg.dy || 0), rad = Math.PI / 180;
+    var view = { az: (cfg.az == null ? -25 : cfg.az) * rad, el: (cfg.el == null ? 22 : cfg.el) * rad }, C, R, U;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W);
+    var P = function (p) { return [OX + S * dot(p, R), OY - S * dot(p, U)]; };
+    var xy = function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); };
+    var esc = function (s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/_(\w)/g, '<tspan baseline-shift="-28%" font-size="72%">$1</tspan>');
+    };
+    var COL = { a: ['va', 'ha', 'ta'], b: ['vb', 'hb', 'tb'], i: ['vi', 'hi', ''], m: ['vm', 'hm', 'tm'] };
+
+    function render() {
+      C = [Math.cos(view.el) * Math.cos(view.az), Math.cos(view.el) * Math.sin(view.az), Math.sin(view.el)];
+      R = unit([-C[1], C[0], 0]); U = cross(C, R);
+      var items = [];
+      (cfg.axes || []).forEach(function (lab, i) {
+        var L = cfg.axisLen || 1.6, e = [0, 0, 0], n = [0, 0, 0]; e[i] = L; n[i] = -L;
+        items.push({ k: 'line', pts: [n, e], c: 'ax' }, { k: 'text', p: scale(1.12, e), t: lab, c: 'axl' });
+      });
+      items = items.concat(cfg.scene());
+      var h = '', labels = '';
+      // integer ticks on each axis, drawn flat on the screen; skipped when an axis is seen end-on
+      if (cfg.ticks) (cfg.axes || []).forEach(function (lab, i) {
+        var e = [0, 0, 0]; e[i] = 1;
+        var o = P([0, 0, 0]), q = P(e), ax = q[0] - o[0], ay = q[1] - o[1], d = Math.hypot(ax, ay);
+        if (d < 14) return;
+        var nx = -ay / d, ny = ax / d;
+        if (Math.abs(ny) < .35 ? nx < 0 : ny < 0) { nx = -nx; ny = -ny; }
+        for (var t = -Math.floor(cfg.axisLen || 1.6); t <= (cfg.axisLen || 1.6); t++) {
+          if (!t) continue;
+          var x = o[0] + ax * t, y = o[1] + ay * t;
+          h += '<line class="tick" x1="' + (x - nx * 3.5).toFixed(1) + '" y1="' + (y - ny * 3.5).toFixed(1) + '" x2="' + (x + nx * 3.5).toFixed(1) + '" y2="' + (y + ny * 3.5).toFixed(1) + '"/>';
+          h += '<text class="tk" x="' + (x + nx * 11).toFixed(1) + '" y="' + (y + ny * 11).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle">' + (t < 0 ? '−' + -t : t) + '</text>';
+        }
+      });
+      var back = [], mid = [], front = [];
+      items.forEach(function (it) {
+        if (it.k === 'poly') back.push(it); else if (it.k === 'text') front.push(it); else mid.push(it);
+        var pts = it.pts || (it.k === 'arrow' ? [it.a, it.b] : [it.p]);
+        it.z = pts.reduce(function (z, p) { return z + dot(p, C); }, 0) / pts.length;
+      });
+      mid.sort(function (u, v) { return u.z - v.z; });
+      back.concat(mid).forEach(function (it) {
+        if (it.k === 'poly' || it.k === 'line') {
+          h += '<path class="' + it.c + '"' + (it.op != null ? ' style="opacity:' + it.op.toFixed(2) + '"' : '') + ' d="M' + it.pts.map(function (p) { return xy(P(p)); }).join(' L') + (it.k === 'poly' ? ' Z' : '') + '"/>';
+        } else if (it.k === 'dot') {
+          var q = P(it.p); h += '<circle class="' + (it.c || 'dot') + '" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (it.r || 3) + '"/>';
+        } else if (it.k === 'arrow') {
+          var a = P(it.a), b = P(it.b), d = Math.hypot(b[0] - a[0], b[1] - a[1]), c = COL[it.c || 'i'];
+          if (d < 3) return;
+          var ux = (b[0] - a[0]) / d, uy = (b[1] - a[1]) / d, L = Math.min(12, d * .5), Wd = L * .42, bx = b[0] - ux * L, by = b[1] - uy * L;
+          h += '<line class="arr ' + c[0] + '" x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + (bx + ux * 2).toFixed(1) + '" y2="' + (by + uy * 2).toFixed(1) + '"/>';
+          h += '<path class="' + c[1] + '" d="M' + xy(b) + ' L' + (bx - uy * Wd).toFixed(1) + ',' + (by + ux * Wd).toFixed(1) + ' L' + (bx + uy * Wd).toFixed(1) + ',' + (by - ux * Wd).toFixed(1) + ' Z"/>';
+          if (it.label) {
+            var o = it.off || 15, lx = b[0] + ux * o, ly = b[1] + uy * o;
+            if (it.mid) { var sd = (it.mid > 0 ? 1 : -1) * 16; lx = (a[0] + b[0]) / 2 - uy * sd; ly = (a[1] + b[1]) / 2 + ux * sd; }
+            labels += '<text class="v ' + c[2] + '" x="' + (lx + (it.ldx || 0)).toFixed(1) + '" y="' + (ly + (it.ldy || 0)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle"' + (it.vec != null ? ' data-vec="' + it.vec + '"' : '') + '>' + esc(it.label) + '</text>';
+            // an optional coordinate readout, stacked beyond the label so it never sits on the arrow
+            if (it.coord) labels += '<text class="s" x="' + (lx + (it.ldx || 0)).toFixed(1) + '" y="' + (ly + (it.ldy || 0) + (uy < 0 ? -18 : 18)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle">' + esc(it.coord) + '</text>';
+          }
+        }
+      });
+      front.forEach(function (it) {
+        var q = P(it.p);
+        labels += '<text class="' + (it.c || 's') + '" x="' + (q[0] + (it.dx || 0)).toFixed(1) + '" y="' + (q[1] + (it.dy || 0)).toFixed(1) + '" text-anchor="' + (it.anchor || 'middle') + '" dominant-baseline="middle"' + (it.vec != null ? ' data-vec="' + it.vec + '"' : '') + '>' + esc(it.t) + '</text>';
+      });
+      svg.innerHTML = h + labels;
+      vecArrows(svg);
+    }
+
+    var stop = null, drag = null;
+    svg.addEventListener('pointerdown', function (ev) {
+      if (stop) { stop(); stop = null; }
+      drag = [ev.clientX, ev.clientY]; svg.setPointerCapture(ev.pointerId); svg.classList.add('grabbing'); ev.preventDefault();
+    });
+    svg.addEventListener('pointermove', function (ev) {
+      if (!drag) return;
+      view.az -= (ev.clientX - drag[0]) * .008;
+      view.el = Math.max(-1.5, Math.min(1.5, view.el + (ev.clientY - drag[1]) * .008));
+      drag = [ev.clientX, ev.clientY]; render();
+    });
+    var up = function () { drag = null; svg.classList.remove('grabbing'); };
+    svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+
+    function setView(az, el) {
+      if (stop) stop();
+      var a0 = view.az, e0 = view.el, a1 = az * rad, e1 = el * rad;
+      while (a1 - a0 > Math.PI) a1 -= 2 * Math.PI; while (a1 - a0 < -Math.PI) a1 += 2 * Math.PI;
+      stop = tween(700, function (s) { view.az = a0 + (a1 - a0) * s; view.el = e0 + (e1 - e0) * s; render(); }, function () { stop = null; });
+    }
+    var home = [view.az / rad, view.el / rad], reset = function () { setView(home[0], home[1]); }, hint = root.querySelector('.m3d-hint');
+    if (hint) { var rb = document.createElement('button'); rb.type = 'button'; rb.textContent = tr({ en: 'Reset view', zh: '还原视角' }); rb.addEventListener('click', reset); hint.appendChild(rb); }
+    if (document.fonts) document.fonts.ready.then(render);
+    new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    render();
+    return { render: render, setView: setView, reset: reset };
+  }
+
+  // a square patch of the plane through the origin spanned by the unit vectors e1, e2, with grid lines
+  function plane(e1, e2, half, n, op) {
+    var at = function (x, y) { return add(scale(x, e1), scale(y, e2)); }, it = [];
+    it.push({ k: 'poly', pts: [at(-half, -half), at(half, -half), at(half, half), at(-half, half)], c: 'plane', op: op });
+    for (var i = 1; i < n; i++) {
+      var t = -half + 2 * half * i / n;
+      it.push({ k: 'line', pts: [at(t, -half), at(t, half)], c: 'grid', op: op }, { k: 'line', pts: [at(-half, t), at(half, t)], c: 'grid', op: op });
+    }
+    return it;
+  }
+
+  // controls under a figure
+  function buttons(box, labels, on, init) {
+    var g = document.createElement('span'); g.className = 'grp'; box.appendChild(g);
+    var bs = labels.map(function (l, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.innerHTML = tr(l); g.appendChild(b);
+      b.addEventListener('click', function () { pick(i); on(i); });
+      return b;
+    });
+    function pick(i) { bs.forEach(function (b, j) { b.classList.toggle('on', i === j); }); }
+    if (init != null) pick(init);
+    return { pick: pick };
+  }
+  function button(box, label, on) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = tr(label); box.appendChild(b);
+    b.addEventListener('click', on); return b;
+  }
+  function slider(box, label, min, max, step, value, on) {
+    var l = document.createElement('label'), i = document.createElement('input'), v = document.createElement('span');
+    l.innerHTML = label; i.type = 'range'; i.min = min; i.max = max; i.step = step; i.value = value;
+    l.appendChild(i); l.appendChild(v); box.appendChild(l);
+    var fmt = function () { v.textContent = (+i.value).toFixed(step < 1 ? 1 : 0); };
+    i.addEventListener('input', function () { fmt(); on(+i.value); }); fmt();
+    return { get: function () { return +i.value; }, set: function (x) { i.value = x; fmt(); } };
+  }
+  // a 0 → 1 "transform" slider with a play button that animates it
+  function progress(box, on) {
+    var stop = null;
+    var play = button(box, { en: 'Play', zh: '播放' }, function () { run(); });
+    var sl = slider(box, tr({ en: 'transform', zh: '变换' }), 0, 1, 0.01, 0, function (s) { if (stop) stop(); on(s); });
+    function run(done) {
+      if (stop) stop();
+      stop = tween(1600, function (s) { sl.set(s); on(s); }, function () { stop = null; if (done) done(); });
+    }
+    return { run: run, set: function (s) { if (stop) stop(); sl.set(s); on(s); }, get: sl.get };
+  }
+
+  return { create: create, plane: plane, tween: tween, typesetter: typesetter, buttons: buttons, button: button, slider: slider, progress: progress,
+    tr: tr, zh: zh, dot: dot, cross: cross, unit: unit, add: add, scale: scale, mul: mul, toward: toward, rotX: rotX, f1: f1 };
+})();
+</script>
+
+<section id="从向量的组合到矩阵" class="level2" data-number="1">
+<h2 data-number="1" data-anchor-id="从向量的组合到矩阵"><span class="header-section-number">1</span> 从向量的组合到矩阵</h2>
+<p>前面我们讨论了<a href="../../../../zh/posts/2026/vectors/index.html">向量</a>的一些基本概念和运算。现在，我们从三个向量开始：</p>
+<p><span class="math display">\[
+\vec{u}=
+\begin{bmatrix}1\\-1\\0\end{bmatrix},
+\quad
+\vec{v}=
+\begin{bmatrix}0\\1\\-1\end{bmatrix},
+\quad
+\vec{w}=
+\begin{bmatrix}0\\0\\1\end{bmatrix}
+\]</span></p>
+<p>假设我们分别用 <span class="math inline">\(x_1\)</span>、<span class="math inline">\(x_2\)</span>、<span class="math inline">\(x_3\)</span> 去缩放这三个向量，再把它们加起来：</p>
+<p><span class="math display">\[
+\begin{aligned}
+x_1\vec{u}+x_2\vec{v}+x_3\vec{w}
+&amp;=
+x_1\begin{bmatrix}1\\-1\\0\end{bmatrix}
++x_2\begin{bmatrix}0\\1\\-1\end{bmatrix}
++x_3\begin{bmatrix}0\\0\\1\end{bmatrix}\\
+&amp;=
+\begin{bmatrix}
+x_1\\
+x_2-x_1\\
+x_3-x_2
+\end{bmatrix}
+\end{aligned}
+\]</span></p>
+<p>这很好理解。我们有三个向量，可以用不同的数去乘它们，把它们拉长、缩短，甚至反向。最后把它们加起来，得到一个新的向量（<a href="#fig-combo" class="quarto-xref">图&nbsp;1</a>）。</p>
+<div id="fig-combo" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-combo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-combo">
+<svg role="img" aria-label="Interactive 3D figure: u, v and w start at the origin; scaled by x1, x2 and x3 and added parallelogram by parallelogram, they give b. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-combo'), ctl = root.querySelector('.m3d-ctl');
+  var u = [1, -1, 0], v = [0, 1, -1], w = [0, 0, 1], x = [1, 0.5, 1.5];
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var fig = M.create(root, {
+    scale: 72, az: 20, el: 20, dy: -10, axes: ['x_1', 'x_2', 'x_3'], axisLen: 2.2, ticks: true,
+    scene: function () {
+      // all three scaled columns start at the origin; dashed lines complete the two parallelograms
+      var a = M.scale(x[0], u), bb = M.scale(x[1], v), c = M.scale(x[2], w), ab = M.add(a, bb), b = M.add(ab, c), O = [0, 0, 0];
+      return [
+        { k: 'line', pts: [O, u], c: 'ghost' }, { k: 'line', pts: [O, v], c: 'ghost' }, { k: 'line', pts: [O, w], c: 'ghost' },
+        { k: 'line', pts: [a, ab], c: 'trail' }, { k: 'line', pts: [bb, ab], c: 'trail' },
+        { k: 'line', pts: [O, ab], c: 'trail' }, { k: 'line', pts: [ab, b], c: 'trail' }, { k: 'line', pts: [c, b], c: 'trail' },
+        { k: 'dot', p: ab, r: 2.2 },
+        { k: 'arrow', a: O, b: a, c: 'a', label: 'x_1u', vec: 2 },
+        { k: 'arrow', a: O, b: bb, c: 'b', label: 'x_2v', vec: 2 },
+        { k: 'arrow', a: O, b: c, c: 'm', label: 'x_3w', vec: 2 },
+        { k: 'arrow', a: O, b: b, c: 'i', label: 'b', vec: 0, off: 13, coord: '(' + b.map(function (z) { return M.f1(z).replace('-', '−'); }).join(', ') + ')' },
+        { k: 'dot', p: O, r: 2.5 }
+      ];
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function update() {
+    var b = [x[0], x[1] - x[0], x[2] - x[1]].map(M.f1), c = x.map(M.f1);
+    read('\\(' + c[0] + '\\,\\class{ca}{\\vec{u}}+' + c[1] + '\\,\\class{cb}{\\vec{v}}+' + c[2] + '\\,\\vec{w}=(' + b.join(',\\ ') + ')=\\vec{b}\\)');
+    fig.render();
+  }
+  ['x<sub>1</sub>', 'x<sub>2</sub>', 'x<sub>3</sub>'].forEach(function (l, i) {
+    M.slider(ctl, '<i>' + l + '</i>', -2, 2, 0.1, x[i], function (val) { x[i] = val; update(); });
+  });
+  update();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-combo-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;1: <strong>用三个向量组合出 <span class="math inline">\(\vec{b}\)</span>。</strong> 缩放后的向量 <span class="math inline">\(x_1\vec{u}\)</span>、<span class="math inline">\(x_2\vec{v}\)</span>、<span class="math inline">\(x_3\vec{w}\)</span> 都从原点出发，浅色虚线是 <span class="math inline">\(\vec{u}\)</span>、<span class="math inline">\(\vec{v}\)</span>、<span class="math inline">\(\vec{w}\)</span> 本身。点线补出平行四边形：先得到 <span class="math inline">\(x_1\vec{u}+x_2\vec{v}\)</span>，再加上 <span class="math inline">\(x_3\vec{w}\)</span> 就得到 <span class="math inline">\(\vec{b}\)</span>，它的坐标标在旁边。移动滑块可以改变 <span class="math inline">\(x_1\)</span>、<span class="math inline">\(x_2\)</span>、<span class="math inline">\(x_3\)</span>，拖动图形可以换个角度看。
+</figcaption>
+</figure>
+</div>
+<p>但我们可以把这个式子写得更简洁：</p>
+<p><span class="math display">\[
+\underbrace{
+\begin{bmatrix}
+1&amp;0&amp;0\\
+-1&amp;1&amp;0\\
+0&amp;-1&amp;1
+\end{bmatrix}}_A
+\underbrace{
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}}_{\vec{x}}
+=
+\underbrace{
+\begin{bmatrix}
+x_1\\
+x_2-x_1\\
+x_3-x_2
+\end{bmatrix}}_{\vec{b}}
+\]</span></p>
+<p>或者干脆写成：</p>
+<p><span class="math display">\[
+A\vec{x}=\vec{b}
+\]</span></p>
+<p>这个式子虽然看起来更简单，但我觉得它带来了一个非常有意思的视角转换。</p>
+<p>之前，<span class="math inline">\(x_1\)</span>、<span class="math inline">\(x_2\)</span>、<span class="math inline">\(x_3\)</span> 只是用来缩放向量的三个系数。现在，我们把这三个数合成了一个新的向量 <span class="math inline">\(\vec{x}\)</span>。</p>
+<p>从这个角度看，矩阵 <span class="math inline">\(A\)</span> 对输入向量 <span class="math inline">\(\vec{x}\)</span> 做了一次<strong>线性变换</strong>。之所以叫“线性”，是因为它和向量的两种基本运算相容：<span class="math inline">\(A(\vec{x}+\vec{y})=A\vec{x}+A\vec{y}\)</span>，<span class="math inline">\(A(c\vec{x})=cA\vec{x}\)</span>。先对输入做加法或数乘再变换，和先变换再做加法或数乘，结果一样。</p>
+<p>我们可以直接观察这个变换：</p>
+<p><span class="math display">\[
+\begin{aligned}
+x_1&amp;\longrightarrow x_1\\
+x_2&amp;\longrightarrow x_2-x_1\\
+x_3&amp;\longrightarrow x_3-x_2
+\end{aligned}
+\]</span></p>
+<p>也就是说，原来的向量 <span class="math inline">\((x_1,x_2,x_3)\)</span> 被变换成了另一个向量。<a href="#fig-morph" class="quarto-xref">图&nbsp;2</a> 展示了整个空间同时被变换的过程。</p>
+<div id="fig-morph" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-morph-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-morph">
+<svg role="img" aria-label="Interactive 3D figure: the unit cube and an input vector x are transformed step by step by the matrix A; the edges along e1, e2, e3 become the columns u, v, w, and x becomes b. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-morph'), ctl = root.querySelector('.m3d-ctl');
+  var A = [[1, 0, 0], [-1, 1, 0], [0, -1, 1]], x = [1, 0.5, 1.5], s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var V = [], E = [];
+  for (var i = 0; i < 8; i++) V.push([i & 1, (i >> 1) & 1, (i >> 2) & 1]);
+  for (i = 0; i < 8; i++) for (var j = i + 1; j < 8; j++) { var d = i ^ j; if (d === 1 || d === 2 || d === 4) E.push([i, j]); }
+  var fig = M.create(root, {
+    scale: 75, az: 20, el: 20, dy: 10, axes: ['x_1', 'x_2', 'x_3'], axisLen: 1.9, ticks: true,
+    scene: function () {
+      var T = M.toward(A, s), f = function (p) { return M.mul(T, p); }, it = [], end = s >= .5;
+      E.forEach(function (e) {
+        it.push({ k: 'line', pts: [V[e[0]], V[e[1]]], c: 'ghost' });
+        if (e[0] !== 0) it.push({ k: 'line', pts: [f(V[e[0]]), f(V[e[1]])], c: 'wire' });
+      });
+      var fx = f(x);
+      it.push(
+        { k: 'arrow', a: [0, 0, 0], b: f([1, 0, 0]), c: 'a', label: end ? 'u' : 'e_1', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 1, 0]), c: 'b', label: end ? 'v' : 'e_2', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 0, 1]), c: 'm', label: end ? 'w' : 'e_3', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: fx, c: 'i', label: end ? 'b' : 'x', vec: 0, off: 16 },
+        { k: 'line', pts: [x, fx], c: 'trail' },
+        { k: 'dot', p: [0, 0, 0], r: 2.5 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  var last = null;
+  function update(v) {
+    s = v; fig.render();
+    var st = s >= 1 ? 2 : s > 0 ? 1 : 0;
+    if (st === last) return; last = st;
+    read(st === 0 ? '\\(\\vec{x}=(1.0,\\ 0.5,\\ 1.5)=1.0\\,\\vec{e}_1+0.5\\,\\vec{e}_2+1.5\\,\\vec{e}_3\\)'
+      : st === 2 ? '\\(\\vec{b}=A\\vec{x}=1.0\\,\\class{ca}{\\vec{u}}+0.5\\,\\class{cb}{\\vec{v}}+1.5\\,\\vec{w}=(1.0,\\ {-0.5},\\ 1.0)\\)'
+      : M.tr({ en: 'The whole space is being transformed…', zh: '整个空间正在被变换……' }));
+  }
+  M.progress(ctl, update);
+  update(0);
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-morph-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;2: <strong>把矩阵看作变换。</strong> 点击“播放”，观察 <span class="math inline">\(A\)</span> 如何变换空间。<span class="math inline">\(\vec{e}_1\)</span>、<span class="math inline">\(\vec{e}_2\)</span>、<span class="math inline">\(\vec{e}_3\)</span> 是沿坐标轴的单位向量，单位立方体随它们一起变换：这三条棱变成了三列 <span class="math inline">\(\vec{u}\)</span>、<span class="math inline">\(\vec{v}\)</span>、<span class="math inline">\(\vec{w}\)</span>。输入 <span class="math inline">\(\vec{x}=(1,0.5,1.5)\)</span>，也就是 <span class="math inline">\(1\vec{e}_1+0.5\vec{e}_2+1.5\vec{e}_3\)</span>，变成了 <span class="math inline">\(1\vec{u}+0.5\vec{v}+1.5\vec{w}=\vec{b}\)</span>，和 <a href="#fig-combo" class="quarto-xref">图&nbsp;1</a> 中的向量相同。这就是两种视角一致的原因。
+</figcaption>
+</figure>
+</div>
+<p>对于任意给定的输入 <span class="math inline">\(\vec{x}\)</span>，我们都可以作用矩阵 <span class="math inline">\(A\)</span>，得到对应的输出 <span class="math inline">\(\vec{b}\)</span>。</p>
+<p>其实，这两种视角描述的是完全相同的数学运算。</p>
+<p>一种视角把矩阵与向量的乘法看作<strong>矩阵各列的线性组合</strong>，另一种把它看作<strong>作用在输入向量上的线性变换</strong>。</p>
+<p><span class="math inline">\(A\vec{x}\)</span> 还有第三种读法，也是我们手算时通常用的方法：<span class="math inline">\(\vec{b}\)</span> 的每一个分量，都是 <span class="math inline">\(A\)</span> 的某一行与 <span class="math inline">\(\vec{x}\)</span> 的点积。<span class="math inline">\(A\)</span> 的第二行是 <span class="math inline">\((-1,1,0)\)</span>，而 <span class="math inline">\((-1,1,0)\cdot(x_1,x_2,x_3)=x_2-x_1\)</span>，正好是 <span class="math inline">\(\vec{b}\)</span> 的第二个分量。所以，上一篇里的点积其实藏在每一次矩阵乘法里。</p>
+<p>正是从这里，我开始从几何的角度理解矩阵：<strong>矩阵不只是一堆数，它还可以表示空间中的一个线性变换。</strong></p>
+</section>
+<section id="把矩阵看作线性变换" class="level2 page-columns page-full" data-number="2">
+<h2 data-number="2" data-anchor-id="把矩阵看作线性变换"><span class="header-section-number">2</span> 把矩阵看作线性变换</h2>
+<p>如果矩阵表示一个线性变换，就会自然地产生一个问题：作用这个变换之后，空间里的向量到底发生了什么？</p>
+<p>我们不只看一个向量，而是看一整组向量。</p>
+<p>假设输入向量 <span class="math inline">\(\vec{x}\)</span> 可以取三维空间中的任意值。作用矩阵 <span class="math inline">\(A\)</span> 之后，这些向量会构成一个什么样的集合？</p>
+<p>或者把问题问得更具体一些。</p>
+<p>假设所有输入向量都限制在三维单位球内：</p>
+<p><span class="math display">\[
+x_1^2+x_2^2+x_3^2\leq1
+\]</span></p>
+<p>经过一次线性变换，这个球会变成什么？</p>
+<p>它会被拉伸成一个椭球吗？会被压到一个二维平面上，变成一个椭圆盘吗？甚至会坍缩成一条线段或一个点吗？</p>
+<p>这些都有可能。<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> <a href="#fig-transform" class="quarto-xref">图&nbsp;3</a> 在低一维的情形下展示了同样的想法：球变成了圆盘，它的像可以是一个椭圆、一条线段，或者一个点。</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;<strong>线性变换能产生什么形状？</strong> 我一开始的想法是，线性变换几乎可以把一个球变成任意形状，比如立方体或长方体。和 AI 一起探索时，它指出这是做不到的：球在线性变换下只能变成椭球，或者椭球的某种退化形式，比如椭圆盘、线段或一个点。要把球变成立方体，需要非线性变换。为什么会有这个限制，我还没有研究过，留到以后。</p></div></div><div id="fig-transform" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-transform-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<style>
+.mfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+.mtr-wrap { --va:#2a78d6; --vb:#eb6834; }
+body.quarto-dark .mfig, body.quarto-dark .mtr-wrap { --va:#3987e5; --vb:#d95926; }
+.mfig .grid0 { stroke:currentColor; stroke-width:1; opacity:.07; }
+.mfig .axis0 { stroke:currentColor; stroke-width:1; opacity:.22; }
+.mfig .grid1 { stroke:currentColor; stroke-width:1; opacity:.22; fill:none; }
+.mfig .axis1 { stroke:currentColor; stroke-width:1.3; opacity:.45; fill:none; }
+.mfig .circ0 { fill:none; stroke:currentColor; stroke-width:1.2; stroke-dasharray:4 4; opacity:.4; }
+.mfig .circ1 { fill:none; stroke:currentColor; stroke-width:2; }
+.mfig .sq { fill:currentColor; opacity:.13; stroke:none; }
+.mfig .va { stroke:var(--va); } .mfig .vb { stroke:var(--vb); }
+.mfig .ha { fill:var(--va); } .mfig .hb { fill:var(--vb); }
+.mfig line.col { stroke-width:2.4; stroke-linecap:round; }
+.mfig text { fill:currentColor; font-family:inherit; font-size:17px; }
+.mfig text.v { font-style:italic; font-size:18px; }
+.mfig text.ta { fill:var(--va); } .mfig text.tb { fill:var(--vb); }
+.mfig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.mfig .handle { fill:transparent; stroke-width:1.5; cursor:grab; touch-action:none; }
+.mfig .handle.a { stroke:var(--va); } .mfig .handle.b { stroke:var(--vb); }
+.mtr-btns { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; margin-top:.5rem; }
+.mtr-btns button { font:inherit; font-size:.85rem; color:inherit; background:transparent; border:1px solid currentColor; border-radius:3px; padding:.1rem .6rem; opacity:.7; cursor:pointer; }
+.mtr-btns button:hover { opacity:1; }
+.mtr-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:5.4em; }
+.mtr-read .ca { color:var(--va); } .mtr-read .cb { color:var(--vb); }
+</style>
+<div class="mtr-wrap" id="mtr">
+<svg class="mfig" viewbox="0 0 460 320" width="460" role="img" aria-label="Interactive figure: drag the two columns of a 2 by 2 matrix and watch the grid, the unit circle and the unit square transform.">
+  <g class="g0"></g>
+  <circle class="circ0"></circle>
+  <path class="sq"></path>
+  <g class="g1"></g>
+  <path class="circ1"></path>
+  <line class="col va su"></line><path class="ha hu"></path>
+  <line class="col vb sv"></line><path class="hb hv"></path>
+  <text class="v ta lu" data-vec="0">u</text><text class="v tb lv" data-vec="0">v</text>
+  <circle class="handle a" r="11"></circle><circle class="handle b" r="11"></circle>
+</svg>
+<div class="mtr-btns">
+  <button data-m="1,0,0,1">Identity</button>
+  <button data-m="2,0,0,1">Stretch</button>
+  <button data-m="0,1,-1,0">Rotate</button>
+  <button data-m="1,0,1,1">Shear</button>
+  <button data-m="1,0,0,0">Project</button>
+  <button data-m="1,0.5,2,1">Dependent</button>
+</div>
+<div class="mtr-read"></div>
+</div>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function () {
+  var root = document.getElementById('mtr'), svg = root.querySelector('svg');
+  var S = 40, OX = 230, OY = 165, W = 460, H = 320;      // px per unit, origin, size
+  var m = { u: [1.5, 0.5], v: [-0.5, 1] };               // the columns of A
+  var q = function (s) { return svg.querySelector(s); };
+  // the same figure serves the Chinese translation
+  var zh = /^zh/.test(document.documentElement.lang);
+  var T = zh ? {
+    btn: ['恒等', '拉伸', '旋转', '剪切', '投影', '列相关'],
+    flip: '圆变成椭圆，而且平面被翻了过来，就像镜像。', area: '圆变成椭圆，所有面积都乘以 \\(|\\det A|\\)。',
+    line: '两列落在同一条直线上：整个平面被压到这条直线上，圆变成一条线段。', zero: '两列都是零向量：一切都被压缩到原点。'
+  } : {
+    btn: null,
+    flip: 'The circle becomes an ellipse, and the plane is flipped over, like a mirror image.', area: 'The circle becomes an ellipse, and every area is scaled by \\(|\\det A|\\).',
+    line: 'The columns lie on one line: the whole plane collapses onto it, and the circle becomes a segment.', zero: 'Both columns are zero: everything collapses to the origin.'
+  };
+  if (T.btn) root.querySelectorAll('.mtr-btns button').forEach(function (b, i) { b.textContent = T.btn[i]; });
+  var px = function (p) { return [OX + S * p[0], OY - S * p[1]]; };
+  var A = function (x, y) { return [m.u[0] * x + m.v[0] * y, m.u[1] * x + m.v[1] * y]; };
+  var set = function (el, o) { for (var k in o) el.setAttribute(k, o[k]); };
+
+  // the untouched grid, for reference
+  var h = '';
+  for (var x = -6; x <= 6; x++) h += '<line class="' + (x ? 'grid0' : 'axis0') + '" x1="' + (OX + S * x) + '" y1="0" x2="' + (OX + S * x) + '" y2="' + H + '"/>';
+  for (var y = -4; y <= 4; y++) h += '<line class="' + (y ? 'grid0' : 'axis0') + '" x1="0" y1="' + (OY - S * y) + '" x2="' + W + '" y2="' + (OY - S * y) + '"/>';
+  q('.g0').innerHTML = h;
+  set(q('.circ0'), { cx: OX, cy: OY, r: S });
+
+  function arrow(line, head, p) {
+    var e = px(p), d = Math.hypot(e[0] - OX, e[1] - OY);
+    if (d < 1) { set(line, { x1: OX, y1: OY, x2: OX, y2: OY }); head.setAttribute('d', ''); return; }
+    var ux = (e[0] - OX) / d, uy = (e[1] - OY) / d, L = Math.min(13, d * .5), Wd = L * .42, bx = e[0] - ux * L, by = e[1] - uy * L;
+    set(line, { x1: OX, y1: OY, x2: bx + ux * 2, y2: by + uy * 2 });
+    head.setAttribute('d', 'M' + e[0] + ',' + e[1] + ' L' + (bx - uy * Wd) + ',' + (by + ux * Wd) + ' L' + (bx + uy * Wd) + ',' + (by - ux * Wd) + ' Z');
+  }
+  var P = function (p) { var e = px(p); return e[0].toFixed(1) + ',' + e[1].toFixed(1); };
+
+  function draw() {
+    // where the grid lines go: the line x = i becomes i*u + t*v, and y = j becomes t*u + j*v
+    var N = 12, g = '';
+    for (var i = -N; i <= N; i++) {
+      g += '<path class="' + (i ? 'grid1' : 'axis1') + '" d="M' + P(A(i, -N)) + ' L' + P(A(i, N)) + '"/>';
+      g += '<path class="' + (i ? 'grid1' : 'axis1') + '" d="M' + P(A(-N, i)) + ' L' + P(A(N, i)) + '"/>';
+    }
+    q('.g1').innerHTML = g;
+    q('.sq').setAttribute('d', 'M' + P([0, 0]) + ' L' + P(A(1, 0)) + ' L' + P(A(1, 1)) + ' L' + P(A(0, 1)) + ' Z');
+    var c = '';
+    for (var k = 0; k <= 96; k++) { var t = k / 96 * 2 * Math.PI; c += (k ? ' L' : 'M') + P(A(Math.cos(t), Math.sin(t))); }
+    q('.circ1').setAttribute('d', c);
+    arrow(q('.su'), q('.hu'), m.u); arrow(q('.sv'), q('.hv'), m.v);
+    var pu = px(m.u), pv = px(m.v);
+    set(q('.handle.a'), { cx: pu[0], cy: pu[1] }); set(q('.handle.b'), { cx: pv[0], cy: pv[1] });
+    // labels sit just past each tip, u on its clockwise side and v on its counterclockwise side, so they never meet
+    var lab = function (el, p, alt, side) {
+      var n = Math.hypot(p[0], p[1]), d = n > 1e-9 ? [p[0] / n, p[1] / n] : alt;
+      var e = px([p[0] + d[0] * .35 + side * d[1] * .45, p[1] + d[1] * .35 - side * d[0] * .45]);
+      set(el, { x: e[0], y: e[1], 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+    };
+    lab(q('.lu'), m.u, [1, 0], 1); lab(q('.lv'), m.v, [0, 1], -1); vecArrows(svg);
+  }
+
+  function read() {
+    var u = m.u, v = m.v, n1 = function (x) { var r = Math.round(x * 10) / 10; return (r === 0 ? 0 : r).toFixed(1); };
+    var det = Math.round((u[0] * v[1] - v[0] * u[1]) * 100) / 100; if (det === 0) det = 0;
+    var zero = function (p) { return Math.abs(p[0]) < 1e-9 && Math.abs(p[1]) < 1e-9; };
+    var rank = Math.abs(det) > 1e-9 ? 2 : (zero(u) && zero(v) ? 0 : 1);
+    var N = function (x) { var t = n1(x); return t.charAt(0) === '-' ? '(' + t + ')' : t; };
+    var U = function (x) { return '\\class{ca}{' + n1(x) + '}'; }, V = function (x) { return '\\class{cb}{' + n1(x) + '}'; };
+    var msg = rank === 2 ? (det < 0 ? T.flip : T.area) : rank === 1 ? T.line : T.zero;
+    typeset('\\(A=\\begin{bmatrix}' + U(u[0]) + '&' + V(v[0]) + '\\\\' + U(u[1]) + '&' + V(v[1]) + '\\end{bmatrix}\\qquad' +
+      '\\det A=' + N(u[0]) + '\\times' + N(v[1]) + '-' + N(v[0]) + '\\times' + N(u[1]) + '=' + det.toFixed(2) +
+      '\\qquad\\operatorname{rank}A=' + rank + '\\)<br>' + msg);
+  }
+
+  var out = root.querySelector('.mtr-read'), busy = false, next = null;
+  function typeset(html) {
+    next = html;
+    if (busy) return;
+    busy = true;
+    var ready = window.MathJax && MathJax.startup && MathJax.startup.promise;
+    if (!ready) return setTimeout(function () { busy = false; typeset(next); }, 200);
+    MathJax.startup.promise.then(function () {
+      var h = next; next = null;
+      MathJax.typesetClear([out]); out.innerHTML = h;
+      return MathJax.typesetPromise([out]);
+    }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+  }
+
+  // examples: animate from the current matrix to the chosen one
+  var anim = null;
+  root.querySelectorAll('.mtr-btns button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-m').split(',').map(Number), from = { u: m.u.slice(), v: m.v.slice() }, t0 = performance.now();
+      var to = { u: [t[0], t[1]], v: [t[2], t[3]] }, id = {};
+      anim = id;
+      (function step(now) {
+        if (anim !== id) return;
+        var s = Math.min(1, (now - t0) / 700), e = s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2;
+        ['u', 'v'].forEach(function (k) { m[k] = [from[k][0] + (to[k][0] - from[k][0]) * e, from[k][1] + (to[k][1] - from[k][1]) * e]; });
+        draw();
+        if (s < 1) requestAnimationFrame(step); else { anim = null; read(); }
+      })(t0);
+    });
+  });
+
+  var drag = null;
+  function toMath(ev) {
+    var pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    var p = pt.matrixTransform(svg.getScreenCTM().inverse());
+    var c = function (x, lo, hi) { return Math.max(lo, Math.min(hi, Math.round(x * 10) / 10)); };
+    return [c((p.x - OX) / S, -5.5, 5.5), c((OY - p.y) / S, -3.8, 3.8)];
+  }
+  [['a', 'u'], ['b', 'v']].forEach(function (kv) {
+    var hd = q('.handle.' + kv[0]), k = kv[1];
+    hd.addEventListener('pointerdown', function (ev) { anim = null; drag = k; hd.setPointerCapture(ev.pointerId); ev.preventDefault(); });
+    hd.addEventListener('pointermove', function (ev) { if (drag !== k) return; m[k] = toMath(ev); draw(); read(); });
+    hd.addEventListener('pointerup', function () { drag = null; });
+  });
+  draw(); read();
+  if (document.fonts) document.fonts.ready.then(function () { vecArrows(svg); });
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-transform-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;3: <strong>二维中的矩阵。</strong> 矩阵 <span class="math inline">\(A\)</span> 的两列是 <span class="math inline">\(\vec{u}\)</span> 和 <span class="math inline">\(\vec{v}\)</span>。拖动它们的端点，或者选一个例子。网格显示整个平面被变到了哪里，单位圆变成实线的曲线，阴影部分的单位正方形变成一个平行四边形，面积为 <span class="math inline">\(|\det A|\)</span>。当 <span class="math inline">\(\vec{u}\)</span> 和 <span class="math inline">\(\vec{v}\)</span> 落在同一条直线上时，整个平面就被压到这条直线上。
+</figcaption>
+</figure>
+</div>
+<p>我觉得这个视角特别有意思。我们不再只研究一个向量怎么变化，而是研究一整组向量是怎样被变换的。</p>
+<p>从这个角度看，矩阵可以描述各种线性变换，比如拉伸、压缩、旋转、反射和投影。</p>
+<p>我们还可以研究在这些变换中，哪些性质被保留了下来，比如向量的长度、向量之间的夹角，以及变换后空间的维数。</p>
+<section id="线性变换的几个例子" class="level3 page-columns page-full" data-number="2.1">
+<h3 data-number="2.1" data-anchor-id="线性变换的几个例子"><span class="header-section-number">2.1</span> 线性变换的几个例子</h3>
+<p>先看一个简单的例子：单位矩阵。</p>
+<p><span class="math display">\[
+I=
+\begin{bmatrix}
+1&amp;0&amp;0\\
+0&amp;1&amp;0\\
+0&amp;0&amp;1
+\end{bmatrix}
+\]</span></p>
+<p>对任意向量：</p>
+<p><span class="math display">\[
+I\vec{x}=\vec{x}
+\]</span></p>
+<p>它不改变输入向量的任何坐标。原来的向量是什么，变换之后还是什么。</p>
+<p>再看另外两个矩阵：</p>
+<p><span class="math display">\[
+P_1=
+\begin{bmatrix}
+1&amp;0&amp;0\\
+0&amp;0&amp;0\\
+0&amp;0&amp;0
+\end{bmatrix}
+\]</span></p>
+<p><span class="math display">\[
+P_2=
+\begin{bmatrix}
+1&amp;0&amp;0\\
+0&amp;1&amp;0\\
+0&amp;0&amp;0
+\end{bmatrix}
+\]</span></p>
+<p>它们的变换是：</p>
+<p><span class="math display">\[
+P_1
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}
+=
+\begin{bmatrix}x_1\\0\\0\end{bmatrix}
+\]</span></p>
+<p><span class="math display">\[
+P_2
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}
+=
+\begin{bmatrix}x_1\\x_2\\0\end{bmatrix}
+\]</span></p>
+<p><a href="#fig-ball" class="quarto-xref">图&nbsp;4</a> 展示了这些矩阵对单位球做了什么。</p>
+<div id="fig-ball" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ball-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-ball">
+<svg role="img" aria-label="Interactive 3D figure: the unit ball and the basis vectors e1, e2, e3 transformed by the example matrices I, P1, P2, a stretched P2, the stretch S and the rotation R. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-ball'), ctl = root.querySelector('.m3d-ctl');
+  var mats = [
+    { n: 'I', M: [[1, 0, 0], [0, 1, 0], [0, 0, 1]], tex: 'I', say: { en: 'Nothing moves.', zh: '什么都没有动。' } },
+    { n: 'P<sub>1</sub>', M: [[1, 0, 0], [0, 0, 0], [0, 0, 0]], tex: 'P_1', say: { en: 'The ball is flattened onto the \\(x_1\\)-axis: a line segment.', zh: '球被压到 \\(x_1\\) 轴上：一条线段。' } },
+    { n: 'P<sub>2</sub>', M: [[1, 0, 0], [0, 1, 0], [0, 0, 0]], tex: 'P_2', say: { en: 'The ball is flattened onto the \\(x_1x_2\\)-plane: a disk.', zh: '球被压到 \\(x_1x_2\\) 平面上：一个圆盘。' } },
+    { n: { en: 'P<sub>2</sub> with a 2', zh: 'P<sub>2</sub> 改一个 2' }, M: [[2, 0, 0], [0, 1, 0], [0, 0, 0]], tex: '', say: { en: 'With a 2 on the diagonal, the disk is stretched into an elliptical disk.', zh: '对角线上换成 2，圆盘被拉成椭圆盘。' } },
+    { n: 'S', M: [[1.5, 0, 0], [0, 1, 0], [0, 0, 0.5]], tex: 'S', say: { en: 'The ball is stretched along \\(x_1\\) and squeezed along \\(x_3\\): an ellipsoid, still three-dimensional.', zh: '球沿 \\(x_1\\) 方向被拉长、沿 \\(x_3\\) 方向被压扁：一个椭球，仍然是三维的。' } },
+    { n: 'R', M: [[1, 0, 0], [0, 0, -1], [0, 1, 0]], tex: 'R', rot: true, say: { en: 'The ball looks the same, but the arrows show that it has turned 90° about the \\(x_1\\)-axis.', zh: '球看起来没变，但箭头显示它绕 \\(x_1\\) 轴转了 90°。' } }
+  ];
+  var cur = 2, s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Pick a matrix, then drag the figure to rotate it.', zh: '选一个矩阵，再拖动图形旋转视角。' });
+  var circles = [], N = 48, k, t;
+  [-60, -30, 0, 30, 60].forEach(function (lat) {
+    var z = Math.sin(lat * Math.PI / 180), r = Math.cos(lat * Math.PI / 180), c = [];
+    for (k = 0; k <= N; k++) { t = k / N * 2 * Math.PI; c.push([r * Math.cos(t), r * Math.sin(t), z]); }
+    circles.push(c);
+  });
+  [0, 30, 60, 90, 120, 150].forEach(function (lon) {
+    var a = lon * Math.PI / 180, c = [];
+    for (k = 0; k <= N; k++) { t = k / N * 2 * Math.PI; c.push([Math.cos(t) * Math.cos(a), Math.cos(t) * Math.sin(a), Math.sin(t)]); }
+    circles.push(c);
+  });
+  var fig = M.create(root, {
+    scale: 70, az: -35, el: 22, axes: ['x_1', 'x_2', 'x_3'], axisLen: 2.1, ticks: true,
+    scene: function () {
+      var m = mats[cur], T = m.rot ? M.rotX(s * Math.PI / 2) : M.toward(m.M, s), f = function (p) { return M.mul(T, p); };
+      var it = circles.map(function (c) { return { k: 'line', pts: c.map(f), c: 'wire' }; });
+      it.push(
+        { k: 'arrow', a: [0, 0, 0], b: f([1, 0, 0]), c: 'a', label: 'e_1', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 1, 0]), c: 'b', label: 'e_2', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: f([0, 0, 1]), c: 'm', label: 'e_3', vec: 0 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    var m = mats[cur], rows = m.M.map(function (r) { return r.join('&'); }).join('\\\\');
+    read('\\(' + (m.tex ? m.tex + '=' : '') + '\\begin{bmatrix}' + rows + '\\end{bmatrix}\\)<br>' + (s >= 1 ? M.tr(m.say) : '&nbsp;'));
+  }
+  var prog;
+  M.buttons(ctl, mats.map(function (m) { return m.n; }), function (i) { cur = i; prog.set(0); prog.run(); }, cur);
+  prog = M.progress(ctl, function (v) { var was = s >= 1; s = v; fig.render(); if ((s >= 1) !== was || v === 0) show(); });
+  show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ball-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;4: <strong>各个矩阵对单位球的作用。</strong> 本节各个矩阵作用下的单位球和单位向量 <span class="math inline">\(\vec{e}_1\)</span>、<span class="math inline">\(\vec{e}_2\)</span>、<span class="math inline">\(\vec{e}_3\)</span>。选一个矩阵观察变换过程，拖动图形可以旋转视角。
+</figcaption>
+</figure>
+</div>
+<p>第一个矩阵只保留 <span class="math inline">\(x_1\)</span> 坐标，去掉了另外两个坐标。</p>
+<p>如果原来的输入集合是一个三维的球，变换后的集合会完全落在 <span class="math inline">\(x_1\)</span> 轴上，成为一条线段。</p>
+<p>第二个矩阵保留 <span class="math inline">\(x_1\)</span> 和 <span class="math inline">\(x_2\)</span>，去掉了 <span class="math inline">\(x_3\)</span>。</p>
+<p>同一个三维的球会变成 <span class="math inline">\(x_1x_2\)</span> 平面上的一个圆盘。</p>
+<p>换句话说，这些矩阵降低了原集合的维数，丢掉了一部分信息。</p>
+<p>如果我们修改矩阵的某些元素，比如把 <span class="math inline">\(P_2\)</span> 的一个非零对角元从 1 改成 2，得到的圆盘就会变成椭圆盘（<a href="#fig-ball" class="quarto-xref">图&nbsp;4</a> 中的第四个例子）。</p>
+<p>如果一个矩阵保留全部三个坐标，只是按不同的比例缩放它们，又会怎样？例如：</p>
+<p><span class="math display">\[
+S=
+\begin{bmatrix}
+1.5&amp;0&amp;0\\
+0&amp;1&amp;0\\
+0&amp;0&amp;0.5
+\end{bmatrix}
+\]</span></p>
+<p>它的变换是：</p>
+<p><span class="math display">\[
+S
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}
+=
+\begin{bmatrix}1.5x_1\\x_2\\0.5x_3\end{bmatrix}
+\]</span></p>
+<p>在 <a href="#fig-ball" class="quarto-xref">图&nbsp;4</a> 中选 <span class="math inline">\(S\)</span>：球沿 <span class="math inline">\(x_1\)</span> 轴被拉长、沿 <span class="math inline">\(x_3\)</span> 轴被压扁，变成一个椭球。和 <span class="math inline">\(P_1\)</span>、<span class="math inline">\(P_2\)</span> 不同，<span class="math inline">\(S\)</span> 没有去掉任何坐标，所以结果仍然是三维的，也没有丢失信息。</p>
+<p>再看另一个矩阵：</p>
+<p><span class="math display">\[
+R=
+\begin{bmatrix}
+1&amp;0&amp;0\\
+0&amp;0&amp;-1\\
+0&amp;1&amp;0
+\end{bmatrix}
+\]</span></p>
+<p>它做的变换是：</p>
+<p><span class="math display">\[
+R\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}
+=
+\begin{bmatrix}x_1\\-x_3\\x_2\end{bmatrix}
+\]</span></p>
+<p>这个变换有一个有意思的性质。</p>
+<p>它不改变向量的长度：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\|R\vec{x}\|^2
+&amp;=x_1^2+(-x_3)^2+x_2^2\\
+&amp;=x_1^2+x_2^2+x_3^2\\
+&amp;=\|\vec{x}\|^2
+\end{aligned}
+\]</span></p>
+<p>从几何上看，这个矩阵表示绕 <span class="math inline">\(x_1\)</span> 轴旋转 <span class="math inline">\(90^\circ\)</span>。在 <a href="#fig-ball" class="quarto-xref">图&nbsp;4</a> 中选 <span class="math inline">\(R\)</span>：球看起来没变，但箭头显示它已经转过去了。</p>
+<p>我们还可以算出它的行列式：<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;<strong>行列式、旋转与缩放。</strong> 一开始我以为，所有行列式为 1 的矩阵都表示旋转。AI 指出并不是这样。行列式描述的是有向面积或体积的缩放倍数，而不是向量长度的缩放倍数。保持所有向量长度不变的条件是 <span class="math display">\[
+A^TA=I
+\]</span> 满足这个条件的矩阵叫作<strong>正交矩阵</strong>。AI 还告诉我，把一个矩阵拆成旋转、反射以及沿不同方向的缩放，和<strong>奇异值分解（SVD）</strong> <span class="math inline">\(A=U\Sigma V^T\)</span> 有关。这些我都还没有学过，先留在这里，以后再探索。</p></div></div><p><span class="math display">\[
+\det(R)=1
+\]</span></p>
+</section>
+<section id="关于神经网络和计算的一点想法" class="level3 page-columns page-full" data-number="2.2">
+<h3 data-number="2.2" data-anchor-id="关于神经网络和计算的一点想法"><span class="header-section-number">2.2</span> 关于神经网络和计算的一点想法</h3>
+<p>把矩阵理解为线性变换，也让我想到了神经网络。</p>
+<p>如果暂时忽略非线性的部分，神经网络中的很多计算都可以理解为：用大量参数对输入数据依次施加一系列线性变换。</p>
+<p>当然，真正的神经网络要复杂得多。我们暂时忽略了偏置项、激活函数和许多其他结构。</p>
+<p>但从这个高度简化的视角，我们可以想象一个输入经过一连串矩阵运算，产生新的表示，最后得到输出。</p>
+<p>不过，这个简化里有一个陷阱。接连作用几个矩阵，本身也只是一个矩阵：<span class="math inline">\(W_3(W_2(W_1\vec{x}))=(W_3W_2W_1)\vec{x}\)</span>。<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>没有非线性的部分，一百层能做到的事，一层也能做到，而且它们仍然只能把球变成椭球。层与层之间的非线性激活函数，才让网络能把空间弯成更复杂的形状，这和注 1 里把球变成立方体的问题是同一个问题。<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;<strong>变换是唯一的吗？</strong> 有一天下楼的时候，我想到一个问题。假设一个线性变换把 <span class="math inline">\(\vec{a}\)</span> 变成 <span class="math inline">\(\vec{b}\)</span>，它可能是一个矩阵 <span class="math inline">\(A\)</span>，也可能是几个矩阵 <span class="math inline">\(B\)</span>、<span class="math inline">\(C\)</span>、<span class="math inline">\(D\)</span>，那么 <span class="math inline">\(BCD=A\)</span>。我最初的想法是：如果 <span class="math inline">\(A\)</span> 可逆，这个变换就一定是唯一的；如果 <span class="math inline">\(A\)</span> 不可逆，它就不一定唯一。AI 指出我把两个问题混在了一起。单独一对 <span class="math inline">\(\vec{a}\)</span>、<span class="math inline">\(\vec{b}\)</span> 永远确定不了一个矩阵：<span class="math inline">\(A\)</span> 有 <span class="math inline">\(n^2\)</span> 个未知数，而 <span class="math inline">\(A\vec{a}=\vec{b}\)</span> 只给出 <span class="math inline">\(n\)</span> 个方程。要确定 <span class="math inline">\(A\)</span>，需要很多对数据。把输入作为 <span class="math inline">\(X\)</span> 的列、输出作为 <span class="math inline">\(Y\)</span> 的列，那么当且仅当 <span class="math inline">\(X\)</span> 的秩为 <span class="math inline">\(n\)</span> 时，<span class="math inline">\(AX=Y\)</span> 才有唯一解。所以需要可逆的是数据，而不是 <span class="math inline">\(A\)</span>。而且即使 <span class="math inline">\(A\)</span> 唯一，它的分解也不唯一，因为对任意可逆矩阵 <span class="math inline">\(M\)</span>，都有 <span class="math inline">\(BCD=(BM)(M^{-1}C)D\)</span>。</p></div><div id="fn4"><p><sup>4</sup>&nbsp;<strong>把训练看作寻找变换。</strong> 接着我想到，神经网络做的是同样的事，只不过用的是线性加非线性的变换，所以训练就是在寻找这样一个变换。我原以为全连接网络不管参数多大都只是线性变换，后来的网络加了一些非线性但效果一般，而 Transformer 成功是因为它的非线性让拟合程度大大提高。AI 指出，带激活函数的全连接网络本身就是非线性的；有一个叫<strong>万能逼近定理</strong>的结果说，这样的网络只要足够宽，就能在有界区域上逼近任何连续函数。它还告诉我，训练数据上的拟合程度不是正确的衡量标准，因为一张查找表就能完美拟合；真正重要的是<strong>泛化能力</strong>，也就是网络在从没见过的输入上表现如何。它还告诉我，Transformer 主要改变了两点：它的<strong>注意力机制</strong>根据输入本身算出混合矩阵；它能在长序列上并行训练，这让巨大的规模成为可能。AI 也补充说，这只是常见的解释，并没有被证明：这些模型为什么泛化得这么好，目前还没有被很好地理解，而且在相近的规模下，一些其他结构的效果也相差不远。</p>
+<p>所以按我现在的理解，问题是这样的：给定海量的数据对 <span class="math inline">\((\vec{a}_i,\vec{b}_i)\)</span>，选定一个函数族，在其中寻找一个 <span class="math inline">\(f\)</span>，让输出 <span class="math inline">\(f(\vec{a}_i)\)</span> 接近 <span class="math inline">\(\vec{b}_i\)</span>，并且这种效果能推广到新的输入上。这些我都还没有学过，先记在这里。</p></div></div><p>这也让我想到，为什么 GPU 特别适合做这些计算。</p>
+<p>矩阵乘法包含大量可以并行执行的乘加运算，而 GPU 正是为高效地进行大规模并行计算而设计的。<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;<strong>关于物理矩阵乘法器的一个想法。</strong> 我还有一个有意思的想法：如果某些物理规律天然就在做加法或线性叠加，我们能不能造一个直接做矩阵乘法的物理装置，而不完全依赖传统的数字逻辑电路？比如，能不能利用电流、电压、光，或者材料的某些物理性质，通过物理过程来完成计算？</p>
+<p>后来我了解到，相关的方法已经存在，比如<strong>模拟计算</strong>、<strong>光计算</strong>和<strong>忆阻器交叉阵列</strong>架构。在忆阻器交叉阵列里，这个想法几乎是字面意义上的：每个交叉点存储一个电导 <span class="math inline">\(G\)</span>，欧姆定律 <span class="math inline">\(I=GV\)</span> 完成乘法，基尔霍夫电流定律把流进每根导线的电流加起来。</p>
+<p>不过，即使某些物理操作可以大规模并行地完成，也不意味着任意规模的矩阵乘法都能达到 <span class="math inline">\(O(1)\)</span> 复杂度。硬件规模、输入输出的开销、数值精度和数据搬运仍然很重要。</p>
+<p>这个想法有点偏离本文的主题，所以以后可能单独探索。</p></div></div></section>
+</section>
+<section id="从正向变换到逆问题" class="level2 page-columns page-full" data-number="3">
+<h2 data-number="3" data-anchor-id="从正向变换到逆问题"><span class="header-section-number">3</span> 从正向变换到逆问题</h2>
+<p>现在回到最初的方程：</p>
+<p><span class="math display">\[
+A\vec{x}=\vec{b}
+\]</span></p>
+<p>到目前为止，我们都假设 <span class="math inline">\(\vec{x}\)</span> 已知，任务是算出 <span class="math inline">\(\vec{b}\)</span>。</p>
+<p>我们已经讨论了两种视角。</p>
+<p>第一种是：已知三个向量 <span class="math inline">\(\vec{u}\)</span>、<span class="math inline">\(\vec{v}\)</span>、<span class="math inline">\(\vec{w}\)</span> 和三个系数 <span class="math inline">\(x_1\)</span>、<span class="math inline">\(x_2\)</span>、<span class="math inline">\(x_3\)</span>，计算它们的线性组合。</p>
+<p>第二种是：已知输入向量 <span class="math inline">\(\vec{x}\)</span>，对它施加矩阵 <span class="math inline">\(A\)</span> 所表示的线性变换，得到输出向量 <span class="math inline">\(\vec{b}\)</span>。</p>
+<p>这两种视角虽然不同，得到的结果却完全一样。</p>
+<p>现在，我们把问题反过来。</p>
+<p>假设矩阵 <span class="math inline">\(A\)</span> 已知，输出向量 <span class="math inline">\(\vec{b}\)</span> 也已知。我们能还原出原来的输入向量 <span class="math inline">\(\vec{x}\)</span> 吗？</p>
+<p>从线性组合的角度，我们问的是：</p>
+<p><strong>应该怎样组合 <span class="math inline">\(\vec{u}\)</span>、<span class="math inline">\(\vec{v}\)</span>、<span class="math inline">\(\vec{w}\)</span>，才能得到一个指定的向量 <span class="math inline">\(\vec{b}\)</span>？</strong></p>
+<p>从线性变换的角度，我们问的是：</p>
+<p><strong>如果知道变换和它的输出，能不能还原出原来的输入？</strong></p>
+<p>对于可逆矩阵，我们可以写成：</p>
+<p><span class="math display">\[
+\vec{x}=A^{-1}\vec{b}
+\]</span></p>
+<p>但 <span class="math inline">\(A^{-1}\)</span> 到底是什么？</p>
+<p>回到前面的例子：</p>
+<p><span class="math display">\[
+\begin{bmatrix}
+1&amp;0&amp;0\\
+-1&amp;1&amp;0\\
+0&amp;-1&amp;1
+\end{bmatrix}
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}
+=
+\begin{bmatrix}b_1\\b_2\\b_3\end{bmatrix}
+\]</span></p>
+<p>可以把它展开成一个方程组：</p>
+<p><span class="math display">\[
+\begin{cases}
+x_1=b_1\\
+x_2-x_1=b_2\\
+x_3-x_2=b_3
+\end{cases}
+\]</span></p>
+<p>然后解出原来的变量：</p>
+<p><span class="math display">\[
+\begin{cases}
+x_1=b_1\\
+x_2=b_1+b_2\\
+x_3=b_1+b_2+b_3
+\end{cases}
+\]</span></p>
+<p>再把这些方程写成矩阵形式：</p>
+<p><span class="math display">\[
+\begin{bmatrix}x_1\\x_2\\x_3\end{bmatrix}
+=
+\underbrace{
+\begin{bmatrix}
+1&amp;0&amp;0\\
+1&amp;1&amp;0\\
+1&amp;1&amp;1
+\end{bmatrix}}_{A^{-1}}
+\begin{bmatrix}b_1\\b_2\\b_3\end{bmatrix}
+\]</span></p>
+<p>所以逆矩阵是：<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;看看这两个矩阵各自做了什么。<span class="math inline">\(A\)</span> 求相邻分量的差，<span class="math inline">\(A^{-1}\)</span> 求累加和：<span class="math inline">\(x_3=b_1+b_2+b_3\)</span>。求和抵消了求差，就像积分抵消了求导，这一对矩阵就是它的一个小小的离散版本。</p></div></div><p><span class="math display">\[
+A^{-1}=
+\begin{bmatrix}
+1&amp;0&amp;0\\
+1&amp;1&amp;0\\
+1&amp;1&amp;1
+\end{bmatrix}
+\]</span></p>
+<p>这意味着，对于任意给定的输出向量 <span class="math inline">\(\vec{b}\)</span>，我们都能找到唯一一个对应的输入向量 <span class="math inline">\(\vec{x}\)</span>。</p>
+<p>所以，矩阵 <span class="math inline">\(A\)</span> 是可逆的。</p>
+<p>但是，是不是每个矩阵都有这个性质？</p>
+</section>
+<section id="线性相关与线性无关" class="level2 page-columns page-full" data-number="4">
+<h2 data-number="4" data-anchor-id="线性相关与线性无关"><span class="header-section-number">4</span> 线性相关与线性无关</h2>
+<p>我们把原来的矩阵稍微改一下。</p>
+<p>保持 <span class="math inline">\(\vec{u}\)</span> 和 <span class="math inline">\(\vec{v}\)</span> 不变，把第三个向量换成：</p>
+<p><span class="math display">\[
+\vec{w}^*=
+\begin{bmatrix}-1\\0\\1\end{bmatrix}
+\]</span></p>
+<p>现在得到一个新的矩阵：</p>
+<p><span class="math display">\[
+C=
+\begin{bmatrix}
+1&amp;0&amp;-1\\
+-1&amp;1&amp;0\\
+0&amp;-1&amp;1
+\end{bmatrix}
+\]</span></p>
+<p>变换变成了：</p>
+<p><span class="math display">\[
+C\vec{x}=
+\begin{bmatrix}
+x_1-x_3\\
+x_2-x_1\\
+x_3-x_2
+\end{bmatrix}
+=
+\begin{bmatrix}b_1\\b_2\\b_3\end{bmatrix}
+\]</span></p>
+<p>我们试着解这个方程：</p>
+<p><span class="math display">\[
+\begin{cases}
+x_1-x_3=b_1\\
+x_2-x_1=b_2\\
+x_3-x_2=b_3
+\end{cases}
+\]</span></p>
+<p>如果把三个方程加起来，有意思的事情发生了。</p>
+<p>所有 <span class="math inline">\(x\)</span> 项都抵消了：</p>
+<p><span class="math display">\[
+0=b_1+b_2+b_3
+\]</span></p>
+<p>因此：</p>
+<p><span class="math display">\[
+b_1+b_2+b_3=0
+\]</span></p>
+<p>这意味着什么？</p>
+<p>首先，无论选择什么输入向量 <span class="math inline">\(\vec{x}\)</span>，变换的输出都必须满足这个条件。</p>
+<p>从几何上看，满足这个方程的所有向量都落在三维空间中的一个平面上：</p>
+<p><span class="math display">\[
+b_1+b_2+b_3=0
+\]</span></p>
+<p>换句话说，虽然原来的输入向量可以充满整个三维空间，但作用 <span class="math inline">\(C\)</span> 之后，它们的输出被限制在一个二维平面上（<a href="#fig-collapse" class="quarto-xref">图&nbsp;5</a>）。</p>
+<div id="fig-collapse" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-collapse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-collapse">
+<svg role="img" aria-label="Interactive 3D figure: 27 input vectors on a grid are transformed by C, which puts every output on the plane b1 + b2 + b3 = 0, or by A, which spreads them through space. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-collapse'), ctl = root.querySelector('.m3d-ctl');
+  var mats = { C: [[1, 0, -1], [-1, 1, 0], [0, -1, 1]], A: [[1, 0, 0], [-1, 1, 0], [0, -1, 1]] }, cur = 'C', s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var pts = [];
+  for (var a = -1; a <= 1; a++) for (var b = -1; b <= 1; b++) for (var c = -1; c <= 1; c++) pts.push([a, b, c]);
+  var G = 1.5;   // grid spacing: inputs sit at −1.5, 0 and 1.5 along each axis
+  var n = M.unit([1, 1, 1]), e1 = M.unit([1, -1, 0]), e2 = M.cross(n, e1), corner = M.add(M.scale(3.8, e1), M.scale(3.8, e2));
+  var fig = M.create(root, {
+    scale: 30, az: -15, el: 15, axes: ['x_1', 'x_2', 'x_3'], axisLen: 3.2, ticks: true,
+    scene: function () {
+      // the plane fades in as C squeezes the points onto it
+      var T = M.toward(mats[cur], s), op = cur === 'C' ? s : 0, it = [];
+      if (op > 0) it = it.concat(M.plane(e1, e2, 3.8, 6, op), [{ k: 'text', p: corner, t: 'b_1 + b_2 + b_3 = 0', c: 's', dy: 16 }]);
+      pts.forEach(function (p) { it.push({ k: 'dot', p: M.mul(T, M.scale(G, p)), r: 3.2 }); });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    if (s < 1) return read(M.tr({ en: '27 input vectors: every point of the grid with coordinates −1.5, 0 or 1.5.', zh: '27 个输入向量：坐标取 −1.5、0 或 1.5 的所有网格点。' }));
+    var seen = {};
+    pts.forEach(function (p) { seen[M.mul(mats[cur], p).join(',')] = 1; });
+    var d = Object.keys(seen).length;
+    read(cur === 'C'
+      ? M.tr({ en: 'Every output lies on the plane. Turn it edge-on and they all line up. 27 inputs give only ' + d + ' different outputs.', zh: '所有输出都落在这个平面上。把平面转到侧面，它们会排成一条线。27 个输入只得到 ' + d + ' 个不同的输出。' })
+      : M.tr({ en: 'The outputs spread through all of space: no plane holds them. 27 inputs give 27 different outputs.', zh: '输出散布在整个空间里，没有哪个平面能装下它们。27 个输入得到 27 个不同的输出。' }));
+  }
+  var prog;
+  M.buttons(ctl, [{ en: 'Matrix C', zh: '矩阵 C' }, { en: 'Matrix A', zh: '矩阵 A' }], function (i) { cur = i ? 'A' : 'C'; prog.set(0); prog.run(); }, 0);
+  prog = M.progress(ctl, function (v) { var was = s >= 1; s = v; fig.render(); if ((s >= 1) !== was || v === 0) show(); });
+  M.button(ctl, { en: 'Edge-on view', zh: '侧面视角' }, function () { fig.setView(-45, 0); });
+  show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-collapse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;5: <strong><span class="math inline">\(C\)</span> 把空间压到一个平面上。</strong> 27 个输入向量组成的网格占满了空间中的一个立方体。点击“播放”，用 <span class="math inline">\(C\)</span> 变换它们：所有输出都落在平面 <span class="math inline">\(b_1+b_2+b_3=0\)</span> 上，这个平面随着点的到达逐渐显现；切换到侧面视角会看得更清楚，平面和所有的点都缩成了一条线。切换到 <span class="math inline">\(A\)</span> 作对比：它的输出充满整个空间，没有哪个平面能装下它们。
+</figcaption>
+</figure>
+</div>
+<p><strong>我们丢掉了一个维度。</strong></p>
+<section id="丢掉的那个维度去哪了" class="level3 page-columns page-full" data-number="4.1">
+<h3 data-number="4.1" data-anchor-id="丢掉的那个维度去哪了"><span class="header-section-number">4.1</span> 丢掉的那个维度去哪了？</h3>
+<p>考虑一个特殊情况：</p>
+<p><span class="math display">\[
+\vec{b}=
+\begin{bmatrix}0\\0\\0\end{bmatrix}
+\]</span></p>
+<p>方程变成：</p>
+<p><span class="math display">\[
+\begin{cases}
+x_1-x_3=0\\
+x_2-x_1=0\\
+x_3-x_2=0
+\end{cases}
+\]</span></p>
+<p>因此：</p>
+<p><span class="math display">\[
+x_1=x_2=x_3=c
+\]</span></p>
+<p>其中 <span class="math inline">\(c\)</span> 可以是任意实数。</p>
+<p>这意味着，所有形如</p>
+<p><span class="math display">\[
+\vec{x}=
+c\begin{bmatrix}1\\1\\1\end{bmatrix}
+\]</span></p>
+<p>的向量，都会被变换成零向量：</p>
+<p><span class="math display">\[
+C\begin{bmatrix}c\\c\\c\end{bmatrix}
+=
+\begin{bmatrix}0\\0\\0\end{bmatrix}
+\]</span></p>
+<p>从几何上看，这些向量都落在一条经过原点、方向为 <span class="math inline">\((1,1,1)\)</span> 的直线上。</p>
+<p>整条直线被压缩成了一个点：原点。</p>
+<p>这是不是意味着，沿这个方向的所有信息都被抹掉了？</p>
+<p>其实，还有更有意思的事情。</p>
+<p>对任意输入向量 <span class="math inline">\(\vec{x}\)</span>，假设我们沿 <span class="math inline">\((1,1,1)\)</span> 方向加上任意的量：</p>
+<p><span class="math display">\[
+\vec{x}'=
+\vec{x}
++c\begin{bmatrix}1\\1\\1\end{bmatrix}
+\]</span></p>
+<p>那么：</p>
+<p><span class="math display">\[
+C\vec{x}'=C\vec{x}
+\]</span></p>
+<p>即使两个输入向量不同，它们的输出也完全一样。</p>
+<p>矩阵 <span class="math inline">\(C\)</span> 已经无法区分这些输入了。这也是为什么在 <a href="#fig-collapse" class="quarto-xref">图&nbsp;5</a> 中，27 个不同的输入只得到 19 个不同的输出。</p>
+<p>这给了信息丢失一个几何上的解释：<strong>不同的输入被映射到同一个输出，所以原来的输入再也无法被唯一地还原。</strong></p>
+<p>在这个例子里，三维的输入空间被映射到了一个二维的输出平面上。</p>
+<p>有意思的是，被抹掉的方向正好垂直于输出平面（<a href="#fig-columns" class="quarto-xref">图&nbsp;6</a>）。<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn7"><p><sup>7</sup>&nbsp;<strong>丢掉的方向与输出平面。</strong> 我原以为被抹掉的方向总是垂直于输出平面。AI 指出一般并非如此：矩阵的零空间和像空间不一定互相垂直，这里只是恰好如此。我还不明白其中的原因，留到以后。</p></div></div></section>
+<section id="看看矩阵的列" class="level3" data-number="4.2">
+<h3 data-number="4.2" data-anchor-id="看看矩阵的列"><span class="header-section-number">4.2</span> 看看矩阵的列</h3>
+<p>现在回到矩阵 <span class="math inline">\(C\)</span> 本身。</p>
+<p>它的三个列向量是：</p>
+<p><span class="math display">\[
+\vec{u}=
+\begin{bmatrix}1\\-1\\0\end{bmatrix},
+\quad
+\vec{v}=
+\begin{bmatrix}0\\1\\-1\end{bmatrix},
+\quad
+\vec{w}^*=
+\begin{bmatrix}-1\\0\\1\end{bmatrix}
+\]</span></p>
+<p>我们马上可以注意到：</p>
+<p><span class="math display">\[
+\vec{u}+\vec{v}+\vec{w}^*=\vec{0}
+\]</span></p>
+<p>或者：</p>
+<p><span class="math display">\[
+\vec{w}^*=-\vec{u}-\vec{v}
+\]</span></p>
+<p>第三个向量可以表示成前两个向量的线性组合。</p>
+<p>这意味着，虽然我们有三个向量，但只有两个独立的方向。</p>
+<p>前两个向量已经张成了一个二维平面，而第三个向量恰好落在同一个平面上（<a href="#fig-columns" class="quarto-xref">图&nbsp;6</a>）。</p>
+<div id="fig-columns" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-columns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-cols">
+<svg role="img" aria-label="Interactive 3D figure: the columns of C all lie on the plane spanned by u and v, while the third column w of A sticks out of it. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-cols'), ctl = root.querySelector('.m3d-ctl'), cur = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var u = [1, -1, 0], v = [0, 1, -1], n = M.unit([1, 1, 1]), e1 = M.unit(u), e2 = M.cross(n, e1), pl = M.plane(e1, e2, 1.5, 6), corner = M.add(M.scale(1.5, e1), M.scale(-1.5, e2));
+  var fig = M.create(root, {
+    scale: 70, az: -15, el: 15, axes: ['b_1', 'b_2', 'b_3'], axisLen: 1.9, ticks: true,
+    scene: function () {
+      var it = pl.concat([{ k: 'text', p: corner, t: 'b_1 + b_2 + b_3 = 0', c: 's', dy: 16 },
+        { k: 'arrow', a: [0, 0, 0], b: u, c: 'a', label: 'u', vec: 0 },
+        { k: 'arrow', a: [0, 0, 0], b: v, c: 'b', label: 'v', vec: 0 },
+        { k: 'dot', p: [0, 0, 0], r: 2.5 }]);
+      if (cur === 0) {
+        var T = 1.45 * Math.sqrt(3);
+        it.push({ k: 'arrow', a: [0, 0, 0], b: [-1, 0, 1], c: 'i', label: 'w*', vec: 0, ldx: -14 },
+          { k: 'line', pts: [M.scale(-T, n), M.scale(T, n)], c: 'dash' },
+          { k: 'text', p: M.scale(T, n), t: '(1, 1, 1)', c: 's', dx: 30 });
+      } else {
+        var w = [0, 0, 1], foot = M.add(w, M.scale(-M.dot(w, n), n));
+        it.push({ k: 'arrow', a: [0, 0, 0], b: w, c: 'i', label: 'w', vec: 0 },
+          { k: 'line', pts: [w, foot], c: 'dash' }, { k: 'dot', p: foot, r: 2.5 });
+      }
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    read(cur === 0
+      ? '\\(\\class{ca}{\\vec{u}}+\\class{cb}{\\vec{v}}+\\vec{w}^*=\\vec{0}\\)' + M.tr({ en: ': all three columns of \\(C\\) lie on one plane, so \\(\\operatorname{rank}C=2\\).', zh: '：\\(C\\) 的三列都在同一个平面上，所以 \\(\\operatorname{rank}C=2\\)。' })
+      : M.tr({ en: '\\(\\vec{w}\\) sticks out of the plane of \\(\\class{ca}{\\vec{u}}\\) and \\(\\class{cb}{\\vec{v}}\\), so the columns of \\(A\\) span all of space: \\(\\operatorname{rank}A=3\\).', zh: '\\(\\vec{w}\\) 伸出了 \\(\\class{ca}{\\vec{u}}\\) 和 \\(\\class{cb}{\\vec{v}}\\) 所在的平面，所以 \\(A\\) 的各列张成整个空间：\\(\\operatorname{rank}A=3\\)。' }));
+  }
+  M.buttons(ctl, [{ en: 'Columns of C', zh: 'C 的列' }, { en: 'Columns of A', zh: 'A 的列' }], function (i) { cur = i; fig.render(); show(); }, 0);
+  M.button(ctl, { en: 'Edge-on view', zh: '侧面视角' }, function () { fig.setView(-45, 0); });
+  show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-columns-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;6: <strong><span class="math inline">\(C\)</span> 和 <span class="math inline">\(A\)</span> 的列。</strong> <span class="math inline">\(C\)</span> 的三列都落在平面 <span class="math inline">\(b_1+b_2+b_3=0\)</span> 上，两两之间夹角为 <span class="math inline">\(120^\circ\)</span>，加起来等于 <span class="math inline">\(\vec{0}\)</span>；在侧面视角下，三者都在一条线上。虚线是方向 <span class="math inline">\((1,1,1)\)</span>，<span class="math inline">\(C\)</span> 把它变成 <span class="math inline">\(\vec{0}\)</span>。严格地说，它是一个输入方向，而平面上放的是输出，但两者都在三维空间里，所以可以画在一起。切换到 <span class="math inline">\(A\)</span> 的列：<span class="math inline">\(\vec{w}\)</span> 伸出了平面，虚线从它的端点垂直落到平面上。
+</figcaption>
+</figure>
+</div>
+<p>因此，无论怎样缩放和组合这三个向量，我们都只能得到这个平面上的向量，得不到平面外的任何向量。</p>
+<p>这就是<strong>线性相关</strong>。</p>
+<p>相比之下，最初的三个向量 <span class="math inline">\(\vec{u}\)</span>、<span class="math inline">\(\vec{v}\)</span>、<span class="math inline">\(\vec{w}\)</span> 是线性无关的（把 <a href="#fig-columns" class="quarto-xref">图&nbsp;6</a> 切换到 <span class="math inline">\(A\)</span>）。</p>
+<p>在那个例子里，第三个向量不在前两个向量张成的平面上，它引入了一个新的独立方向。</p>
+<p>这三个向量合在一起，可以张成整个三维空间。</p>
+<p>但在矩阵 <span class="math inline">\(C\)</span> 中，第三个向量没有提供新的独立方向。</p>
+<p>结果，它的各列只能张成一个二维平面。</p>
+</section>
+</section>
+<section id="秩与维数" class="level2 page-columns page-full" data-number="5">
+<h2 data-number="5" data-anchor-id="秩与维数"><span class="header-section-number">5</span> 秩与维数</h2>
+<p>从前面的例子，我们可以开始理解一个非常重要的概念：<strong>秩</strong>。</p>
+<p>对于一个矩阵，我们可以问：它的列向量张成了多少维？</p>
+<p>考虑最初的矩阵：</p>
+<p><span class="math display">\[
+A=
+\begin{bmatrix}
+1&amp;0&amp;0\\
+-1&amp;1&amp;0\\
+0&amp;-1&amp;1
+\end{bmatrix}
+\]</span></p>
+<p>它的三个列向量线性无关，张成了整个三维空间。</p>
+<p>因此：</p>
+<p><span class="math display">\[
+\operatorname{rank}(A)=3
+\]</span></p>
+<p>再考虑修改后的矩阵：</p>
+<p><span class="math display">\[
+C=
+\begin{bmatrix}
+1&amp;0&amp;-1\\
+-1&amp;1&amp;0\\
+0&amp;-1&amp;1
+\end{bmatrix}
+\]</span></p>
+<p>它的三个列向量线性相关，只张成了一个二维平面。</p>
+<p>因此：</p>
+<p><span class="math display">\[
+\operatorname{rank}(C)=2
+\]</span></p>
+<p>从线性变换的角度看，秩告诉我们输出空间里有多少个独立方向，也就是变换所能到达的空间的维数。</p>
+<p>对于从三维空间到三维空间的变换：</p>
+<ul>
+<li>秩为 3，意味着输出可以充满整个三维空间。</li>
+<li>秩为 2，意味着输出被限制在一个二维平面上。</li>
+<li>秩为 1，意味着输出落在一条直线上。</li>
+<li>秩为 0，意味着每个输入都被变换成零向量。</li>
+</ul>
+<p>所以，我们可以把秩看作线性变换的输出中保留下来的独立维数。</p>
+<p>当然，这里说的是整个输出空间的维数，而不是表示单个向量所用的坐标个数。<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn8"><p><sup>8</sup>&nbsp;<strong>秩–零化度定理。</strong> AI 告诉我，我们在 <span class="math inline">\(C\)</span> 上看到的现象，即二维的输出加上一个被抹掉的输入方向，是一个一般定理的特例： <span class="math display">\[
+\operatorname{rank}(A)+\operatorname{nullity}(A)=n
+\]</span> 其中 <span class="math inline">\(n\)</span> 是输入空间的维数，零化度是被映射为零的那些输入所构成的子空间的维数。这个定理我还没有学。</p></div></div></section>
+<section id="秩线性相关与可逆性" class="level2" data-number="6">
+<h2 data-number="6" data-anchor-id="秩线性相关与可逆性"><span class="header-section-number">6</span> 秩、线性相关与可逆性</h2>
+<p>现在，我们可以把几个起初看起来毫不相干的概念联系起来了。</p>
+<p>对于最初的矩阵 <span class="math inline">\(A\)</span>，三个列向量线性无关。它的秩是 3，各列张成了整个三维空间。</p>
+<p>因此，对于任意给定的 <span class="math inline">\(\vec{b}\)</span>，都有且只有一个解：</p>
+<p><span class="math display">\[
+\vec{x}=A^{-1}\vec{b}
+\]</span></p>
+<p>这意味着 <span class="math inline">\(A\)</span> 是可逆的。</p>
+<p>但矩阵 <span class="math inline">\(C\)</span> 的情况不一样。</p>
+<p>它的三个列向量线性相关，秩只有 2。</p>
+<p>于是，我们会遇到两种可能的情况。</p>
+<p><strong>第一种情况：无解。</strong></p>
+<p>如果给定的输出向量 <span class="math inline">\(\vec{b}\)</span> 不满足</p>
+<p><span class="math display">\[
+b_1+b_2+b_3=0
+\]</span></p>
+<p>它就不在三个列向量张成的平面上。</p>
+<p>无论怎样选择 <span class="math inline">\(x_1\)</span>、<span class="math inline">\(x_2\)</span>、<span class="math inline">\(x_3\)</span>，它们的线性组合都得不到这个向量。</p>
+<p>因此，方程无解。</p>
+<p><strong>第二种情况：无穷多个解。</strong></p>
+<p>如果给定的输出向量 <span class="math inline">\(\vec{b}\)</span> 落在这个平面上，我们就能找到一个对应的输入。</p>
+<p>但是，因为三个列向量线性相关，第三个向量可以表示成前两个的组合。</p>
+<p>这意味着，同一个输出可以由无穷多种不同的系数组合得到。</p>
+<p>例如，对任意满足 <span class="math inline">\(b_1+b_2+b_3=0\)</span> 的 <span class="math inline">\(\vec{b}\)</span>，我们可以取：</p>
+<p><span class="math display">\[
+\begin{aligned}
+x_1&amp;=t\\
+x_2&amp;=t+b_2\\
+x_3&amp;=t-b_1
+\end{aligned}
+\]</span></p>
+<p>其中 <span class="math inline">\(t\)</span> 可以是任意实数。</p>
+<p>改变 <span class="math inline">\(t\)</span>，就得到无穷多个不同的输入向量 <span class="math inline">\(\vec{x}\)</span>，它们产生完全相同的输出 <span class="math inline">\(\vec{b}\)</span>。</p>
+<p>这些解有一个熟悉的形状。写成向量，</p>
+<p><span class="math display">\[
+\vec{x}=
+\begin{bmatrix}0\\b_2\\-b_1\end{bmatrix}
++t\begin{bmatrix}1\\1\\1\end{bmatrix},
+\]</span></p>
+<p>它们是一个特解，加上 <span class="math inline">\(C\)</span> 映射为零的那条直线上的任意一点，也就是前面找到的那条直线。所有的解彼此之间只在被抹掉的方向上有差别。<a href="#fig-inverse" class="quarto-xref">图&nbsp;7</a> 把两种情况放在了同一幅图里。</p>
+<div id="fig-inverse" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-inverse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-inv">
+<svg role="img" aria-label="Interactive 3D figure: five inputs on a line in the direction (1, 1, 1) are all sent by C to the same output b, and nothing reaches b-prime off the plane; A sends them to five different outputs. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-inv'), ctl = root.querySelector('.m3d-ctl');
+  var mats = [[[1, 0, -1], [-1, 1, 0], [0, -1, 1]], [[1, 0, 0], [-1, 1, 0], [0, -1, 1]]], cur = 0, s = 0;
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var base = [0, 0, -1], dir = [1, 1, 1], ins = [-1, -.5, 0, .5, 1].map(function (t) { return M.add(base, M.scale(t, dir)); });
+  var n = M.unit(dir), e1 = M.unit([1, -1, 0]), e2 = M.cross(n, e1), pl = M.plane(e1, e2, 1.8, 6);
+  var fig = M.create(root, {
+    scale: 55, az: -15, el: 15, dy: -15, axes: ['x_1', 'x_2', 'x_3'], axisLen: 2, ticks: true,
+    scene: function () {
+      var T = M.toward(mats[cur], s), it = [];
+      if (cur === 0) it = it.concat(pl);
+      it.push({ k: 'line', pts: [M.add(base, M.scale(-1.4, dir)), M.add(base, M.scale(1.4, dir))], c: 'ghost' });
+      ins.forEach(function (p) { var q = M.mul(T, p); it.push({ k: 'dot', p: p, r: 3.5, c: 'hole' }, { k: 'line', pts: [p, q], c: 'trail' }, { k: 'dot', p: q, r: 3.5 }); });
+      if (cur === 0) {
+        it.push({ k: 'dot', p: [1, 0, -1], r: 8, c: 'ring ra' }, { k: 'text', p: [1, 0, -1], t: 'b', c: 'v ta', dx: 18, dy: 4, vec: 0 },
+          { k: 'dot', p: [0, 1, 1], r: 8, c: 'ring rb' }, { k: 'line', pts: [[0, 1, 1], [-2 / 3, 1 / 3, 1 / 3]], c: 'dash' }, { k: 'dot', p: [-2 / 3, 1 / 3, 1 / 3], r: 2.5 }, { k: 'text', p: [0, 1, 1], t: 'b′', c: 'v tb', dx: 20, dy: 0, vec: 0 });
+      }
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    if (s < 1) return read(M.tr({ en: 'Five different inputs, all on one line in the direction \\((1,1,1)\\).', zh: '五个不同的输入，都在方向为 \\((1,1,1)\\) 的一条直线上。' }));
+    read(cur === 0
+      ? M.tr({ en: '\\(C\\) sends all five to the same \\(\\class{ca}{\\vec{b}}\\): knowing \\(\\class{ca}{\\vec{b}}\\), we can’t tell which input it came from. And no input at all reaches \\(\\class{cb}{\\vec{b}\'}\\), which is off the plane.', zh: '\\(C\\) 把五个输入都送到了同一个 \\(\\class{ca}{\\vec{b}}\\)：只知道 \\(\\class{ca}{\\vec{b}}\\)，无法判断它来自哪个输入。而平面外的 \\(\\class{cb}{\\vec{b}\'}\\)，没有任何输入能到达。' })
+      : M.tr({ en: '\\(A\\) sends the five inputs to five different outputs, so each output leads back to exactly one input.', zh: '\\(A\\) 把五个输入送到五个不同的输出，所以每个输出都能唯一地追溯到一个输入。' }));
+  }
+  var prog;
+  M.buttons(ctl, [{ en: 'Matrix C', zh: '矩阵 C' }, { en: 'Matrix A', zh: '矩阵 A' }], function (i) { cur = i; prog.set(0); prog.run(); }, 0);
+  prog = M.progress(ctl, function (v) { var was = s >= 1; s = v; fig.render(); if ((s >= 1) !== was || v === 0) show(); });
+  show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-inverse-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+图&nbsp;7: <strong>多个输入，同一个输出。</strong> 直线 <span class="math inline">\((0,0,-1)+t(1,1,1)\)</span> 上的五个输入，用空心圆标出。点击“播放”：<span class="math inline">\(C\)</span> 把它们全都送到 <span class="math inline">\(\vec{b}=(1,0,-1)\)</span>，而 <span class="math inline">\(\vec{b}'=(0,1,1)\)</span> 没有任何输入能到达；从 <span class="math inline">\(\vec{b}'\)</span> 落到平面的虚线表明它在平面之外。切换到 <span class="math inline">\(A\)</span>：同样的五个输入被送到五个不同的输出。
+</figcaption>
+</figure>
+</div>
+<p>这就解释了为什么矩阵 <span class="math inline">\(C\)</span> 不可逆。</p>
+<p>一个维度的信息丢失了。即使知道输出，我们也无法唯一地确定原来的输入。</p>
+<p>从这个角度看，线性相关、秩和可逆性是紧密相连的。它们描述的是同一个根本问题的不同侧面。</p>
+<p><strong>线性相关</strong>告诉我们，矩阵的列向量里是否包含多余的方向。</p>
+<p><strong>秩</strong>告诉我们，这些列向量能张成多少维。</p>
+<p><strong>可逆性</strong>告诉我们，能否从变换的输出唯一地还原出原来的输入。</p>
+<p>对于一个 <span class="math inline">\(3\times3\)</span> 矩阵，如果它的三个列向量线性无关，那么它的秩是 3，矩阵可逆。</p>
+<p>如果三个列向量线性相关，那么它的秩小于 3，矩阵不可逆。</p>
+<p>我们还可以用行列式来判断一个方阵是否可逆：</p>
+<p><span class="math display">\[
+\det(A)\neq0
+\quad\Longleftrightarrow\quad
+A\text{ 可逆}
+\]</span></p>
+<p>如果</p>
+<p><span class="math display">\[
+\det(A)=0
+\]</span></p>
+<p>那么这个矩阵没有通常意义上的逆。</p>
+<p>对于我们的两个例子，<span class="math inline">\(\det(A)=1\)</span>（三角矩阵的行列式等于对角元的乘积），而 <span class="math inline">\(\det(C)=0\)</span>。</p>
+<p>事实上，对于可逆方阵，我们有：</p>
+<p><span class="math display">\[
+A^{-1}=\frac{\operatorname{adj}(A)}{\det(A)}
+\]</span></p>
+<p>其中 <span class="math inline">\(\operatorname{adj}(A)\)</span> 是伴随矩阵。</p>
+<p>如果行列式为零，这个公式的分母就是零，所以无法用这个式子求出逆矩阵。</p>
+<p>但不可逆更深层的几何原因，正是我们前面讨论过的：<strong>变换把不同的输入映射到同一个输出，因此无法唯一地还原出原来的输入。</strong></p>
+<p>行列式也符合这幅图景。正如注 2 所说，行列式是一个变换对体积的缩放倍数。<span class="math inline">\(C\)</span> 把整个三维空间压扁到一个平面上，而任何扁平的东西体积都是零，所以 <span class="math inline">\(\det(C)\)</span> 必然为零。行列式为零并不是一条单独的规则，它就是同一次坍缩，只不过是用体积来衡量。在 <a href="#fig-transform" class="quarto-xref">图&nbsp;3</a> 里可以亲眼看到这一点：当两列逐渐对齐时，阴影平行四边形越来越细，面积趋于零。</p>
+<p>这是我重新学习线性代数时慢慢意识到的。</p>
+<p>许多起初看起来毫不相关的概念，比如矩阵、线性组合、线性相关、秩、行列式和逆矩阵，其实都可以从线性变换这个统一的几何视角来理解。</p>
+<p>当我们不再只关注怎样计算公式，而是试着去理解在变换中向量和整个空间发生了什么时，这些概念之间的联系就清楚多了。</p>
+
+
+</section>
+
+
+</main> <!-- /main -->
+<script>
+// Margin footnotes come out as <div id="fnN"><p><sup>N</sup> ...: turn that number into a link back to the
+// reference in the text (id="fnrefN"), so every note and its marker point at each other.
+document.querySelectorAll('.column-margin div[id^="fn"]').forEach(function (note) {
+  var n = note.id.slice(2);
+  var ref = document.getElementById('fnref' + n);
+  var sup = note.querySelector('p > sup:first-child');
+  if (!ref || !sup) return;
+  var a = document.createElement('a');
+  a.href = '#fnref' + n;
+  a.className = 'note-back';
+  a.setAttribute('aria-label', 'Back to text, note ' + n);
+  a.textContent = sup.textContent;
+  sup.textContent = '';
+  sup.appendChild(a);
+});
+
+// Reference list: the [N] in front of each entry links back to where the text first cites it.
+document.querySelectorAll('#refs .csl-entry[id^="ref-"]').forEach(function (entry) {
+  var cite = document.querySelector('main a[href="#' + entry.id + '"]:not(#refs a)');
+  var label = entry.querySelector('.csl-left-margin');
+  if (!cite || !label) return;
+  if (!cite.id) cite.id = 'cite-' + entry.id.slice(4);
+  var a = document.createElement('a');
+  a.href = '#' + cite.id;
+  a.setAttribute('aria-label', 'Back to first citation');
+  a.textContent = label.textContent.trim();
+  label.textContent = '';
+  label.appendChild(a);
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "已复制");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "已复制");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/yukang-lian\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Yukang Lian</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

@@ -1,0 +1,2 @@
+MathJax 4.1.3 (npm package "mathjax"), Apache-2.0: see LICENSE.
+Only tex-chtml.js and the components it loads on demand are kept here.
