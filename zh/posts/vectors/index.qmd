@@ -1,8 +1,6 @@
 ---
 title: "向量与点积"
 subtitle: "点积为什么成立，又在空间中意味着什么"
-aliases:
-  - /zh/posts/vectors-to-matrices/index.html
 date: 2026-10-13
 categories: [线性代数]
 number-sections: true
