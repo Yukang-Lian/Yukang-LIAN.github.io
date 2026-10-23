@@ -1,0 +1,186 @@
+<style>
+.efig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+.el-wrap { --va:#2a78d6; --vb:#eb6834; }
+body.quarto-dark .efig, body.quarto-dark .el-wrap { --va:#3987e5; --vb:#d95926; }
+.efig .grid0 { stroke:currentColor; stroke-width:1; opacity:.07; }
+.efig .axis0 { stroke:currentColor; stroke-width:1; opacity:.3; }
+.efig .tick { fill:currentColor; opacity:.45; font-size:12px; }
+.efig .ln { stroke-width:2.2; stroke-linecap:round; }
+.efig .la { stroke:var(--va); } .efig .lb { stroke:var(--vb); }
+.efig .ghost { stroke:var(--vb); stroke-width:1.4; stroke-dasharray:5 5; opacity:.45; }
+.efig .nv { stroke-width:2; stroke-linecap:round; }
+.efig .ha { fill:var(--va); } .efig .hb { fill:var(--vb); } .efig .hg { fill:var(--vb); opacity:.45; }
+.efig .nv.g { stroke:var(--vb); opacity:.45; }
+.efig .sub { stroke:currentColor; stroke-width:1.2; stroke-dasharray:2 3; opacity:.6; }
+.efig .pt { fill:currentColor; }
+.efig text { fill:currentColor; font-family:inherit; font-size:16px; }
+.efig text.v { font-style:italic; font-size:17px; }
+.efig text .sb { font-size:12px; font-style:normal; }
+.efig text.ta { fill:var(--va); } .efig text.tb { fill:var(--vb); }
+.efig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.el-ctl { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:.45rem .9rem; margin-top:.5rem; font-size:.85rem; }
+.el-ctl button { font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:3px; padding:.1rem .6rem; opacity:.6; cursor:pointer; }
+.el-ctl button:hover { opacity:1; }
+.el-ctl label { display:inline-flex; align-items:center; gap:.35rem; font-variant-numeric:tabular-nums; }
+.el-ctl input[type=range] { width:150px; accent-color:currentColor; }
+.el-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:3.4em; }
+.el-read .ca { color:var(--va); } .el-read .cb { color:var(--vb); }
+</style>
+<div class="el-wrap" id="elim">
+<svg class="efig" viewBox="0 0 460 330" width="460" role="img" aria-label="Interactive figure: the lines x minus 2y equals 1 and 3x plus 2y equals 11 meet at (3, 1). Subtracting a multiple of the first equation from the second turns the second line around that point, and its normal vector changes by the same multiple of the first normal.">
+  <g class="g0"></g>
+  <line class="ghost l2g"/>
+  <line class="ln la l1"/>
+  <line class="ln lb l2"/>
+  <line class="sub"/>
+  <line class="nv g n2g"/><path class="hg h2g"/>
+  <line class="nv la n1"/><path class="ha h1"/>
+  <line class="nv lb n2"/><path class="hb h2"/>
+  <circle class="pt" r="4"/>
+  <text class="v ta t1" data-vec="0">n<tspan class="sb" dy="5">1</tspan></text>
+  <text class="v tb t2" data-vec="0">n<tspan class="sb" dy="5">2</tspan><tspan class="pr" dy="-5"></tspan></text>
+</svg>
+<div class="el-ctl">
+  <label><span class="lbl">multiplier</span> <i>ℓ</i> <input type="range" min="-1" max="4" step="0.05" value="0"> <span class="val">0.00</span></label>
+  <button data-l="0">Original</button>
+  <button data-l="3">Eliminate x</button>
+</div>
+<div class="el-read"></div>
+</div>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function () {
+  var root = document.getElementById('elim'), svg = root.querySelector('svg');
+  var S = 40, OX = 80, OY = 230, W = 460, H = 330;     // px per unit, origin, size
+  var K = 1 / 3;                                        // normals are drawn at a third of their length
+  var P0 = [3, 1], r1 = [1, -2, 1], r2 = [3, 2, 11];    // the intersection and the two equations [a, b, c]: ax + by = c
+  var ell = 0;
+  var q = function (s) { return svg.querySelector(s); };
+  var zh = /^zh/.test(document.documentElement.lang);
+  var T = zh ? {
+    lbl: '倍数', btn: ['原方程', '消去 x'],
+    gen: '第二条直线绕着交点转动，但仍然经过 \\((3,1)\\)。',
+    x: '\\(x\\) 被消去了：这条直线变成水平的，可以直接读出 \\(y=1\\)。',
+    y: '\\(y\\) 被消去了：这条直线变成竖直的，可以直接读出 \\(x=3\\)。'
+  } : {
+    lbl: 'multiplier', btn: null,
+    gen: 'The second line turns around the intersection, but it still passes through \\((3,1)\\).',
+    x: '\\(x\\) is eliminated: the line is horizontal, so we can read off \\(y=1\\).',
+    y: '\\(y\\) is eliminated: the line is vertical, so we can read off \\(x=3\\).'
+  };
+  root.querySelector('.lbl').textContent = T.lbl;
+  if (T.btn) root.querySelectorAll('.el-ctl button').forEach(function (b, i) { b.textContent = T.btn[i]; });
+  var px = function (p) { return [OX + S * p[0], OY - S * p[1]]; };
+  var set = function (el, o) { for (var k in o) el.setAttribute(k, o[k]); };
+
+  var h = '';
+  for (var x = -2; x <= 9; x++) {
+    h += '<line class="' + (x ? 'grid0' : 'axis0') + '" x1="' + (OX + S * x) + '" y1="0" x2="' + (OX + S * x) + '" y2="' + H + '"/>';
+    if (x > 0) h += '<text class="tick" x="' + (OX + S * x) + '" y="' + (OY + 15) + '" text-anchor="middle">' + x + '</text>';
+  }
+  for (var y = -2; y <= 5; y++) {
+    h += '<line class="' + (y ? 'grid0' : 'axis0') + '" x1="0" y1="' + (OY - S * y) + '" x2="' + W + '" y2="' + (OY - S * y) + '"/>';
+    if (y) h += '<text class="tick" x="' + (OX - 7) + '" y="' + (OY - S * y + 4) + '" text-anchor="end">' + (y < 0 ? '−' + -y : y) + '</text>';
+  }
+  q('.g0').innerHTML = h;
+
+  // the line ax + by = c through P0, long enough to leave the picture
+  function line(el, a, b) {
+    var n = Math.hypot(a, b), d = [-b / n * 20, a / n * 20], e0 = px([P0[0] - d[0], P0[1] - d[1]]), e1 = px([P0[0] + d[0], P0[1] + d[1]]);
+    set(el, { x1: e0[0], y1: e0[1], x2: e1[0], y2: e1[1] });
+  }
+  function arrow(ln, head, a, b) {
+    var s = px(P0), e = px([a, b]), d = Math.hypot(e[0] - s[0], e[1] - s[1]);
+    var ux = (e[0] - s[0]) / d, uy = (e[1] - s[1]) / d, L = Math.min(11, d * .5), Wd = L * .42, bx = e[0] - ux * L, by = e[1] - uy * L;
+    set(ln, { x1: s[0], y1: s[1], x2: bx + ux * 2, y2: by + uy * 2 });
+    head.setAttribute('d', 'M' + e[0] + ',' + e[1] + ' L' + (bx - uy * Wd) + ',' + (by + ux * Wd) + ' L' + (bx + uy * Wd) + ',' + (by - ux * Wd) + ' Z');
+  }
+  var tip = function (n) { return [P0[0] + K * n[0], P0[1] + K * n[1]]; };
+  function label(el, n, side) {
+    var m = Math.hypot(n[0], n[1]), u = [n[0] / m, n[1] / m], t = tip(n);
+    var e = px([t[0] + u[0] * .35 + side * u[1] * .3, t[1] + u[1] * .35 - side * u[0] * .3]);
+    set(el, { x: e[0], y: e[1], 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+  }
+
+  function draw() {
+    var a = r2[0] - ell * r1[0], b = r2[1] - ell * r1[1];
+    line(q('.l1'), r1[0], r1[1]); line(q('.l2g'), r2[0], r2[1]); line(q('.l2'), a, b);
+    var t1 = tip([r1[0], r1[1]]), t2 = tip([r2[0], r2[1]]), t3 = tip([a, b]);
+    arrow(q('.n1'), q('.h1'), t1[0], t1[1]);
+    arrow(q('.n2'), q('.h2'), t3[0], t3[1]);
+    var g = Math.abs(ell) > .02;      // show the original normal and the step -l*n1 only once they differ
+    q('.n2g').style.display = q('.h2g').style.display = q('.sub').style.display = g ? '' : 'none';
+    if (g) {
+      arrow(q('.n2g'), q('.h2g'), t2[0], t2[1]);
+      var s = px(t2), e = px(t3); set(q('.sub'), { x1: s[0], y1: s[1], x2: e[0], y2: e[1] });
+    }
+    var p = px(P0); set(q('.pt'), { cx: p[0], cy: p[1] });
+    q('.t2 .pr').textContent = g ? '′' : '';
+    label(q('.t1'), [r1[0], r1[1]], -1); label(q('.t2'), [a, b], 1);
+    vecArrows(svg);
+  }
+
+  var f = function (z) { var r = Math.round(z * 100) / 100; return (r === 0 ? 0 : r).toFixed(2).replace(/\.?0+$/, ''); };
+  // ax + by = c, leaving out zero terms and unit coefficients
+  function eq(a, b, c) {
+    var co = function (z) { return f(z) === '1' ? '' : f(z); }, s = '';
+    if (f(a) !== '0') s = (a < 0 ? '-' : '') + co(Math.abs(a)) + 'x';
+    if (f(b) !== '0') s += (b < 0 ? '-' : s ? '+' : '') + co(Math.abs(b)) + 'y';
+    return s + '=' + f(c);
+  }
+  function read() {
+    var a = r2[0] - ell * r1[0], b = r2[1] - ell * r1[1], c = r2[2] - ell * r1[2];
+    var B = function (s) { return '\\class{cb}{' + s + '}'; };
+    var msg = f(a) === '0' ? T.x : f(b) === '0' ? T.y : T.gen;
+    var k = f(Math.abs(ell)), n = k === '0' ? B('\\vec n_2') : B('\\vec n_2\'') + '=\\vec n_2' + (ell < 0 ? '+' : '-') + (k === '1' ? '' : k) + '\\class{ca}{\\vec n_1}';
+    typeset('\\(' + B(eq(a, b, c)) + '\\qquad' + n + '=' + B('(' + f(a) + ',\\ ' + f(b) + ')') + '\\)<br>' + msg);
+  }
+
+  var out = root.querySelector('.el-read'), busy = false, next = null;
+  function typeset(html) {
+    next = html;
+    if (busy) return;
+    busy = true;
+    var ready = window.MathJax && MathJax.startup && MathJax.startup.promise;
+    if (!ready) return setTimeout(function () { busy = false; typeset(next); }, 200);
+    MathJax.startup.promise.then(function () {
+      var h = next; next = null;
+      MathJax.typesetClear([out]); out.innerHTML = h;
+      return MathJax.typesetPromise([out]);
+    }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+  }
+
+  var rng = root.querySelector('input'), val = root.querySelector('.val'), anim = null;
+  function setL(v) { ell = v; rng.value = v; val.textContent = v.toFixed(2).replace('-', '−'); draw(); }
+  rng.addEventListener('input', function () { anim = null; setL(+rng.value); read(); });
+  root.querySelectorAll('.el-ctl button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var from = ell, to = +btn.getAttribute('data-l'), t0 = performance.now(), id = {};
+      anim = id;
+      (function step(now) {
+        if (anim !== id) return;
+        var s = Math.min(1, (now - t0) / 900), e = s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2;
+        setL(from + (to - from) * e);
+        if (s < 1) requestAnimationFrame(step); else { anim = null; read(); }
+      })(t0);
+    });
+  });
+  draw(); read();
+  if (document.fonts) document.fonts.ready.then(function () { vecArrows(svg); });
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>

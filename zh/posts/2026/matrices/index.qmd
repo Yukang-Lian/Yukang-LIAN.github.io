@@ -11,7 +11,7 @@ number-sections: true
 :::
 
 ```{=html}
-{{< include ../../../../posts/2026/matrices/_m3d.html >}}
+{{< include /_includes/m3d.html >}}
 ```
 
 ## 从向量的组合到矩阵

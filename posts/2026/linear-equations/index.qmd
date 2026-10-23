@@ -1,0 +1,180 @@
+---
+title: "Solving Linear Equations"
+subtitle: "The geometry of elimination, and why it leads to LU"
+date: 2026-10-24
+categories: [Linear algebra]
+number-sections: true
+---
+
+```{=html}
+{{< include /_includes/m3d.html >}}
+```
+
+In the [previous post](../matrices/index.qmd), I looked at matrices through vectors and linear transformations. This time I look at them from another angle: **systems of linear equations**. What interested me most was the geometry behind solving these systems, and how Gaussian elimination leads naturally to the LU decomposition.
+
+## Lines, Planes and Their Normals
+
+Consider two equations in two unknowns:
+
+$$
+\begin{cases}
+x-2y=1,\\
+3x+2y=11.
+\end{cases}
+$$
+
+Each equation describes a line in the plane, and the solution is the point where the two lines cross, $(x,y)=(3,1)$ (@fig-lines). In matrix form, the system is
+
+$$
+\underbrace{\begin{bmatrix}1&-2\\3&2\end{bmatrix}}_{A}
+\underbrace{\begin{bmatrix}x\\y\end{bmatrix}}_{\vec{x}}
+=
+\underbrace{\begin{bmatrix}1\\11\end{bmatrix}}_{\vec{b}}
+$$
+
+::: {#fig-lines}
+```{=html}
+{{< include _fig-lines.html >}}
+```
+**Two equations, two lines.** Each equation is a line, and the solution is where they cross. The arrows are the normal vectors $\vec{n}_1=(1,-2)$ and $\vec{n}_2=(3,2)$, drawn at a third of their length. The buttons replace the second line with one whose normal is $2\vec{n}_1$: a parallel line with no solution, or the same line with infinitely many.
+:::
+
+With three equations in three unknowns, each equation describes a plane in space, and the solution is the point the three planes share. For example,
+
+$$
+\begin{cases}
+x+y+z=4,\\
+x-y+z=2,\\
+2x-z=0
+\end{cases}
+$$
+
+has the solution $(x,y,z)=(1,1,2)$ (@fig-planes). The geometry changes from lines to planes, but the algebra is still $A\vec{x}=\vec{b}$.
+
+::: {#fig-planes}
+```{=html}
+{{< include _fig-planes.html >}}
+```
+**Three equations, three planes.** Each pair of planes meets in a line (dark), and the three lines pass through the solution $(1,1,2)$. The buttons replace the third plane with one whose normal is the sum of the other two, $\vec{n}_3=\vec{n}_1+\vec{n}_2$: depending on its right-hand side, the planes have no common point or a whole common line. Drag the figure to look from another side.
+:::
+
+Whether the lines or planes meet in a single point depends on how they are tilted, and a plane's tilt is described by its **normal vector**, which I remember from high-school geometry. The plane $ax+by+cz=d$ has the normal vector $\vec{n}=(a,b,c)$, assuming $(a,b,c)\ne(0,0,0)$. To see why, take any two points $P_1=(x_1,y_1,z_1)$ and $P_2=(x_2,y_2,z_2)$ on the plane. Both satisfy its equation, and subtracting the two equations gives, in the language of the [dot product](../vectors/index.qmd),
+
+$$
+(a,b,c)\cdot(x_1-x_2,\ y_1-y_2,\ z_1-z_2)=0
+$$
+
+The second vector runs along the plane. Since this holds for any two points, $(a,b,c)$ is perpendicular to every direction in the plane, which is exactly what a normal vector is. In the same way, the line $ax+by=c$ has the normal $(a,b)$.
+
+The normals tell us when a unique solution exists. In two dimensions, independent normals give two lines that are not parallel, so they cross at one point. Dependent normals give parallel or coincident lines, so there is either no solution or infinitely many. In three dimensions, three independent normals mean the planes meet at exactly one point. If the normals span fewer than three directions, a unique solution is impossible, and the system has no solution or infinitely many, depending on whether the equations are **consistent**. In matrix language, the number of independent normal vectors is the rank of $A$.
+
+## What Elimination Does Geometrically
+
+To solve a system, we usually eliminate variables until it becomes upper triangular. I found it more interesting to ask what each step means geometrically.
+
+Go back to the two lines and replace the second equation with **the second equation minus three times the first**:
+
+$$
+(3x+2y)-3(x-2y)=11-3
+\quad\Longrightarrow\quad
+8y=8
+$$
+
+The new line, $y=1$, is different from the original second line, but it still passes through $(3,1)$. The solution is unchanged because the step can be undone: adding three times the first equation back gives the original second equation.
+
+The normal vectors change in the same way as the equations:
+
+$$
+\vec{n}_2'=\vec{n}_2-3\vec{n}_1=(3,2)-3(1,-2)=(0,8)
+$$
+
+So subtracting a multiple of one equation from another turns the second line around the fixed intersection point (@fig-elim). Elimination picks the multiple that makes $\vec{n}_2'$ point straight up: the line becomes horizontal, $x$ disappears from its equation, and we can read off $y=1$.
+
+::: {#fig-elim}
+```{=html}
+{{< include _fig-elim.html >}}
+```
+**Elimination turns a line around the solution.** The second equation is replaced by itself minus $\ell$ times the first. The second line turns around $(3,1)$, and its normal vector changes from $\vec{n}_2$ to $\vec{n}_2-\ell\vec{n}_1$; the dotted segment is the step $-\ell\vec{n}_1$, with the normals again at a third of their length. Move the slider, or press "Eliminate x" to go to $\ell=3$, where the line becomes $y=1$.
+:::
+
+The same idea applies in three dimensions. Replacing one plane's equation by a combination of two equations changes that plane, but keeps the line where the two planes meet. Elimination keeps turning planes like this (@fig-elim3d) until the system is upper triangular: the last plane is horizontal, the one above it has no $x$ in its equation, and we can read off $z$, then $y$, then $x$.
+
+::: {#fig-elim3d}
+```{=html}
+{{< include _fig-elim3d.html >}}
+```
+**Elimination in three dimensions.** Elimination on the three planes of @fig-planes, one step at a time. Each step subtracts a multiple of one equation from another, so the changing plane turns around the line it shares with the other plane (bold), and all three planes keep passing through $(1,1,2)$. After step 3, the system is upper triangular: $x+y+z=4$, $-2y=-2$ and $-3z=-6$. Drag the figure to look from another side.
+:::
+
+## Recording Elimination: $PA=LU$
+
+Gaussian elimination turns $A$ into an upper triangular matrix $U$. Instead of treating it as a temporary calculation, we can **record the operations** that produced $U$. In the two-line example, subtracting three times the first row from the second is itself a matrix:
+
+$$
+E=\begin{bmatrix}1&0\\-3&1\end{bmatrix},
+\qquad
+EA=\begin{bmatrix}1&-2\\0&8\end{bmatrix}=U
+$$
+
+Undoing the step gives $A=E^{-1}U$:
+
+$$
+A=
+\underbrace{\begin{bmatrix}1&0\\3&1\end{bmatrix}}_{L}
+\underbrace{\begin{bmatrix}1&-2\\0&8\end{bmatrix}}_{U}
+$$
+
+That is an LU decomposition. $U$ is what elimination produces, and the lower triangular $L$ stores the multiplier, $3$, in a form that rebuilds $A$.
+
+With more than one step, we need one fact about inverses. For a square matrix $A$, the inverse $A^{-1}$, when it exists, satisfies $A^{-1}A=AA^{-1}=I$, and the inverse of a product reverses the order:
+
+$$
+(AB)^{-1}=B^{-1}A^{-1}
+$$
+
+This makes sense if we think of matrices as transformations applied one after another: $AB$ applies $B$ first and then $A$, so to undo it, we first undo $A$, then undo $B$.
+
+The three planes above take three steps: subtract $1$ times row 1 from row 2 ($E_{21}$), $2$ times row 1 from row 3 ($E_{31}$), and then $1$ times the new row 2 from row 3 ($E_{32}$):
+
+$$
+E_{32}E_{31}E_{21}A=U=\begin{bmatrix}1&1&1\\0&-2&0\\0&0&-3\end{bmatrix}
+$$
+
+Undoing the three steps in reverse order,
+
+$$
+A=E_{21}^{-1}E_{31}^{-1}E_{32}^{-1}U=
+\underbrace{\begin{bmatrix}1&0&0\\1&1&0\\2&1&1\end{bmatrix}}_{L}U
+$$
+
+$L$ holds the three multipliers, $1$, $2$ and $1$, each in the position of the entry it eliminated. The reversed order is what keeps them clean. The forward product $E_{32}E_{31}E_{21}$ has $-1$ in its bottom-left corner, not $-2$: it changes row 3 using row 2 after row 2 has already been changed, so the multipliers mix. Multiplied in the reverse order, the inverses simply put each multiplier in its place.
+
+Why keep $L$? Suppose we need to solve $A\vec{x}=\vec{b}$ for many right-hand sides $\vec{b}$ while $A$ stays the same. With $A=LU$, each new $\vec{b}$ needs only two triangular systems,
+
+$$
+L\vec{y}=\vec{b},\qquad U\vec{x}=\vec{y}
+$$
+
+solved by forward and back substitution. We could also save the row operations and replay them on each new $\vec{b}$. **LU is a structured way to do exactly that.** The saving is large: eliminating an $n\times n$ matrix takes about $n^3/3$ multiplications, while the two triangular solves take about $n^2$.
+
+One complication remains: not every invertible matrix can be factored this way *without row exchanges*. For example,
+
+$$
+A=\begin{bmatrix}0&1\\1&0\end{bmatrix}
+$$
+
+is invertible, but its first pivot is zero, so the rows must be exchanged first. A permutation matrix $P$ records the exchanges, which gives the general form
+
+$$
+PA=LU
+$$
+
+To solve $A\vec{x}=\vec{b}$ with it, we permute the right-hand side the same way: $LU\vec{x}=P\vec{b}$.
+
+For me, the main idea is that LU is not a separate trick from Gaussian elimination. It is the work elimination already does, written down so that it can be reused.
+
+## Transpose, for Now
+
+The transpose $A^T$ exchanges the rows and columns of $A$; I picture its entries flipped across the main diagonal. A matrix with $A=A^T$ is called symmetric. Like the inverse, the transpose of a product reverses the order, $(AB)^T=B^TA^T$. I can verify this from the definitions, but the connection between the transpose, dot products and orthogonality will be more interesting later, so I'll leave it here.
+
+For now, the two ideas I want to keep from this post are **the geometric meaning of elimination** and **the way LU records it**.

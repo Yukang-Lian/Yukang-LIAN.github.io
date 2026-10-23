@@ -1,7 +1,7 @@
 <style>
-/* Shared look of the 3D figures in this post (drag to rotate). */
-.m3d { --va:#2a78d6; --vb:#eb6834; margin-bottom:.9rem; }
-body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; }
+/* Shared look of the 3D figures on this site (drag to rotate). */
+.m3d { --va:#2a78d6; --vb:#eb6834; --vc:#1d9a6c; margin-bottom:.9rem; }
+body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; --vc:#2fb383; }
 .m3d svg { display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
 .m3d svg.grabbing { cursor:grabbing; }
 .m3d text { fill:currentColor; font-family:inherit; font-size:16px; }
@@ -19,6 +19,10 @@ body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; }
 .m3d .ghost { fill:none; stroke:currentColor; stroke-width:1; opacity:.18; stroke-dasharray:3 4; }
 .m3d .grid { fill:none; stroke:currentColor; stroke-width:.8; stroke-opacity:.16; }
 .m3d .plane { fill:currentColor; fill-opacity:.07; stroke:currentColor; stroke-opacity:.3; stroke-width:1; }
+.m3d .plane.pa { fill:var(--va); stroke:var(--va); fill-opacity:.14; stroke-opacity:.6; }
+.m3d .plane.pb { fill:var(--vb); stroke:var(--vb); fill-opacity:.14; stroke-opacity:.6; }
+.m3d .plane.pc { fill:var(--vc); stroke:var(--vc); fill-opacity:.14; stroke-opacity:.6; }
+.m3d .meet { fill:none; stroke:currentColor; stroke-width:1.6; opacity:.75; }
 .m3d .dash { fill:none; stroke:currentColor; stroke-width:1.4; stroke-dasharray:5 5; opacity:.7; }
 .m3d .trail { fill:none; stroke:currentColor; stroke-width:1; stroke-dasharray:2 4; opacity:.45; }
 .m3d .dot { fill:currentColor; }
@@ -34,7 +38,7 @@ body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; }
 .m3d-ctl input[type=range] { width:110px; accent-color:currentColor; }
 .m3d-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:1.7em; }
 .m3d-read.tall { min-height:3.4em; }
-.m3d-read .ca { color:var(--va); } .m3d-read .cb { color:var(--vb); }
+.m3d-read .ca { color:var(--va); } .m3d-read .cb { color:var(--vb); } .m3d-read .cc { color:var(--vc); }
 .m3d-hint { text-align:center; font-size:.75rem; opacity:.55; margin-top:.1rem; }
 .m3d-hint button { font:inherit; color:inherit; background:none; border:0; padding:0 0 0 .5em; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
 .m3d-hint button:hover { opacity:.8; }
@@ -56,7 +60,7 @@ window.vecArrows = window.vecArrows || function (svg) {
   });
 };
 
-// A tiny 3D renderer for the figures in this post: orthographic projection, drag to rotate,
+// A tiny 3D renderer shared by the figures on this site: orthographic projection, drag to rotate,
 // and a scene described as a list of arrows, lines, polygons, dots and labels in math coordinates.
 window.M3D = window.M3D || (function () {
   var zh = /^zh/.test(document.documentElement.lang);
@@ -211,6 +215,34 @@ window.M3D = window.M3D || (function () {
     return it;
   }
 
+  // planes given as P = [a, b, c, d], meaning ax + by + cz = d
+  var nv = function (P) { return P.slice(0, 3); };
+  // a square patch of plane P around its point nearest to c, with one edge kept horizontal
+  function patch(P, c, half, cls) {
+    var n = unit(nv(P)), e1 = Math.abs(n[2]) > .99 ? [1, 0, 0] : unit(cross([0, 0, 1], n)), e2 = cross(n, e1);
+    c = add(c, scale((P[3] - dot(nv(P), c)) / dot(nv(P), nv(P)), nv(P)));
+    var at = function (x, y) { return add(c, add(scale(x, e1), scale(y, e2))); };
+    return { k: 'poly', pts: [at(-half, -half), at(half, -half), at(half, half), at(-half, half)], c: 'plane ' + cls };
+  }
+  // the line where planes P and Q meet, as a segment of half-length len around its point nearest to c; null if they are parallel
+  function meet(P, Q, c, len) {
+    var a = nv(P), b = nv(Q), u = cross(a, b);
+    if (dot(u, u) < 1e-6) return null;
+    // p = c + s a + t b, solved so that p lies on both planes
+    var aa = dot(a, a), ab = dot(a, b), bb = dot(b, b), r = P[3] - dot(a, c), q = Q[3] - dot(b, c), D = aa * bb - ab * ab;
+    var p = add(c, add(scale((r * bb - q * ab) / D, a), scale((q * aa - r * ab) / D, b))), d = scale(len, unit(u));
+    return { k: 'line', pts: [add(p, scale(-1, d)), add(p, d)], c: 'meet' };
+  }
+  // the equation ax + by + cz = d as TeX, leaving out zero terms and unit coefficients
+  function eqTeX(P) {
+    var s = '';
+    ['x', 'y', 'z'].forEach(function (v, i) {
+      var k = P[i]; if (!k) return;
+      s += (k < 0 ? '-' : s ? '+' : '') + (Math.abs(k) === 1 ? '' : Math.abs(k)) + v;
+    });
+    return s + '=' + P[3];
+  }
+
   // controls under a figure
   function buttons(box, labels, on, init) {
     var g = document.createElement('span'); g.className = 'grp'; box.appendChild(g);
@@ -247,7 +279,7 @@ window.M3D = window.M3D || (function () {
     return { run: run, set: function (s) { if (stop) stop(); sl.set(s); on(s); }, get: sl.get };
   }
 
-  return { create: create, plane: plane, tween: tween, typesetter: typesetter, buttons: buttons, button: button, slider: slider, progress: progress,
+  return { create: create, plane: plane, patch: patch, meet: meet, eqTeX: eqTeX, tween: tween, typesetter: typesetter, buttons: buttons, button: button, slider: slider, progress: progress,
     tr: tr, zh: zh, dot: dot, cross: cross, unit: unit, add: add, scale: scale, mul: mul, toward: toward, rotX: rotX, f1: f1 };
 })();
 </script>

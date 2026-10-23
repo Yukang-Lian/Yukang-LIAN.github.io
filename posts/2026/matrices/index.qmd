@@ -7,7 +7,7 @@ number-sections: true
 ---
 
 ```{=html}
-{{< include _m3d.html >}}
+{{< include /_includes/m3d.html >}}
 ```
 
 ## From Vector Combination to Matrix

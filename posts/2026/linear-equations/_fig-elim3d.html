@@ -1,0 +1,60 @@
+<style>
+.m3d .meet.hinge { stroke-width:3.2; opacity:1; }
+</style>
+<div class="m3d" id="m3-elim">
+<svg role="img" aria-label="Interactive 3D figure: Gaussian elimination on x + y + z = 4, x − y + z = 2, 2x − z = 0 in three steps. Each step turns one plane around the line it shares with another, until the last plane is horizontal, z = 2. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-elim'), ctl = root.querySelector('.m3d-ctl');
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  // the system after each step of elimination, as rows [a, b, c, d] for ax + by + cz = d
+  var STATES = [
+    [[1, 1, 1, 4], [1, -1, 1, 2], [2, 0, -1, 0]],
+    [[1, 1, 1, 4], [0, -2, 0, -2], [2, 0, -1, 0]],     // row 2 − 1 × row 1
+    [[1, 1, 1, 4], [0, -2, 0, -2], [0, -2, -3, -8]],   // row 3 − 2 × row 1
+    [[1, 1, 1, 4], [0, -2, 0, -2], [0, 0, -3, -6]]     // row 3 − 1 × row 2
+  ];
+  // in each step, the row that changes and the row it turns around
+  var HINGE = [null, [1, 0], [2, 0], [2, 1]];
+  var C0 = [1, 1, 2], HALF = 1.5, cur = 0, rows = STATES[0].map(function (r) { return r.slice(); });
+  var CLS = ['pa', 'pb', 'pc'];
+  var fig = M.create(root, {
+    scale: 52, az: 20, el: 22, dy: 30, axes: ['x', 'y', 'z'], axisLen: 3.2, ticks: true,
+    scene: function () {
+      var it = rows.map(function (r, i) { return M.patch(r, C0, HALF, CLS[i]); }), h = HINGE[cur];
+      [[0, 1], [0, 2], [1, 2]].forEach(function (p) {
+        var m = M.meet(rows[p[0]], rows[p[1]], C0, 1.6);
+        if (m && h && h[0] === p[1] && h[1] === p[0]) m.c = 'meet hinge';
+        if (m) it.push(m);
+      });
+      it.push({ k: 'dot', p: C0, r: 4.5 }, { k: 'text', p: C0, t: '(1, 1, 2)', dx: 34, dy: -10 });
+      return it;
+    }
+  });
+  var MSG = [
+    { en: 'The original system: three planes through \\((1,1,2)\\).', zh: '原方程组：三个平面都经过 \\((1,1,2)\\)。' },
+    { en: 'Row 2 minus \\(1\\times\\) row 1. The orange plane turns around the line it shares with the blue one (bold) and becomes \\(y=1\\): no \\(x\\) left.', zh: '第 2 行减去 \\(1\\times\\) 第 1 行。橙色平面绕着它和蓝色平面的交线（粗线）转动，变成 \\(y=1\\)：不再含 \\(x\\)。' },
+    { en: 'Row 3 minus \\(2\\times\\) row 1. The green plane turns around its line with the blue one; its equation no longer has \\(x\\).', zh: '第 3 行减去 \\(2\\times\\) 第 1 行。绿色平面绕着它和蓝色平面的交线转动，方程里不再有 \\(x\\)。' },
+    { en: 'Row 3 minus \\(1\\times\\) the new row 2. The green plane turns around its line with the orange one and becomes horizontal, \\(z=2\\). Now read off \\(z=2\\), then \\(y=1\\), then \\(x=1\\).', zh: '第 3 行减去 \\(1\\times\\) 新的第 2 行。绿色平面绕着它和橙色平面的交线转动，变成水平的 \\(z=2\\)。现在可以依次读出 \\(z=2\\)、\\(y=1\\)、\\(x=1\\)。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    var S = STATES[cur];
+    read('\\(\\class{ca}{' + M.eqTeX(S[0]) + '}\\)&emsp;\\(\\class{cb}{' + M.eqTeX(S[1]) + '}\\)&emsp;\\(\\class{cc}{' + M.eqTeX(S[2]) + '}\\)<br>' + M.tr(MSG[cur]));
+  }
+  var stop = null;
+  M.buttons(ctl, [{ en: 'Original', zh: '原方程组' }, { en: 'Step 1', zh: '第 1 步' }, { en: 'Step 2', zh: '第 2 步' }, { en: 'Step 3', zh: '第 3 步' }], function (i) {
+    if (stop) stop();
+    var from = rows.map(function (r) { return r.slice(); }), to = STATES[i]; cur = i; show();
+    stop = M.tween(1100, function (s) {
+      rows = from.map(function (r, j) { return r.map(function (x, k) { return x + (to[j][k] - x) * s; }); });
+      fig.render();
+    }, function () { stop = null; });
+  }, 0);
+  show();
+})();
+</script>

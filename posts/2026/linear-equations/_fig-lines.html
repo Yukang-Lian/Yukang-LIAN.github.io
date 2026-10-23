@@ -1,0 +1,155 @@
+<style>
+.lfig { --va:#2a78d6; --vb:#eb6834; display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+.ln-wrap { --va:#2a78d6; --vb:#eb6834; }
+body.quarto-dark .lfig, body.quarto-dark .ln-wrap { --va:#3987e5; --vb:#d95926; }
+.lfig .grid0 { stroke:currentColor; stroke-width:1; opacity:.07; }
+.lfig .axis0 { stroke:currentColor; stroke-width:1; opacity:.3; }
+.lfig .tick { fill:currentColor; opacity:.45; font-size:12px; }
+.lfig .ln { stroke-width:2.2; stroke-linecap:round; }
+.lfig .la { stroke:var(--va); } .lfig .lb { stroke:var(--vb); }
+.lfig .nv { stroke-width:2; stroke-linecap:round; }
+.lfig .ha { fill:var(--va); } .lfig .hb { fill:var(--vb); }
+.lfig .pt { fill:currentColor; }
+.lfig text { fill:currentColor; font-family:inherit; font-size:16px; }
+.lfig text.v { font-style:italic; font-size:17px; }
+.lfig text .sb { font-size:12px; font-style:normal; }
+.lfig text.ta { fill:var(--va); } .lfig text.tb { fill:var(--vb); }
+.lfig .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.ln-ctl { display:flex; flex-wrap:wrap; justify-content:center; gap:.4rem; margin-top:.5rem; font-size:.85rem; }
+.ln-ctl button { font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:3px; padding:.1rem .6rem; opacity:.6; cursor:pointer; }
+.ln-ctl button:hover, .ln-ctl button.on { opacity:1; }
+.ln-ctl button.on { box-shadow:inset 0 -2px 0 currentColor; }
+.ln-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:3.4em; }
+.ln-read .ca { color:var(--va); } .ln-read .cb { color:var(--vb); }
+</style>
+<div class="ln-wrap" id="lines">
+<svg class="lfig" viewBox="0 0 460 330" width="460" role="img" aria-label="Interactive figure: the lines x − 2y = 1 and 3x + 2y = 11 cross at (3, 1), with their normal vectors. Buttons switch the second line to a parallel line, with no solution, or to the same line, with infinitely many.">
+  <g class="g0"></g>
+  <line class="ln la l1"/>
+  <line class="ln lb l2"/>
+  <line class="nv lb n2"/><path class="hb h2"/>
+  <line class="nv la n1"/><path class="ha h1"/>
+  <circle class="pt" r="4"/>
+  <text class="v ta t1" data-vec="0">n<tspan class="sb" dy="5">1</tspan></text>
+  <text class="v tb t2" data-vec="0">n<tspan class="sb" dy="5">2</tspan></text>
+</svg>
+<div class="ln-ctl">
+  <button data-i="0" class="on">One point</button>
+  <button data-i="1">No solution</button>
+  <button data-i="2">Infinitely many</button>
+</div>
+<div class="ln-read"></div>
+</div>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+(function () {
+  var root = document.getElementById('lines'), svg = root.querySelector('svg');
+  var S = 40, OX = 80, OY = 230, W = 460, H = 330;     // px per unit, origin, size
+  var K = 1 / 3;                                        // normals are drawn at a third of their length
+  var REF = [3, 1];                                     // each normal starts where the line is nearest to this point
+  var r1 = [1, -2, 1], CASES = [[3, 2, 11], [2, -4, 8], [2, -4, 2]], r2 = CASES[0].slice(), cur = 0;   // ax + by = c as [a, b, c]
+  var q = function (s) { return svg.querySelector(s); };
+  var zh = /^zh/.test(document.documentElement.lang);
+  var T = zh ? {
+    btn: ['交于一点', '无解', '无穷多解'],
+    msg: ['两条直线交于一点 \\((3,1)\\)，两个法向量指向不同的方向。',
+      '\\(\\vec{n}_2=2\\vec{n}_1\\)：两条直线平行，永远不相交，所以无解。',
+      '\\(\\vec{n}_2=2\\vec{n}_1\\)，而且 \\(2=2\\times1\\)：第二个方程就是第一个方程乘以 2，两条直线重合，线上每一点都是解。']
+  } : {
+    btn: null,
+    msg: ['The lines cross at one point, \\((3,1)\\), and their normals point in different directions.',
+      '\\(\\vec{n}_2=2\\vec{n}_1\\): the lines are parallel and never meet, so there is no solution.',
+      '\\(\\vec{n}_2=2\\vec{n}_1\\) and \\(2=2\\times1\\): the second equation is the first one doubled, so the lines coincide and every point on them is a solution.']
+  };
+  var bs = root.querySelectorAll('.ln-ctl button');
+  if (T.btn) bs.forEach(function (b, i) { b.textContent = T.btn[i]; });
+  var px = function (p) { return [OX + S * p[0], OY - S * p[1]]; };
+  var set = function (el, o) { for (var k in o) el.setAttribute(k, o[k]); };
+
+  var h = '';
+  for (var x = -2; x <= 9; x++) {
+    h += '<line class="' + (x ? 'grid0' : 'axis0') + '" x1="' + (OX + S * x) + '" y1="0" x2="' + (OX + S * x) + '" y2="' + H + '"/>';
+    if (x > 0) h += '<text class="tick" x="' + (OX + S * x) + '" y="' + (OY + 15) + '" text-anchor="middle">' + x + '</text>';
+  }
+  for (var y = -2; y <= 5; y++) {
+    h += '<line class="' + (y ? 'grid0' : 'axis0') + '" x1="0" y1="' + (OY - S * y) + '" x2="' + W + '" y2="' + (OY - S * y) + '"/>';
+    if (y) h += '<text class="tick" x="' + (OX - 7) + '" y="' + (OY - S * y + 4) + '" text-anchor="end">' + (y < 0 ? '−' + -y : y) + '</text>';
+  }
+  q('.g0').innerHTML = h;
+
+  // the point of the line ax + by = c nearest to REF
+  var foot = function (r) { var t = (r[2] - r[0] * REF[0] - r[1] * REF[1]) / (r[0] * r[0] + r[1] * r[1]); return [REF[0] + t * r[0], REF[1] + t * r[1]]; };
+  function line(el, r) {
+    var p = foot(r), n = Math.hypot(r[0], r[1]), d = [-r[1] / n * 20, r[0] / n * 20], e0 = px([p[0] - d[0], p[1] - d[1]]), e1 = px([p[0] + d[0], p[1] + d[1]]);
+    set(el, { x1: e0[0], y1: e0[1], x2: e1[0], y2: e1[1] });
+  }
+  function normal(ln, head, lab, r, side) {
+    var p = foot(r), s = px(p), t = [p[0] + K * r[0], p[1] + K * r[1]], e = px(t), d = Math.hypot(e[0] - s[0], e[1] - s[1]);
+    var ux = (e[0] - s[0]) / d, uy = (e[1] - s[1]) / d, L = Math.min(11, d * .5), Wd = L * .42, bx = e[0] - ux * L, by = e[1] - uy * L;
+    set(ln, { x1: s[0], y1: s[1], x2: bx + ux * 2, y2: by + uy * 2 });
+    head.setAttribute('d', 'M' + e[0] + ',' + e[1] + ' L' + (bx - uy * Wd) + ',' + (by + ux * Wd) + ' L' + (bx + uy * Wd) + ',' + (by - ux * Wd) + ' Z');
+    set(lab, { x: e[0] + ux * 14 - side * uy * 12, y: e[1] + uy * 14 + side * ux * 12, 'text-anchor': 'middle', 'dominant-baseline': 'middle' });
+  }
+
+  function draw() {
+    line(q('.l1'), r1); line(q('.l2'), r2);
+    normal(q('.n1'), q('.h1'), q('.t1'), r1, -1); normal(q('.n2'), q('.h2'), q('.t2'), r2, 1);
+    // the crossing point, while the lines are not parallel
+    var det = r1[0] * r2[1] - r1[1] * r2[0], pt = q('.pt');
+    var X = Math.abs(det) > 1e-6 && [(r1[2] * r2[1] - r1[1] * r2[2]) / det, (r1[0] * r2[2] - r1[2] * r2[0]) / det];
+    pt.style.display = X && Math.abs(X[0] - 3.5) < 6 && Math.abs(X[1] - 1.5) < 4.5 ? '' : 'none';
+    if (X) { var p = px(X); set(pt, { cx: p[0], cy: p[1] }); }
+    vecArrows(svg);
+  }
+
+  var term = function (c, v, first) { if (!c) return ''; var s = c < 0 ? '-' : first ? '' : '+', a = Math.abs(c); return s + (a === 1 ? '' : a) + v; };
+  var eq = function (r) { var s = term(r[0], 'x', 1); return s + term(r[1], 'y', !s) + '=' + r[2]; };
+  var out = root.querySelector('.ln-read'), busy = false, next = null;
+  function typeset(html) {
+    next = html;
+    if (busy) return;
+    busy = true;
+    var ready = window.MathJax && MathJax.startup && MathJax.startup.promise;
+    if (!ready) return setTimeout(function () { busy = false; typeset(next); }, 200);
+    MathJax.startup.promise.then(function () {
+      var h = next; next = null;
+      MathJax.typesetClear([out]); out.innerHTML = h;
+      return MathJax.typesetPromise([out]);
+    }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+  }
+  function read() { typeset('\\(\\class{ca}{' + eq(r1) + '}\\)&emsp;\\(\\class{cb}{' + eq(CASES[cur]) + '}\\)<br>' + T.msg[cur]); }
+
+  var anim = null;
+  bs.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var from = r2.slice(), to = CASES[+b.getAttribute('data-i')], t0 = performance.now(), id = {};
+      cur = +b.getAttribute('data-i'); anim = id; read();
+      bs.forEach(function (o) { o.classList.toggle('on', o === b); });
+      (function step(now) {
+        if (anim !== id) return;
+        var s = Math.min(1, (now - t0) / 900), e = s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2;
+        for (var k = 0; k < 3; k++) r2[k] = from[k] + (to[k] - from[k]) * e;
+        draw();
+        if (s < 1) requestAnimationFrame(step);
+      })(t0);
+    });
+  });
+  draw(); read();
+  if (document.fonts) document.fonts.ready.then(function () { vecArrows(svg); });
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>

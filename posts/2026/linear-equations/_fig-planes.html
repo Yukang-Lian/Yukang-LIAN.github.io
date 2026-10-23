@@ -1,0 +1,48 @@
+<div class="m3d" id="m3-planes">
+<svg role="img" aria-label="Interactive 3D figure: the planes x + y + z = 4, x − y + z = 2 and 2x − z = 0 meet at the single point (1, 1, 2). Buttons switch the third plane to cases with no solution or infinitely many. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-planes'), ctl = root.querySelector('.m3d-ctl');
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  // planes n·p = d; the cases only change the third one
+  var P1 = [1, 1, 1, 4], P2 = [1, -1, 1, 2];
+  var CASES = [[2, 0, -1, 0], [2, 0, 2, 2], [2, 0, 2, 6]], P3 = CASES[0].slice(), C0 = [1, 1, 2], HALF = 1.5, cur = 0;
+  var nv = function (P) { return P.slice(0, 3); };
+  function solve() {
+    var A = [nv(P1), nv(P2), nv(P3)], b = [P1[3], P2[3], P3[3]], det = M.dot(A[0], M.cross(A[1], A[2]));
+    if (Math.abs(det) < 1e-6) return null;
+    var col = function (j) { var B = A.map(function (r, i) { var s = r.slice(); s[j] = b[i]; return s; }); return M.dot(B[0], M.cross(B[1], B[2])) / det; };
+    return [col(0), col(1), col(2)];
+  }
+  var fig = M.create(root, {
+    scale: 52, az: -30, el: 18, dy: 30, axes: ['x', 'y', 'z'], axisLen: 3.2, ticks: true,
+    scene: function () {
+      var it = [M.patch(P1, C0, HALF, 'pa'), M.patch(P2, C0, HALF, 'pb'), M.patch(P3, C0, HALF, 'pc')];
+      [M.meet(P1, P2, C0, 1.6), M.meet(P1, P3, C0, 1.6), M.meet(P2, P3, C0, 1.6)].forEach(function (m) { if (m) it.push(m); });
+      var x = solve();
+      if (x && Math.max.apply(null, x.map(Math.abs)) < 4) it.push({ k: 'dot', p: x, r: 4.5 }, { k: 'text', p: x, t: '(' + x.map(function (z) { return M.f1(z).replace(/\.0$/, '').replace('-', '−'); }).join(', ') + ')', dx: 34, dy: -10 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  var MSG = [
+    { en: 'The three planes meet at exactly one point.', zh: '三个平面恰好交于一点。' },
+    { en: 'Here \\(\\vec{n}_3=\\vec{n}_1+\\vec{n}_2\\), but \\(2\\ne4+2\\). Each pair of planes meets in a line, but the three lines are parallel: no point lies on all three planes.', zh: '这里 \\(\\vec{n}_3=\\vec{n}_1+\\vec{n}_2\\)，但 \\(2\\ne4+2\\)。每两个平面交于一条直线，但三条直线互相平行：没有一个点同时在三个平面上。' },
+    { en: 'Again \\(\\vec{n}_3=\\vec{n}_1+\\vec{n}_2\\), and now \\(6=4+2\\): the third equation is the sum of the first two, so all three planes share one line and there are infinitely many solutions.', zh: '仍然有 \\(\\vec{n}_3=\\vec{n}_1+\\vec{n}_2\\)，而且 \\(6=4+2\\)：第三个方程就是前两个方程之和，三个平面共用一条直线，有无穷多解。' }
+  ];
+  function show() {
+    read('\\(\\class{ca}{' + M.eqTeX(P1) + '}\\)&emsp;\\(\\class{cb}{' + M.eqTeX(P2) + '}\\)&emsp;\\(\\class{cc}{' + M.eqTeX(CASES[cur]) + '}\\)<br>' + M.tr(MSG[cur]));
+  }
+  var stop = null;
+  M.buttons(ctl, [{ en: 'One point', zh: '交于一点' }, { en: 'No solution', zh: '无解' }, { en: 'Infinitely many', zh: '无穷多解' }], function (i) {
+    if (stop) stop();
+    var from = P3.slice(), to = CASES[i]; cur = i; show();
+    stop = M.tween(900, function (s) { for (var k = 0; k < 4; k++) P3[k] = from[k] + (to[k] - from[k]) * s; fig.render(); }, function () { stop = null; });
+  }, 0);
+  show();
+})();
+</script>
