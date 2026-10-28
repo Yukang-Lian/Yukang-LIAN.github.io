@@ -199,7 +199,7 @@ $$
 \min_{a,b,c}\sum_{i=1}^{m}\bigl[y_i-(ax_i^2+bx_i+c)\bigr]^2
 $$
 
-This is the problem from the previous section again: $A\vec{w}$ ranges over the column space, and we want the point of it closest to $\vec{y}$. So the error has to be perpendicular to the column space, that is, to every column of $A$. Written with the transpose, $A^T(\vec{y}-A\hat{\vec{w}})=\vec{0}$, or
+This is the problem from the previous section again: $A\vec{w}$ ranges over the column space, and we want the point of it closest to $\vec{y}$. So the error has to be perpendicular to the column space, that is, to every column of $A$. Written with the transpose, $A^T(\vec{y}-A\hat{\vec{w}})=\vec{0}$. This says that the error lies in the nullspace of $A^T$, the **left nullspace** $N(A^T)$, another of the subspaces in chapter 3: it holds exactly the vectors perpendicular to the column space. Rearranged, this is
 
 $$
 A^TA\hat{\vec{w}}=A^T\vec{y}
