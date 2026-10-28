@@ -1,0 +1,1715 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2026-10-29">
+
+<title>Vector Spaces and Least Squares – Yukang Lian</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../../">
+<script src="../../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-176b1e44b272a30ec08500e73512b2cc.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-dark-2e366b5af1927b8352462c4a9d1c03d0.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<link href="../../../site_libs/quarto-html/quarto-syntax-highlighting-176b1e44b272a30ec08500e73512b2cc.css" rel="stylesheet" class="quarto-color-scheme-extra" id="quarto-text-highlighting-styles">
+<script src="../../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../../site_libs/bootstrap/bootstrap-79e7014afae10fe6ed2dc68f400d214f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../../site_libs/bootstrap/bootstrap-dark-6fc51dafa5539fe137859b575937c765.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../../site_libs/bootstrap/bootstrap-79e7014afae10fe6ed2dc68f400d214f.min.css" rel="stylesheet" append-hash="true" class="quarto-color-scheme-extra" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script>
+// MathJax normally sizes math by measuring the surrounding text, but if it measures before the web font
+// has loaded it measures the fallback font, so math comes out a different size on each page load.
+// Pin the scale instead (0.95 is what the measurement gives once Crimson Pro is in place).
+// MathJax is served from /assets/mathjax; point it at the math font stored there too.
+window.MathJax = {
+  loader: { paths: { fonts: '/assets/mathjax/fonts' } },
+  output: { matchFontHeight: false, scale: 0.95 }
+};
+</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="../../../assets/mathjax/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="floating nav-fixed quarto-light"><script id="quarto-html-before-body" type="application/javascript">
+    const toggleBodyColorMode = (bsSheetEl) => {
+      const mode = bsSheetEl.getAttribute("data-mode");
+      const bodyEl = window.document.querySelector("body");
+      if (mode === "dark") {
+        bodyEl.classList.add("quarto-dark");
+        bodyEl.classList.remove("quarto-light");
+      } else {
+        bodyEl.classList.add("quarto-light");
+        bodyEl.classList.remove("quarto-dark");
+      }
+    }
+    const toggleBodyColorPrimary = () => {
+      const bsSheetEl = window.document.querySelector("link#quarto-bootstrap:not([rel=disabled-stylesheet])");
+      if (bsSheetEl) {
+        toggleBodyColorMode(bsSheetEl);
+      }
+    }
+    const setColorSchemeToggle = (alternate) => {
+      const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+      for (let i=0; i < toggles.length; i++) {
+        const toggle = toggles[i];
+        if (toggle) {
+          if (alternate) {
+            toggle.classList.add("alternate");
+          } else {
+            toggle.classList.remove("alternate");
+          }
+        }
+      }
+    };
+    const toggleColorMode = (alternate) => {
+      // Switch the stylesheets
+      const primaryStylesheets = window.document.querySelectorAll('link.quarto-color-scheme:not(.quarto-color-alternate)');
+      const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+      manageTransitions('#quarto-margin-sidebar .nav-link', false);
+      if (alternate) {
+        // note: dark is layered on light, we don't disable primary!
+        enableStylesheet(alternateStylesheets);
+        for (const sheetNode of alternateStylesheets) {
+          if (sheetNode.id === "quarto-bootstrap") {
+            toggleBodyColorMode(sheetNode);
+          }
+        }
+      } else {
+        disableStylesheet(alternateStylesheets);
+        enableStylesheet(primaryStylesheets)
+        toggleBodyColorPrimary();
+      }
+      manageTransitions('#quarto-margin-sidebar .nav-link', true);
+      // Switch the toggles
+      setColorSchemeToggle(alternate)
+      // Hack to workaround the fact that safari doesn't
+      // properly recolor the scrollbar when toggling (#1455)
+      if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+        manageTransitions("body", false);
+        window.scrollTo(0, 1);
+        setTimeout(() => {
+          window.scrollTo(0, 0);
+          manageTransitions("body", true);
+        }, 40);
+      }
+    }
+    const disableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        stylesheet.rel = 'disabled-stylesheet';
+      }
+    }
+    const enableStylesheet = (stylesheets) => {
+      for (let i=0; i < stylesheets.length; i++) {
+        const stylesheet = stylesheets[i];
+        if(stylesheet.rel !== 'stylesheet') { // for Chrome, which will still FOUC without this check
+          stylesheet.rel = 'stylesheet';
+        }
+      }
+    }
+    const manageTransitions = (selector, allowTransitions) => {
+      const els = window.document.querySelectorAll(selector);
+      for (let i=0; i < els.length; i++) {
+        const el = els[i];
+        if (allowTransitions) {
+          el.classList.remove('notransition');
+        } else {
+          el.classList.add('notransition');
+        }
+      }
+    }
+    const isFileUrl = () => {
+      return window.location.protocol === 'file:';
+    }
+    const hasAlternateSentinel = () => {
+      let styleSentinel = getColorSchemeSentinel();
+      if (styleSentinel !== null) {
+        return styleSentinel === "alternate";
+      } else {
+        return false;
+      }
+    }
+    const setStyleSentinel = (alternate) => {
+      const value = alternate ? "alternate" : "default";
+      if (!isFileUrl()) {
+        window.localStorage.setItem("quarto-color-scheme", value);
+      } else {
+        localAlternateSentinel = value;
+      }
+    }
+    const getColorSchemeSentinel = () => {
+      if (!isFileUrl()) {
+        const storageValue = window.localStorage.getItem("quarto-color-scheme");
+        return storageValue != null ? storageValue : localAlternateSentinel;
+      } else {
+        return localAlternateSentinel;
+      }
+    }
+    const toggleGiscusIfUsed = (isAlternate, darkModeDefault) => {
+      const baseTheme = document.querySelector('#giscus-base-theme')?.value ?? 'light';
+      const alternateTheme = document.querySelector('#giscus-alt-theme')?.value ?? 'dark';
+      let newTheme = '';
+      if(authorPrefersDark) {
+        newTheme = isAlternate ? baseTheme : alternateTheme;
+      } else {
+        newTheme = isAlternate ? alternateTheme : baseTheme;
+      }
+      const changeGiscusTheme = () => {
+        // From: https://github.com/giscus/giscus/issues/336
+        const sendMessage = (message) => {
+          const iframe = document.querySelector('iframe.giscus-frame');
+          if (!iframe) return;
+          iframe.contentWindow.postMessage({ giscus: message }, 'https://giscus.app');
+        }
+        sendMessage({
+          setConfig: {
+            theme: newTheme
+          }
+        });
+      }
+      const isGiscussLoaded = window.document.querySelector('iframe.giscus-frame') !== null;
+      if (isGiscussLoaded) {
+        changeGiscusTheme();
+      }
+    };
+    const authorPrefersDark = false;
+    const darkModeDefault = authorPrefersDark;
+      document.querySelector('link#quarto-text-highlighting-styles.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+      document.querySelector('link#quarto-bootstrap.quarto-color-scheme-extra').rel = 'disabled-stylesheet';
+    let localAlternateSentinel = darkModeDefault ? 'alternate' : 'default';
+    // Dark / light mode switch
+    window.quartoToggleColorScheme = () => {
+      // Read the current dark / light value
+      let toAlternate = !hasAlternateSentinel();
+      toggleColorMode(toAlternate);
+      setStyleSentinel(toAlternate);
+      toggleGiscusIfUsed(toAlternate, darkModeDefault);
+      window.dispatchEvent(new Event('resize'));
+    };
+    // Switch to dark mode if need be
+    if (hasAlternateSentinel()) {
+      toggleColorMode(true);
+    } else {
+      toggleColorMode(false);
+    }
+  </script>
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../../index.html">
+    <span class="navbar-title">Yukang Lian</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../index.html"> 
+<span class="menu-text">Posts</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../../zh/index.html"> 
+<span class="menu-text">中文</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/Yukang-Lian"> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Contents</h2>
+   
+  <ul>
+  <li><a href="#what-a-matrix-does-to-space" id="toc-what-a-matrix-does-to-space" class="nav-link active" data-scroll-target="#what-a-matrix-does-to-space"><span class="header-section-number">1</span> What a Matrix Does to Space</a>
+  <ul class="collapse">
+  <li><a href="#the-nullspace" id="toc-the-nullspace" class="nav-link" data-scroll-target="#the-nullspace"><span class="header-section-number">1.1</span> The Nullspace</a></li>
+  <li><a href="#rank-and-dimension" id="toc-rank-and-dimension" class="nav-link" data-scroll-target="#rank-and-dimension"><span class="header-section-number">1.2</span> Rank and Dimension</a></li>
+  </ul></li>
+  <li><a href="#when-the-target-cant-be-reached" id="toc-when-the-target-cant-be-reached" class="nav-link" data-scroll-target="#when-the-target-cant-be-reached"><span class="header-section-number">2</span> When the Target Can’t Be Reached</a></li>
+  <li><a href="#fitting-a-parabola" id="toc-fitting-a-parabola" class="nav-link" data-scroll-target="#fitting-a-parabola"><span class="header-section-number">3</span> Fitting a Parabola</a>
+  <ul class="collapse">
+  <li><a href="#two-points-infinitely-many-parabolas" id="toc-two-points-infinitely-many-parabolas" class="nav-link" data-scroll-target="#two-points-infinitely-many-parabolas"><span class="header-section-number">3.1</span> Two Points: Infinitely Many Parabolas</a></li>
+  <li><a href="#three-points-exactly-one-parabola" id="toc-three-points-exactly-one-parabola" class="nav-link" data-scroll-target="#three-points-exactly-one-parabola"><span class="header-section-number">3.2</span> Three Points: Exactly One Parabola</a></li>
+  <li><a href="#four-points-maybe-no-solution" id="toc-four-points-maybe-no-solution" class="nav-link" data-scroll-target="#four-points-maybe-no-solution"><span class="header-section-number">3.3</span> Four Points: Maybe No Solution</a></li>
+  <li><a href="#five-points-or-a-thousand" id="toc-five-points-or-a-thousand" class="nav-link" data-scroll-target="#five-points-or-a-thousand"><span class="header-section-number">3.4</span> Five Points, or a Thousand</a></li>
+  <li><a href="#higher-degrees-and-why-only-lines" id="toc-higher-degrees-and-why-only-lines" class="nav-link" data-scroll-target="#higher-degrees-and-why-only-lines"><span class="header-section-number">3.5</span> Higher Degrees, and Why Only Lines?</a></li>
+  </ul></li>
+  <li><a href="#gramschmidt-and-qr-same-space-better-basis" id="toc-gramschmidt-and-qr-same-space-better-basis" class="nav-link" data-scroll-target="#gramschmidt-and-qr-same-space-better-basis"><span class="header-section-number">4</span> Gram–Schmidt and QR: Same Space, Better Basis</a></li>
+  <li><a href="#dimension-information-and-large-models" id="toc-dimension-information-and-large-models" class="nav-link" data-scroll-target="#dimension-information-and-large-models"><span class="header-section-number">5</span> Dimension, Information and Large Models</a>
+  <ul class="collapse">
+  <li><a href="#do-more-parameters-make-a-smarter-model" id="toc-do-more-parameters-make-a-smarter-model" class="nav-link" data-scroll-target="#do-more-parameters-make-a-smarter-model"><span class="header-section-number">5.1</span> Do More Parameters Make a Smarter Model?</a></li>
+  <li><a href="#could-a-model-discover-relativity" id="toc-could-a-model-discover-relativity" class="nav-link" data-scroll-target="#could-a-model-discover-relativity"><span class="header-section-number">5.2</span> Could a Model Discover Relativity?</a></li>
+  </ul></li>
+  <li><a href="#looking-back" id="toc-looking-back" class="nav-link" data-scroll-target="#looking-back"><span class="header-section-number">6</span> Looking Back</a></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Vector Spaces and Least Squares</h1>
+<p class="subtitle lead">What a matrix keeps, what it loses, and the closest it can get</p>
+  <div class="quarto-categories">
+    <div class="quarto-category">Linear algebra</div>
+  </div>
+  </div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">October 29, 2026</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<style>
+/* Shared look of the 3D figures on this site (drag to rotate). */
+.m3d { --va:#2a78d6; --vb:#eb6834; --vc:#1d9a6c; margin-bottom:.9rem; }
+body.quarto-dark .m3d { --va:#3987e5; --vb:#d95926; --vc:#2fb383; }
+.m3d svg { display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; cursor:grab; touch-action:none; user-select:none; -webkit-user-select:none; }
+.m3d svg.grabbing { cursor:grabbing; }
+.m3d text { fill:currentColor; font-family:inherit; font-size:16px; }
+.m3d text.axl { font-style:italic; font-size:14px; opacity:.55; }
+.m3d text.v { font-style:italic; font-size:17px; }
+.m3d text.s { font-size:14px; }
+.m3d text.ta { fill:var(--va); } .m3d text.tb { fill:var(--vb); } .m3d text.tm { opacity:.6; }
+.m3d text.tk { font-size:11px; opacity:.5; }
+.m3d .ax { stroke:currentColor; stroke-width:1; opacity:.28; fill:none; }
+.m3d .tick { stroke:currentColor; stroke-width:1; opacity:.4; }
+.m3d line.arr { stroke-width:2.4; stroke-linecap:round; }
+.m3d .va { stroke:var(--va); } .m3d .vb { stroke:var(--vb); } .m3d .vi { stroke:currentColor; } .m3d .vm { stroke:currentColor; opacity:.5; }
+.m3d .ha { fill:var(--va); } .m3d .hb { fill:var(--vb); } .m3d .hi { fill:currentColor; } .m3d .hm { fill:currentColor; opacity:.5; }
+.m3d .wire { fill:none; stroke:currentColor; stroke-width:1; opacity:.35; }
+.m3d .ghost { fill:none; stroke:currentColor; stroke-width:1; opacity:.18; stroke-dasharray:3 4; }
+.m3d .grid { fill:none; stroke:currentColor; stroke-width:.8; stroke-opacity:.16; }
+.m3d .plane { fill:currentColor; fill-opacity:.07; stroke:currentColor; stroke-opacity:.3; stroke-width:1; }
+.m3d .plane.pa { fill:var(--va); stroke:var(--va); fill-opacity:.14; stroke-opacity:.6; }
+.m3d .plane.pb { fill:var(--vb); stroke:var(--vb); fill-opacity:.14; stroke-opacity:.6; }
+.m3d .plane.pc { fill:var(--vc); stroke:var(--vc); fill-opacity:.14; stroke-opacity:.6; }
+.m3d .meet { fill:none; stroke:currentColor; stroke-width:1.6; opacity:.75; }
+.m3d .dash { fill:none; stroke:currentColor; stroke-width:1.4; stroke-dasharray:5 5; opacity:.7; }
+.m3d .trail { fill:none; stroke:currentColor; stroke-width:1; stroke-dasharray:2 4; opacity:.45; }
+.m3d .dot { fill:currentColor; }
+.m3d .hole { fill:none; stroke:currentColor; stroke-width:1.2; opacity:.45; }
+.m3d .ring { fill:none; stroke-width:2; } .m3d .ring.ra { stroke:var(--va); } .m3d .ring.rb { stroke:var(--vb); }
+.m3d .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+.m3d-ctl { display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:.45rem .9rem; margin-top:.5rem; font-size:.85rem; }
+.m3d-ctl .grp { display:inline-flex; flex-wrap:wrap; gap:.35rem; }
+.m3d-ctl button { font:inherit; color:inherit; background:transparent; border:1px solid currentColor; border-radius:3px; padding:.1rem .6rem; opacity:.6; cursor:pointer; }
+.m3d-ctl button:hover, .m3d-ctl button.on { opacity:1; }
+.m3d-ctl button.on { box-shadow:inset 0 -2px 0 currentColor; }
+.m3d-ctl label { display:inline-flex; align-items:center; gap:.35rem; font-variant-numeric:tabular-nums; }
+.m3d-ctl input[type=range] { width:110px; accent-color:currentColor; }
+.m3d-read { text-align:center; font-size:.9rem; font-variant-numeric:tabular-nums; margin-top:.4rem; line-height:1.7; min-height:1.7em; }
+.m3d-read.tall { min-height:3.4em; }
+.m3d-read .ca { color:var(--va); } .m3d-read .cb { color:var(--vb); } .m3d-read .cc { color:var(--vc); }
+.m3d-hint { text-align:center; font-size:.75rem; opacity:.55; margin-top:.1rem; }
+.m3d-hint button { font:inherit; color:inherit; background:none; border:0; padding:0 0 0 .5em; text-decoration:underline; text-underline-offset:2px; cursor:pointer; }
+.m3d-hint button:hover { opacity:.8; }
+</style>
+<script>
+// Draw a small arrow above each vector letter in figure labels (the letters listed in data-vec).
+window.vecArrows = window.vecArrows || function (svg) {
+  svg.querySelectorAll('.vecarrow').forEach(function (e) { e.remove(); });
+  svg.querySelectorAll('text[data-vec]').forEach(function (t) {
+    var col = getComputedStyle(t).fill;
+    t.getAttribute('data-vec').split(',').forEach(function (i) {
+      var r = t.getExtentOfChar(+i), y = r.y + r.height * .1, x0 = r.x + r.width * .2, x1 = r.x + r.width * 1.05;
+      var a = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      a.setAttribute('class', 'vecarrow');
+      a.setAttribute('d', 'M' + x0 + ',' + y + ' L' + x1 + ',' + y + ' M' + (x1 - 3) + ',' + (y - 2.4) + ' L' + x1 + ',' + y + ' L' + (x1 - 3) + ',' + (y + 2.4));
+      if (/\bt[ab]\b/.test(t.getAttribute('class'))) a.style.stroke = col;   // ink labels follow currentColor via CSS
+      t.parentNode.appendChild(a);
+    });
+  });
+};
+
+// A tiny 3D renderer shared by the figures on this site: orthographic projection, drag to rotate,
+// and a scene described as a list of arrows, lines, polygons, dots and labels in math coordinates.
+window.M3D = window.M3D || (function () {
+  var zh = /^zh/.test(document.documentElement.lang);
+  var tr = function (s) { return s == null ? '' : typeof s === 'string' ? s : (zh ? s.zh : s.en); };
+  var dot = function (a, b) { return a[0] * b[0] + a[1] * b[1] + a[2] * b[2]; };
+  var cross = function (a, b) { return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]]; };
+  var unit = function (a) { var l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  var add = function (a, b) { return [a[0] + b[0], a[1] + b[1], a[2] + b[2]]; };
+  var scale = function (c, a) { return [c * a[0], c * a[1], c * a[2]]; };
+  var mul = function (M, p) { return [dot(M[0], p), dot(M[1], p), dot(M[2], p)]; };
+  var I3 = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  // the matrix part way from the identity to M: (1 - s) I + s M
+  var toward = function (M, s) { return M.map(function (r, i) { return r.map(function (x, j) { return (1 - s) * I3[i][j] + s * x; }); }); };
+  var rotX = function (t) { var c = Math.cos(t), s = Math.sin(t); return [[1, 0, 0], [0, c, -s], [0, s, c]]; };
+  var f1 = function (x) { var r = Math.round(x * 10) / 10; return (r === 0 ? 0 : r).toFixed(1); };
+  var ease = function (s) { return s < .5 ? 2 * s * s : 1 - Math.pow(-2 * s + 2, 2) / 2; };
+
+  function tween(ms, step, done) {
+    var t0 = performance.now(), live = true;
+    (function go(now) {
+      if (!live) return;
+      var s = Math.min(1, (now - t0) / ms); step(ease(s));
+      if (s < 1) requestAnimationFrame(go); else if (done) done();
+    })(t0);
+    return function () { live = false; };
+  }
+
+  // MathJax readouts: typeset the latest content once MathJax is ready, never two at a time
+  function typesetter(out) {
+    var busy = false, next = null;
+    return function typeset(html) {
+      next = html;
+      if (busy) return;
+      busy = true;
+      if (!(window.MathJax && MathJax.startup && MathJax.startup.promise)) return setTimeout(function () { busy = false; typeset(next); }, 200);
+      MathJax.startup.promise.then(function () {
+        var h = next; next = null;
+        MathJax.typesetClear([out]); out.innerHTML = h;
+        return MathJax.typesetPromise([out]);
+      }).catch(function () {}).then(function () { busy = false; if (next) typeset(next); });
+    };
+  }
+
+  function create(root, cfg) {
+    var svg = root.querySelector('svg'), W = cfg.w || 460, H = cfg.h || 340, S = cfg.scale || 60;
+    var OX = W / 2 + (cfg.dx || 0), OY = H / 2 + (cfg.dy || 0), rad = Math.PI / 180;
+    var view = { az: (cfg.az == null ? -25 : cfg.az) * rad, el: (cfg.el == null ? 22 : cfg.el) * rad }, C, R, U;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W);
+    var P = function (p) { return [OX + S * dot(p, R), OY - S * dot(p, U)]; };
+    var xy = function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); };
+    var esc = function (s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/_(\w)/g, '<tspan baseline-shift="-28%" font-size="72%">$1</tspan>');
+    };
+    var COL = { a: ['va', 'ha', 'ta'], b: ['vb', 'hb', 'tb'], i: ['vi', 'hi', ''], m: ['vm', 'hm', 'tm'] };
+
+    function render() {
+      C = [Math.cos(view.el) * Math.cos(view.az), Math.cos(view.el) * Math.sin(view.az), Math.sin(view.el)];
+      R = unit([-C[1], C[0], 0]); U = cross(C, R);
+      var items = [];
+      (cfg.axes || []).forEach(function (lab, i) {
+        var L = cfg.axisLen || 1.6, e = [0, 0, 0], n = [0, 0, 0]; e[i] = L; n[i] = -L;
+        items.push({ k: 'line', pts: [n, e], c: 'ax' }, { k: 'text', p: scale(1.12, e), t: lab, c: 'axl' });
+      });
+      items = items.concat(cfg.scene());
+      var h = '', labels = '';
+      // integer ticks on each axis, drawn flat on the screen; skipped when an axis is seen end-on
+      if (cfg.ticks) (cfg.axes || []).forEach(function (lab, i) {
+        var e = [0, 0, 0]; e[i] = 1;
+        var o = P([0, 0, 0]), q = P(e), ax = q[0] - o[0], ay = q[1] - o[1], d = Math.hypot(ax, ay);
+        if (d < 14) return;
+        var nx = -ay / d, ny = ax / d;
+        if (Math.abs(ny) < .35 ? nx < 0 : ny < 0) { nx = -nx; ny = -ny; }
+        for (var t = -Math.floor(cfg.axisLen || 1.6); t <= (cfg.axisLen || 1.6); t++) {
+          if (!t) continue;
+          var x = o[0] + ax * t, y = o[1] + ay * t;
+          h += '<line class="tick" x1="' + (x - nx * 3.5).toFixed(1) + '" y1="' + (y - ny * 3.5).toFixed(1) + '" x2="' + (x + nx * 3.5).toFixed(1) + '" y2="' + (y + ny * 3.5).toFixed(1) + '"/>';
+          h += '<text class="tk" x="' + (x + nx * 11).toFixed(1) + '" y="' + (y + ny * 11).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle">' + (t < 0 ? '−' + -t : t) + '</text>';
+        }
+      });
+      var back = [], mid = [], front = [];
+      items.forEach(function (it) {
+        if (it.k === 'poly') back.push(it); else if (it.k === 'text') front.push(it); else mid.push(it);
+        var pts = it.pts || (it.k === 'arrow' ? [it.a, it.b] : [it.p]);
+        it.z = pts.reduce(function (z, p) { return z + dot(p, C); }, 0) / pts.length;
+      });
+      mid.sort(function (u, v) { return u.z - v.z; });
+      back.concat(mid).forEach(function (it) {
+        if (it.k === 'poly' || it.k === 'line') {
+          h += '<path class="' + it.c + '"' + (it.op != null ? ' style="opacity:' + it.op.toFixed(2) + '"' : '') + ' d="M' + it.pts.map(function (p) { return xy(P(p)); }).join(' L') + (it.k === 'poly' ? ' Z' : '') + '"/>';
+        } else if (it.k === 'dot') {
+          var q = P(it.p); h += '<circle class="' + (it.c || 'dot') + '" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (it.r || 3) + '"/>';
+        } else if (it.k === 'arrow') {
+          var a = P(it.a), b = P(it.b), d = Math.hypot(b[0] - a[0], b[1] - a[1]), c = COL[it.c || 'i'];
+          if (d < 3) return;
+          var ux = (b[0] - a[0]) / d, uy = (b[1] - a[1]) / d, L = Math.min(12, d * .5), Wd = L * .42, bx = b[0] - ux * L, by = b[1] - uy * L;
+          h += '<line class="arr ' + c[0] + '" x1="' + a[0].toFixed(1) + '" y1="' + a[1].toFixed(1) + '" x2="' + (bx + ux * 2).toFixed(1) + '" y2="' + (by + uy * 2).toFixed(1) + '"/>';
+          h += '<path class="' + c[1] + '" d="M' + xy(b) + ' L' + (bx - uy * Wd).toFixed(1) + ',' + (by + ux * Wd).toFixed(1) + ' L' + (bx + uy * Wd).toFixed(1) + ',' + (by - ux * Wd).toFixed(1) + ' Z"/>';
+          if (it.label) {
+            var o = it.off || 15, lx = b[0] + ux * o, ly = b[1] + uy * o;
+            if (it.mid) { var sd = (it.mid > 0 ? 1 : -1) * 16; lx = (a[0] + b[0]) / 2 - uy * sd; ly = (a[1] + b[1]) / 2 + ux * sd; }
+            labels += '<text class="v ' + c[2] + '" x="' + (lx + (it.ldx || 0)).toFixed(1) + '" y="' + (ly + (it.ldy || 0)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle"' + (it.vec != null ? ' data-vec="' + it.vec + '"' : '') + '>' + esc(it.label) + '</text>';
+            // an optional coordinate readout, stacked beyond the label so it never sits on the arrow
+            if (it.coord) labels += '<text class="s" x="' + (lx + (it.ldx || 0)).toFixed(1) + '" y="' + (ly + (it.ldy || 0) + (uy < 0 ? -18 : 18)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle">' + esc(it.coord) + '</text>';
+          }
+        }
+      });
+      front.forEach(function (it) {
+        var q = P(it.p);
+        labels += '<text class="' + (it.c || 's') + '" x="' + (q[0] + (it.dx || 0)).toFixed(1) + '" y="' + (q[1] + (it.dy || 0)).toFixed(1) + '" text-anchor="' + (it.anchor || 'middle') + '" dominant-baseline="middle"' + (it.vec != null ? ' data-vec="' + it.vec + '"' : '') + '>' + esc(it.t) + '</text>';
+      });
+      svg.innerHTML = h + labels;
+      vecArrows(svg);
+    }
+
+    var stop = null, drag = null;
+    svg.addEventListener('pointerdown', function (ev) {
+      if (stop) { stop(); stop = null; }
+      drag = [ev.clientX, ev.clientY]; svg.setPointerCapture(ev.pointerId); svg.classList.add('grabbing'); ev.preventDefault();
+    });
+    svg.addEventListener('pointermove', function (ev) {
+      if (!drag) return;
+      view.az -= (ev.clientX - drag[0]) * .008;
+      view.el = Math.max(-1.5, Math.min(1.5, view.el + (ev.clientY - drag[1]) * .008));
+      drag = [ev.clientX, ev.clientY]; render();
+    });
+    var up = function () { drag = null; svg.classList.remove('grabbing'); };
+    svg.addEventListener('pointerup', up); svg.addEventListener('pointercancel', up);
+
+    function setView(az, el) {
+      if (stop) stop();
+      var a0 = view.az, e0 = view.el, a1 = az * rad, e1 = el * rad;
+      while (a1 - a0 > Math.PI) a1 -= 2 * Math.PI; while (a1 - a0 < -Math.PI) a1 += 2 * Math.PI;
+      stop = tween(700, function (s) { view.az = a0 + (a1 - a0) * s; view.el = e0 + (e1 - e0) * s; render(); }, function () { stop = null; });
+    }
+    var home = [view.az / rad, view.el / rad], reset = function () { setView(home[0], home[1]); }, hint = root.querySelector('.m3d-hint');
+    if (hint) { var rb = document.createElement('button'); rb.type = 'button'; rb.textContent = tr({ en: 'Reset view', zh: '还原视角' }); rb.addEventListener('click', reset); hint.appendChild(rb); }
+    if (document.fonts) document.fonts.ready.then(render);
+    new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    render();
+    return { render: render, setView: setView, reset: reset };
+  }
+
+  // a square patch of the plane through the origin spanned by the unit vectors e1, e2, with grid lines
+  function plane(e1, e2, half, n, op) {
+    var at = function (x, y) { return add(scale(x, e1), scale(y, e2)); }, it = [];
+    it.push({ k: 'poly', pts: [at(-half, -half), at(half, -half), at(half, half), at(-half, half)], c: 'plane', op: op });
+    for (var i = 1; i < n; i++) {
+      var t = -half + 2 * half * i / n;
+      it.push({ k: 'line', pts: [at(t, -half), at(t, half)], c: 'grid', op: op }, { k: 'line', pts: [at(-half, t), at(half, t)], c: 'grid', op: op });
+    }
+    return it;
+  }
+
+  // planes given as P = [a, b, c, d], meaning ax + by + cz = d
+  var nv = function (P) { return P.slice(0, 3); };
+  // a square patch of plane P around its point nearest to c, with one edge kept horizontal
+  function patch(P, c, half, cls) {
+    var n = unit(nv(P)), e1 = Math.abs(n[2]) > .99 ? [1, 0, 0] : unit(cross([0, 0, 1], n)), e2 = cross(n, e1);
+    c = add(c, scale((P[3] - dot(nv(P), c)) / dot(nv(P), nv(P)), nv(P)));
+    var at = function (x, y) { return add(c, add(scale(x, e1), scale(y, e2))); };
+    return { k: 'poly', pts: [at(-half, -half), at(half, -half), at(half, half), at(-half, half)], c: 'plane ' + cls };
+  }
+  // the line where planes P and Q meet, as a segment of half-length len around its point nearest to c; null if they are parallel
+  function meet(P, Q, c, len) {
+    var a = nv(P), b = nv(Q), u = cross(a, b);
+    if (dot(u, u) < 1e-6) return null;
+    // p = c + s a + t b, solved so that p lies on both planes
+    var aa = dot(a, a), ab = dot(a, b), bb = dot(b, b), r = P[3] - dot(a, c), q = Q[3] - dot(b, c), D = aa * bb - ab * ab;
+    var p = add(c, add(scale((r * bb - q * ab) / D, a), scale((q * aa - r * ab) / D, b))), d = scale(len, unit(u));
+    return { k: 'line', pts: [add(p, scale(-1, d)), add(p, d)], c: 'meet' };
+  }
+  // the equation ax + by + cz = d as TeX, leaving out zero terms and unit coefficients
+  function eqTeX(P) {
+    var s = '';
+    ['x', 'y', 'z'].forEach(function (v, i) {
+      var k = P[i]; if (!k) return;
+      s += (k < 0 ? '-' : s ? '+' : '') + (Math.abs(k) === 1 ? '' : Math.abs(k)) + v;
+    });
+    return s + '=' + P[3];
+  }
+
+  // controls under a figure
+  function buttons(box, labels, on, init) {
+    var g = document.createElement('span'); g.className = 'grp'; box.appendChild(g);
+    var bs = labels.map(function (l, i) {
+      var b = document.createElement('button'); b.type = 'button'; b.innerHTML = tr(l); g.appendChild(b);
+      b.addEventListener('click', function () { pick(i); on(i); });
+      return b;
+    });
+    function pick(i) { bs.forEach(function (b, j) { b.classList.toggle('on', i === j); }); }
+    if (init != null) pick(init);
+    return { pick: pick };
+  }
+  function button(box, label, on) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = tr(label); box.appendChild(b);
+    b.addEventListener('click', on); return b;
+  }
+  function slider(box, label, min, max, step, value, on) {
+    var l = document.createElement('label'), i = document.createElement('input'), v = document.createElement('span');
+    l.innerHTML = label; i.type = 'range'; i.min = min; i.max = max; i.step = step; i.value = value;
+    l.appendChild(i); l.appendChild(v); box.appendChild(l);
+    var fmt = function () { v.textContent = (+i.value).toFixed(step < 1 ? 1 : 0); };
+    i.addEventListener('input', function () { fmt(); on(+i.value); }); fmt();
+    return { get: function () { return +i.value; }, set: function (x) { i.value = x; fmt(); } };
+  }
+  // a 0 → 1 "transform" slider with a play button that animates it
+  function progress(box, on) {
+    var stop = null;
+    var play = button(box, { en: 'Play', zh: '播放' }, function () { run(); });
+    var sl = slider(box, tr({ en: 'transform', zh: '变换' }), 0, 1, 0.01, 0, function (s) { if (stop) stop(); on(s); });
+    function run(done) {
+      if (stop) stop();
+      stop = tween(1600, function (s) { sl.set(s); on(s); }, function () { stop = null; if (done) done(); });
+    }
+    return { run: run, set: function (s) { if (stop) stop(); sl.set(s); on(s); }, get: sl.get };
+  }
+
+  return { create: create, plane: plane, patch: patch, meet: meet, eqTeX: eqTeX, tween: tween, typesetter: typesetter, buttons: buttons, button: button, slider: slider, progress: progress,
+    tr: tr, zh: zh, dot: dot, cross: cross, unit: unit, add: add, scale: scale, mul: mul, toward: toward, rotX: rotX, f1: f1 };
+})();
+</script>
+
+<style>
+/* Flat figures in this post; the controls and readouts reuse the .m3d-ctl / .m3d-read styles. */
+.p2d { --va:#2a78d6; --vb:#eb6834; --vc:#1d9a6c; margin-bottom:.9rem; }
+body.quarto-dark .p2d { --va:#3987e5; --vb:#d95926; --vc:#2fb383; }
+.p2d svg { display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+.p2d .grid0 { stroke:currentColor; stroke-width:1; opacity:.07; }
+.p2d .axis0 { stroke:currentColor; stroke-width:1; opacity:.3; }
+.p2d text { fill:currentColor; font-family:inherit; font-size:16px; }
+.p2d text.tick { opacity:.45; font-size:12px; }
+.p2d text.v { font-style:italic; font-size:17px; }
+.p2d text .sb { font-size:12px; font-style:normal; }
+.p2d text.ta { fill:var(--va); } .p2d text.tb { fill:var(--vb); } .p2d text.tm { opacity:.6; }
+.p2d .cv { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.p2d .fam { fill:none; stroke:currentColor; stroke-width:1; opacity:.16; }
+.p2d .ghost { fill:none; stroke:currentColor; stroke-width:1.3; stroke-dasharray:5 5; opacity:.45; }
+.p2d .dash { fill:none; stroke-width:1.6; stroke-dasharray:5 4; }
+.p2d .res { stroke:var(--vb); stroke-width:2; }
+.p2d .arr { stroke-width:2.4; stroke-linecap:round; }
+.p2d .va { stroke:var(--va); } .p2d .vb { stroke:var(--vb); } .p2d .vi { stroke:currentColor; }
+.p2d .ha { fill:var(--va); } .p2d .hb { fill:var(--vb); } .p2d .hi { fill:currentColor; }
+.p2d .dot { fill:currentColor; } .p2d .dot.da { fill:var(--va); } .p2d .dot.db { fill:var(--vb); }
+.p2d .mark { fill:none; stroke:currentColor; stroke-width:1; opacity:.6; }
+.p2d .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+<script>
+// A small 2D frame for the flat figures in this post: math coordinates to SVG, a grid, curves, arrows and labels.
+window.P2D = window.P2D || function (svg, o) {
+  var W = o.w || 460, H = o.h || 330, SX = W / (o.x1 - o.x0), SY = H / (o.y1 - o.y0);
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W);
+  var px = function (p) { return [(p[0] - o.x0) * SX, (o.y1 - p[1]) * SY]; };
+  var xy = function (p) { var q = px(p); return q[0].toFixed(1) + ',' + q[1].toFixed(1); };
+  var num = function (k) { return k < 0 ? '−' + -k : k; };
+  function grid() {
+    var h = '', O = px([0, 0]);
+    for (var x = Math.ceil(o.x0); x <= o.x1; x++) {
+      var X = px([x, 0])[0].toFixed(1);
+      h += '<line class="' + (x ? 'grid0' : 'axis0') + '" x1="' + X + '" y1="0" x2="' + X + '" y2="' + H + '"/>';
+      if (x) h += '<text class="tick" x="' + X + '" y="' + (O[1] + 15).toFixed(1) + '" text-anchor="middle">' + num(x) + '</text>';
+    }
+    for (var y = Math.ceil(o.y0); y <= o.y1; y++) {
+      var Y = px([0, y])[1].toFixed(1);
+      h += '<line class="' + (y ? 'grid0' : 'axis0') + '" x1="0" y1="' + Y + '" x2="' + W + '" y2="' + Y + '"/>';
+      if (y) h += '<text class="tick" x="' + (O[0] - 7).toFixed(1) + '" y="' + (+Y + 4) + '" text-anchor="end">' + num(y) + '</text>';
+    }
+    return h;
+  }
+  // the graph of f across the frame, as path data
+  function curve(f) {
+    var d = '', n = 160, lo = o.y0 - 3, hi = o.y1 + 3;
+    for (var i = 0; i <= n; i++) {
+      var x = o.x0 + (o.x1 - o.x0) * i / n;
+      d += (i ? ' L' : 'M') + xy([x, Math.max(lo, Math.min(hi, f(x)))]);
+    }
+    return d;
+  }
+  // an arrow from a to b; c is 'a', 'b' or 'i' (ink)
+  function arrow(a, b, c) {
+    var p = px(a), q = px(b), d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (d < 3) return '';
+    var ux = (q[0] - p[0]) / d, uy = (q[1] - p[1]) / d, L = Math.min(12, d * .5), Wd = L * .42, bx = q[0] - ux * L, by = q[1] - uy * L;
+    return '<line class="arr v' + c + '" x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + (bx + ux * 2).toFixed(1) + '" y2="' + (by + uy * 2).toFixed(1) + '"/>' +
+      '<path class="h' + c + '" d="M' + q[0].toFixed(1) + ',' + q[1].toFixed(1) + ' L' + (bx - uy * Wd).toFixed(1) + ',' + (by + ux * Wd).toFixed(1) + ' L' + (bx + uy * Wd).toFixed(1) + ',' + (by - ux * Wd).toFixed(1) + ' Z"/>';
+  }
+  function line(a, b, cls) { var p = px(a), q = px(b); return '<line class="' + cls + '" x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '"/>'; }
+  function dot(p, cls, r) { var q = px(p); return '<circle class="dot ' + (cls || '') + '" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (r || 4.5) + '"/>'; }
+  // a label at p shifted by (dx, dy) pixels; vec lists the letters that get an arrow on top
+  function text(p, html, cls, dx, dy, vec) {
+    var q = px(p);
+    return '<text class="' + cls + '" x="' + (q[0] + (dx || 0)).toFixed(1) + '" y="' + (q[1] + (dy || 0)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle"' + (vec != null ? ' data-vec="' + vec + '"' : '') + '>' + html + '</text>';
+  }
+  return { px: px, xy: xy, grid: grid, curve: curve, arrow: arrow, line: line, dot: dot, text: text, W: W, H: H };
+};
+</script>
+
+<p>I recently worked through chapters 3 and 4 of Gilbert Strang’s <em>Introduction to Linear Algebra</em>: vector spaces and subspaces, rank and dimension, orthogonality, least squares and the QR decomposition. I won’t go through the definitions in the book’s order. What I wanted was to see, with a few small examples, what they actually describe.</p>
+<p>Chapter 3 confused me at first, because I didn’t see why we needed so many different spaces. Then, on my way home one evening, I put the definitions aside and asked a simpler question: what does a matrix actually do to space? Most of the chapter turned out to be less complicated than it looked.</p>
+<section id="what-a-matrix-does-to-space" class="level2" data-number="1">
+<h2 data-number="1" data-anchor-id="what-a-matrix-does-to-space"><span class="header-section-number">1</span> What a Matrix Does to Space</h2>
+<p>Think of three-dimensional space, where every vector has three coordinates, and apply one linear transformation to all of it. If the matrix is <span class="math inline">\(3\times3\)</span> with full rank, all three independent directions survive. Vectors may be stretched and turned, but two different inputs never end up at the same output.</p>
+<p>Now take</p>
+<p><span class="math display">\[
+A=\begin{bmatrix}1&amp;0&amp;0\\0&amp;1&amp;0\\0&amp;0&amp;0\end{bmatrix},
+\qquad
+A\vec{x}=\begin{bmatrix}x_1\\x_2\\0\end{bmatrix}
+\]</span></p>
+<p>Whatever the third coordinate was, it becomes zero. Every vector in space lands on the plane <span class="math inline">\(z=0\)</span>: <strong>one independent direction has been erased.</strong> So two different inputs, such as</p>
+<p><span class="math display">\[
+\vec{x}_a=\begin{bmatrix}1\\2\\3\end{bmatrix},
+\qquad
+\vec{x}_b=\begin{bmatrix}1\\2\\100\end{bmatrix},
+\]</span></p>
+<p>give the same output, <span class="math inline">\(A\vec{x}_a=A\vec{x}_b=(1,2,0)\)</span>. The transformation can no longer see any difference in the third direction (<a href="#fig-rank" class="quarto-xref">Figure&nbsp;1</a>).</p>
+<div id="fig-rank" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-rank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<style>
+.m3d .pdim { opacity:.45; }
+.m3d .hdot { fill:var(--vb); }
+.m3d .hset { fill:none; stroke:var(--vb); stroke-width:2.2; opacity:.85; }
+</style>
+<div class="m3d" id="m3-rank">
+<svg role="img" aria-label="Interactive 3D figure: 27 input points and the inputs that share one output with (1, 2, 2). With rank 3 that is one point; with rank 2, A = diag(1, 1, 0), it is the line (1, 2, t), which collapses to (1, 2, 0); with rank 1, A = diag(1, 0, 0), it is the plane x = 1, which collapses to (1, 0, 0). Press Play to apply the matrix. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-rank'), ctl = root.querySelector('.m3d-ctl');
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  // rank 3, 2 and 1: the identity, diag(1, 1, 0) and diag(1, 0, 0)
+  var MATS = [[[1, 0, 0], [0, 1, 0], [0, 0, 1]], [[1, 0, 0], [0, 1, 0], [0, 0, 0]], [[1, 0, 0], [0, 0, 0], [0, 0, 0]]];
+  var r = 1, s = 0, pts = [];
+  for (var i = 0; i < 3; i++) for (var j = 0; j < 3; j++) for (var k = 0; k < 3; k++) pts.push([i, j, k]);
+  // the inputs that have the same output as (1, 2, 2): a point, a line or a plane
+  var same = function (p) { return r === 0 ? p[0] === 1 && p[1] === 2 && p[2] === 2 : r === 1 ? p[0] === 1 && p[1] === 2 : p[0] === 1; };
+  var lo = -0.5, hi = 2.5;
+  var fig = M.create(root, {
+    scale: 56, az: -35, el: 20, dy: 25, axes: ['x', 'y', 'z'], axisLen: 2.8, ticks: true,
+    scene: function () {
+      var T = M.toward(MATS[r], s), f = function (p) { return M.mul(T, p); }, it = [];
+      // where all the outputs end up, faded in as the matrix is applied
+      if (r === 1) it.push({ k: 'poly', pts: [[lo, lo, 0], [hi, lo, 0], [hi, hi, 0], [lo, hi, 0]], c: 'plane', op: s });
+      if (r === 2) it.push({ k: 'line', pts: [[lo, 0, 0], [hi, 0, 0]], c: 'meet', op: s });
+      if (r === 1) it.push({ k: 'line', pts: [f([1, 2, lo]), f([1, 2, hi])], c: 'hset' });
+      if (r === 2) it.push({ k: 'poly', pts: [f([1, lo, lo]), f([1, hi, lo]), f([1, hi, hi]), f([1, lo, hi])], c: 'plane pb' });
+      pts.forEach(function (p) { it.push(same(p) ? { k: 'dot', p: f(p), r: 4, c: 'hdot' } : { k: 'dot', p: f(p), r: 2.6, c: 'dot pdim' }); });
+      return it;
+    }
+  });
+  var MSG = [
+    { en: 'Full rank: nothing is erased. Only \\((1,2,2)\\) itself goes to \\((1,2,2)\\).', zh: '满秩：什么都没有被消除。只有 \\((1,2,2)\\) 自己会变成 \\((1,2,2)\\)。' },
+    { en: 'The \\(A\\) of this section erases the \\(z\\)-direction. Every input on the orange line \\((1,2,t)\\) lands on the same output, \\((1,2,0)\\).', zh: '本节的 \\(A\\) 消除了 \\(z\\) 方向。橙色直线 \\((1,2,t)\\) 上的每个输入，都落到同一个输出 \\((1,2,0)\\)。' },
+    { en: 'This matrix keeps only \\(x\\). Every input on the orange plane \\(x=1\\) lands on the same output, \\((1,0,0)\\).', zh: '这个矩阵只保留 \\(x\\)。橙色平面 \\(x=1\\) 上的每个输入，都落到同一个输出 \\((1,0,0)\\)。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() { read('\\(\\operatorname{rank}A=' + (3 - r) + ',\\quad \\dim N(A)=' + r + '\\)<br>' + M.tr(MSG[r])); }
+  var prog;
+  M.buttons(ctl, [{ en: 'Rank 3', zh: '秩 3' }, { en: 'Rank 2', zh: '秩 2' }, { en: 'Rank 1', zh: '秩 1' }], function (i) { r = i; show(); prog.set(0); prog.run(); }, 1);
+  prog = M.progress(ctl, function (v) { s = v; fig.render(); });
+  show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-rank-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: <strong>Many inputs, one output.</strong> The dots are 27 inputs, and the orange ones are all the inputs that end up at the same output as <span class="math inline">\((1,2,2)\)</span>. Press Play to apply the matrix. With rank 2, our <span class="math inline">\(A\)</span>, they form a line that collapses to a single point; with rank 1, a whole plane collapses to a point; with rank 3, only the point itself is left. The dimension of the orange set plus the rank is always 3.
+</figcaption>
+</figure>
+</div>
+<p>I already met this in the <a href="../../../posts/2026/matrices/index.html#fig-collapse">previous post on matrices</a>, with a less tidy matrix. What chapter 3 adds is names for the pieces, and the rules behind them.</p>
+<section id="the-nullspace" class="level3" data-number="1.1">
+<h3 data-number="1.1" data-anchor-id="the-nullspace"><span class="header-section-number">1.1</span> The Nullspace</h3>
+<p>Now go backwards. Suppose the output is <span class="math inline">\(\vec{b}=(1,2,0)\)</span>. Which inputs could have produced it? The first two coordinates must be <span class="math inline">\(1\)</span> and <span class="math inline">\(2\)</span>, but the third can be anything:</p>
+<p><span class="math display">\[
+\vec{x}=\begin{bmatrix}1\\2\\t\end{bmatrix}
+=\underbrace{\begin{bmatrix}1\\2\\0\end{bmatrix}}_{\text{a particular solution}}
++\,t\underbrace{\begin{bmatrix}0\\0\\1\end{bmatrix}}_{\text{the erased direction}}
+\]</span></p>
+<p>Whatever <span class="math inline">\(t\)</span> is, <span class="math inline">\(A\)</span> sends the second part to zero. That is what the <strong>nullspace</strong> <span class="math inline">\(N(A)\)</span> is: the set of inputs that a transformation sends to zero, or in other words, the changes in the input that it cannot see. To find every input that gives a certain output, take one particular solution and add anything from the nullspace:</p>
+<p><span class="math display">\[
+\vec{x}=\vec{x}_p+\vec{x}_n,\qquad \vec{x}_n\in N(A)
+\]</span></p>
+<p>This is the complete solution of <span class="math inline">\(A\vec{x}=\vec{b}\)</span>, and seen this way, it is no surprise: the transformation threw part of the input away, so the output cannot tell us what that part was.</p>
+</section>
+<section id="rank-and-dimension" class="level3" data-number="1.2">
+<h3 data-number="1.2" data-anchor-id="rank-and-dimension"><span class="header-section-number">1.2</span> Rank and Dimension</h3>
+<p>This <span class="math inline">\(A\)</span> happens to erase one coordinate. A general matrix erases directions that mix several coordinates, but the counting is the same. A <span class="math inline">\(3\times3\)</span> matrix of rank 2 produces outputs with two independent directions and erases one input direction. Rank 1 produces one and erases two (switch <a href="#fig-rank" class="quarto-xref">Figure&nbsp;1</a> to rank 1). For a matrix with <span class="math inline">\(n\)</span> columns, that is, <span class="math inline">\(n\)</span> input coordinates,</p>
+<p><span class="math display">\[
+\operatorname{rank}(A)+\dim N(A)=n
+\]</span></p>
+<p>In the last post this was a note I hadn’t studied. Elimination shows why it holds: after elimination, each of the <span class="math inline">\(n\)</span> columns is either a pivot column or a free column. The pivot columns count the rank, and each free column gives one independent direction of the nullspace.</p>
+<p>This also changed how I see linear independence, basis and dimension. We may describe a space with many vectors, but the number of vectors is not the number of independent directions. A vector that is a combination of the others adds nothing new. A set of vectors that describes the whole space with nothing redundant is a <strong>basis</strong>, and the number of vectors in it is the <strong>dimension</strong>.</p>
+<p>So for me, chapter 3 comes down to one question: <strong>how many independent directions does a transformation keep, and how many does it erase?</strong> On the input side, we ask which different inputs end up at the same output; that is the nullspace. On the output side, we ask which outputs the transformation can produce at all; that is the column space. The subspaces in chapter 3 are a precise way of describing these two ends.</p>
+</section>
+</section>
+<section id="when-the-target-cant-be-reached" class="level2" data-number="2">
+<h2 data-number="2" data-anchor-id="when-the-target-cant-be-reached"><span class="header-section-number">2</span> When the Target Can’t Be Reached</h2>
+<p>This leads straight into chapter 4. The same <span class="math inline">\(A\)</span> only produces outputs whose third coordinate is zero. Suppose our target is</p>
+<p><span class="math display">\[
+\vec{b}=\begin{bmatrix}2\\3\\5\end{bmatrix}
+\]</span></p>
+<p>No input reaches it, because <span class="math inline">\(A\)</span> never outputs a vector with a third coordinate of <span class="math inline">\(5\)</span>. But if we don’t need an exact answer, we can look for the reachable point closest to <span class="math inline">\(\vec{b}\)</span>. All outputs lie on the plane <span class="math inline">\(z=0\)</span>, so we drop a perpendicular from <span class="math inline">\(\vec{b}\)</span> to the plane, and the closest point is <span class="math inline">\(\vec{p}=(2,3,0)\)</span> (<a href="#fig-project" class="quarto-xref">Figure&nbsp;2</a>). This is <strong>orthogonal projection</strong>.</p>
+<div id="fig-project" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-project-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="m3d" id="m3-project">
+<svg role="img" aria-label="Interactive 3D figure: every output of A lies on the plane z = 0. The target b = (2, 3, 5) is off the plane, and dropping a perpendicular from it gives the closest output, p = (2, 3, 0). Sliders move another output Ax around the plane to compare its distance to b. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-project'), ctl = root.querySelector('.m3d-ctl');
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var O = [0, 0, 0], B = [2, 3, 5], P = [2, 3, 0], x = [3.5, 0.5];
+  var fig = M.create(root, {
+    scale: 30, az: -35, el: 20, dy: 55, axes: ['x', 'y', 'z'], axisLen: 5.4, ticks: true,
+    scene: function () {
+      var lo = -1, hi = 4, at = function (u, v) { return [u, v, 0]; }, it = [];
+      it.push({ k: 'poly', pts: [at(lo, lo), at(hi, lo), at(hi, hi), at(lo, hi)], c: 'plane' });
+      for (var t = lo + 1; t < hi; t++) it.push({ k: 'line', pts: [at(t, lo), at(t, hi)], c: 'grid' }, { k: 'line', pts: [at(lo, t), at(hi, t)], c: 'grid' });
+      // the right angle between the error and the plane
+      var u = M.scale(0.35, M.unit([-2, -3, 0])), z = [0, 0, 0.35];
+      it.push({ k: 'line', pts: [M.add(P, u), M.add(M.add(P, u), z), M.add(P, z)], c: 'wire' });
+      it.push({ k: 'arrow', a: O, b: B, c: 'b', label: 'b', vec: 0 }, { k: 'arrow', a: O, b: P, c: 'a', label: 'p', vec: 0, off: 18 });
+      it.push({ k: 'line', pts: [P, B], c: 'dash' }, { k: 'text', p: [2, 3, 2.5], t: 'e', c: 'v', vec: '0', dx: 13 });
+      // another output A x, for comparison
+      var q = [x[0], x[1], 0];
+      if (Math.hypot(q[0] - P[0], q[1] - P[1]) > 0.05) it.push({ k: 'line', pts: [q, B], c: 'trail' }, { k: 'dot', p: q, r: 4, c: 'hole' }, { k: 'text', p: q, t: 'Ax', c: 'v', vec: '1', dx: -4, dy: 16 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  var n = function (v) { return String(+v.toFixed(1)).replace('-', '−'); };
+  function show() {
+    var d = Math.hypot(B[0] - x[0], B[1] - x[1], B[2]), at = Math.hypot(x[0] - P[0], x[1] - P[1]) < 0.05;
+    read('\\(A\\vec{x}=(' + n(x[0]) + ',' + n(x[1]) + ',0)\\)&emsp;\\(\\|\\vec{b}-A\\vec{x}\\|=' + d.toFixed(2) + '\\)<br>' + M.tr(at
+      ? { en: 'This is \\(\\vec{p}\\). The error \\(\\vec{e}=\\vec{b}-\\vec{p}=(0,0,5)\\) is perpendicular to the plane, and no output gets closer.', zh: '这就是 \\(\\vec{p}\\)。误差 \\(\\vec{e}=\\vec{b}-\\vec{p}=(0,0,5)\\) 垂直于整个平面，没有哪个输出比它更近。' }
+      : { en: 'Every other output is farther from \\(\\vec{b}\\) than \\(\\vec{p}\\), whose distance is \\(5\\).', zh: '其他任何输出离 \\(\\vec{b}\\) 都比 \\(\\vec{p}\\) 远，而 \\(\\vec{p}\\) 的距离是 \\(5\\)。' }));
+  }
+  var s1 = M.slider(ctl, '<span><i>x</i>₁</span>', -1, 4, 0.1, x[0], function (v) { x[0] = v; fig.render(); show(); });
+  var s2 = M.slider(ctl, '<span><i>x</i>₂</span>', -1, 4, 0.1, x[1], function (v) { x[1] = v; fig.render(); show(); });
+  var stop = null;
+  M.button(ctl, { en: 'Go to p', zh: '移到 p' }, function () {
+    if (stop) stop();
+    var from = x.slice();
+    stop = M.tween(800, function (s) { x = [from[0] + (P[0] - from[0]) * s, from[1] + (P[1] - from[1]) * s]; s1.set(x[0]); s2.set(x[1]); fig.render(); }, function () { stop = null; x = [P[0], P[1]]; show(); });
+  });
+  show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-project-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: <strong>The closest output.</strong> Every output of <span class="math inline">\(A\)</span> lies on the grey plane <span class="math inline">\(z=0\)</span>, and the target <span class="math inline">\(\vec{b}=(2,3,5)\)</span> does not. The perpendicular from <span class="math inline">\(\vec{b}\)</span> meets the plane at <span class="math inline">\(\vec{p}=(2,3,0)\)</span>, and the error <span class="math inline">\(\vec{e}=\vec{b}-\vec{p}\)</span> stands at a right angle to the plane. Use the sliders to move another output <span class="math inline">\(A\vec{x}\)</span> around the plane: it is always farther from <span class="math inline">\(\vec{b}\)</span> than <span class="math inline">\(\vec{p}\)</span> is.
+</figcaption>
+</figure>
+</div>
+<p>The idea behind it is simple: not every target can be reached exactly, but we can still find the best result within what is possible. And when the possible results form a subspace, the best point has a special property: the error <span class="math inline">\(\vec{e}=\vec{b}-\vec{p}\)</span> is perpendicular to the whole subspace, not just to one line in it.</p>
+<p>One more detail. The closest point <span class="math inline">\(\vec{p}\)</span> is unique, but the input that produces it is not: every <span class="math inline">\(\vec{x}=(2,3,t)\)</span> gives <span class="math inline">\(A\vec{x}=\vec{p}\)</span>. That is the nullspace again, and it will matter below.</p>
+</section>
+<section id="fitting-a-parabola" class="level2" data-number="3">
+<h2 data-number="3" data-anchor-id="fitting-a-parabola"><span class="header-section-number">3</span> Fitting a Parabola</h2>
+<p>This is an example I came up with myself while studying chapter 4. Suppose we want to find a quadratic function through some observed points:</p>
+<p><span class="math display">\[
+y=ax^2+bx+c
+\]</span></p>
+<p>The points <span class="math inline">\((x_i,y_i)\)</span> are the data. The unknowns are the three coefficients <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span> and <span class="math inline">\(c\)</span>, which I’ll write as <span class="math inline">\(\vec{w}=(a,b,c)\)</span>. How many points does it take to pin down the function?</p>
+<section id="two-points-infinitely-many-parabolas" class="level3" data-number="3.1">
+<h3 data-number="3.1" data-anchor-id="two-points-infinitely-many-parabolas"><span class="header-section-number">3.1</span> Two Points: Infinitely Many Parabolas</h3>
+<p>Take the points <span class="math inline">\((1,2)\)</span> and <span class="math inline">\((-1,2)\)</span>:</p>
+<p><span class="math display">\[
+\begin{cases}
+a+b+c=2,\\
+a-b+c=2.
+\end{cases}
+\]</span></p>
+<p>Subtracting gives <span class="math inline">\(b=0\)</span>, which leaves <span class="math inline">\(a+c=2\)</span>. So <span class="math inline">\(y=x^2+1\)</span> passes through both points, and so does <span class="math inline">\(y=2x^2\)</span>, and so does one parabola for every value of <span class="math inline">\(a\)</span> (<a href="#fig-twopoints" class="quarto-xref">Figure&nbsp;3</a>). In matrix form,</p>
+<p><span class="math display">\[
+\begin{bmatrix}1&amp;1&amp;1\\1&amp;-1&amp;1\end{bmatrix}
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}2\\2\end{bmatrix}
+\]</span></p>
+<p>This <span class="math inline">\(2\times3\)</span> matrix has rank 2, but there are three unknowns, so one direction is left free:</p>
+<p><span class="math display">\[
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}1\\0\\1\end{bmatrix}
++t\begin{bmatrix}1\\0\\-1\end{bmatrix}
+\]</span></p>
+<p>This is exactly the <span class="math inline">\(\vec{x}_p+\vec{x}_n\)</span> from the first section. And the nullspace direction <span class="math inline">\((1,0,-1)\)</span> is itself a polynomial, <span class="math inline">\(x^2-1\)</span>, which is zero at both <span class="math inline">\(x=1\)</span> and <span class="math inline">\(x=-1\)</span>. Adding any amount of it changes the curve, but not its values at the two points we observed. <strong>When there are fewer independent conditions than unknowns, different inputs produce the same observations.</strong></p>
+<div id="fig-twopoints" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-twopoints-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="p2d" id="p2-two">
+<svg role="img" aria-label="Interactive figure: the parabolas y = a x² + (2 − a) all pass through (−1, 2) and (1, 2). A slider changes a. A button adds the point (0, 1), which only the parabola with a = 1, y = x² + 1, passes through."></svg>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('p2-two'), svg = root.querySelector('svg'), ctl = root.querySelector('.m3d-ctl');
+  var F = P2D(svg, { x0: -2.6, x1: 2.6, y0: -1.2, y1: 4.8 });
+  var a = 2, three = false;
+  // every parabola through (−1, 2) and (1, 2): y = a x² + (2 − a)
+  var par = function (k) { return function (x) { return k * x * x + 2 - k; }; };
+  function draw() {
+    var h = F.grid();
+    [-1, -0.5, 0, 0.5, 1, 1.5, 2, 2.5, 3].forEach(function (k) { h += '<path class="fam" d="' + F.curve(par(k)) + '"/>'; });
+    h += '<path class="cv va" d="' + F.curve(par(a)) + '"/>';
+    h += F.dot([-1, 2]) + F.dot([1, 2]);
+    if (three) h += F.dot([0, 1], 'db') + F.text([0, 1], '(0, 1)', 's tb', 30, 12);
+    svg.innerHTML = h;
+  }
+  var n = function (v) { return String(+v.toFixed(1)); };
+  var term = function (k, v, first) { if (Math.abs(k) < 1e-9) return ''; var s = k < 0 ? '-' : first ? '' : '+', m = Math.abs(k); return s + (m === 1 && v ? '' : n(m)) + v; };
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    var t = a - 1, y = term(a, 'x^2', 1), c = term(2 - a, '', !y);
+    var msg = !three
+      ? { en: 'Every curve here passes through \\((-1,2)\\) and \\((1,2)\\). Changing \\(a\\) adds more or less of \\(x^2-1\\), which is zero at both points.', zh: '这里每条曲线都经过 \\((-1,2)\\) 和 \\((1,2)\\)。改变 \\(a\\)，就是加上多一点或少一点 \\(x^2-1\\)，而它在这两点都等于零。' }
+      : Math.abs(t) < 0.05
+        ? { en: 'Only \\(a=1\\) also passes through \\((0,1)\\): the three points pin down \\(y=x^2+1\\).', zh: '只有 \\(a=1\\) 还经过 \\((0,1)\\)：三个点确定了唯一的 \\(y=x^2+1\\)。' }
+        : { en: 'This curve crosses \\(x=0\\) at \\(y=' + n(2 - a) + '\\), not at \\(1\\). Only \\(a=1\\) fits all three points.', zh: '这条曲线在 \\(x=0\\) 处的值是 \\(' + n(2 - a) + '\\)，不是 \\(1\\)。只有 \\(a=1\\) 能同时经过三个点。' };
+    read('\\(\\class{ca}{y=' + ((y + c) || '0') + '}\\)&emsp;\\((a,b,c)=(1,0,1)' + (Math.abs(t) < 1e-9 ? '' : (t < 0 ? '-' : '+') + n(Math.abs(t)) + '\\,(1,0,-1)') + '\\)<br>' + M.tr(msg));
+  }
+  var sl = M.slider(ctl, '<span><i>a</i></span>', -1, 3, 0.1, a, function (v) { a = v; draw(); show(); });
+  var stop = null;
+  M.buttons(ctl, [{ en: 'Two points', zh: '两个点' }, { en: 'Add (0, 1)', zh: '加上 (0, 1)' }], function (i) {
+    if (stop) stop();
+    three = i === 1; draw(); show();
+    if (!three) return;
+    var from = a;
+    stop = M.tween(800, function (s) { a = from + (1 - from) * s; sl.set(a); draw(); }, function () { stop = null; a = 1; show(); });
+  }, 0);
+  draw(); show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-twopoints-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3: <strong>Two points, infinitely many parabolas.</strong> Every curve <span class="math inline">\(y=ax^2+(2-a)\)</span> passes through <span class="math inline">\((-1,2)\)</span> and <span class="math inline">\((1,2)\)</span>; the faint ones are a few of them. Moving the slider adds more or less of the nullspace polynomial <span class="math inline">\(x^2-1\)</span>. Press “Add (0, 1)”: a third point leaves only <span class="math inline">\(a=1\)</span>, the parabola <span class="math inline">\(y=x^2+1\)</span>.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="three-points-exactly-one-parabola" class="level3" data-number="3.2">
+<h3 data-number="3.2" data-anchor-id="three-points-exactly-one-parabola"><span class="header-section-number">3.2</span> Three Points: Exactly One Parabola</h3>
+<p>Now add the point <span class="math inline">\((0,1)\)</span>, so that we have <span class="math inline">\((-1,2)\)</span>, <span class="math inline">\((0,1)\)</span> and <span class="math inline">\((1,2)\)</span>:</p>
+<p><span class="math display">\[
+\begin{cases}
+a-b+c=2,\\
+c=1,\\
+a+b+c=2.
+\end{cases}
+\]</span></p>
+<p>So <span class="math inline">\(c=1\)</span>, then <span class="math inline">\(a=1\)</span> and <span class="math inline">\(b=0\)</span>, and the parabola is <span class="math inline">\(y=x^2+1\)</span>. Its three coefficients are now determined. In matrix form,</p>
+<p><span class="math display">\[
+\underbrace{\begin{bmatrix}1&amp;-1&amp;1\\0&amp;0&amp;1\\1&amp;1&amp;1\end{bmatrix}}_{A}
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}2\\1\\2\end{bmatrix}
+\]</span></p>
+<p>But do three equations in three unknowns always have exactly one solution? No, the equations also have to be independent. If two of the points share the same <span class="math inline">\(x\)</span>, two rows of the matrix are the same, and there aren’t three independent conditions. If the three <span class="math inline">\(x\)</span> values are all different, things are fine:</p>
+<p><span class="math display">\[
+A=\begin{bmatrix}x_1^2&amp;x_1&amp;1\\x_2^2&amp;x_2&amp;1\\x_3^2&amp;x_3&amp;1\end{bmatrix},
+\qquad
+\det(A)=(x_1-x_2)(x_1-x_3)(x_2-x_3)
+\]</span></p>
+<p>The determinant is nonzero exactly when the three <span class="math inline">\(x\)</span> values are different, and then <span class="math inline">\(A\)</span> is invertible. So <strong>three points with different <span class="math inline">\(x\)</span> values determine exactly one polynomial of degree at most two.</strong> “At most”, because <span class="math inline">\(a\)</span> may turn out to be zero.</p>
+<p>When I discussed this with AI, I learned that this matrix has a name: the <strong>Vandermonde matrix</strong>. I had seen it before, when I first learned linear algebra, and I had computed its determinant, without knowing why anyone would study such a special matrix. This time it went the other way around. I started from a question, why two points aren’t enough but three are, wrote down the equations, and the matrix appeared on its own. Only afterwards did I find out it was a matrix from the textbook. I would probably have forgotten the definition again, but I don’t think I’ll forget where the matrix comes from: whenever we pin down a polynomial with observed points, it shows up.</p>
+</section>
+<section id="four-points-maybe-no-solution" class="level3" data-number="3.3">
+<h3 data-number="3.3" data-anchor-id="four-points-maybe-no-solution"><span class="header-section-number">3.3</span> Four Points: Maybe No Solution</h3>
+<p>The three points above already determine <span class="math inline">\(y=x^2+1\)</span>. If we add a fourth point, <span class="math inline">\((2,5)\)</span>, it happens to lie on the same curve, so with four conditions and three unknowns there is still an exact solution. But if the fourth point is <span class="math inline">\((2,6)\)</span>, it doesn’t fit, and no <span class="math inline">\(a\)</span>, <span class="math inline">\(b\)</span>, <span class="math inline">\(c\)</span> satisfy all four equations:</p>
+<p><span class="math display">\[
+\begin{bmatrix}1&amp;-1&amp;1\\0&amp;0&amp;1\\1&amp;1&amp;1\\4&amp;2&amp;1\end{bmatrix}
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}2\\1\\2\\6\end{bmatrix}
+\]</span></p>
+<p>Interestingly, this <span class="math inline">\(4\times3\)</span> matrix still has rank 3. The fourth point adds a condition, but not a parameter. <strong>We now have four observations, but a quadratic has only three coefficients to adjust.</strong> In the four-dimensional space of observations, everything a quadratic can predict, <span class="math inline">\(A\vec{w}\)</span>, forms a three-dimensional subspace: the column space of <span class="math inline">\(A\)</span>. If the observations <span class="math inline">\(\vec{y}\)</span> lie in it, there is an exact solution. If not, there isn’t. We are back at the projection problem.</p>
+</section>
+<section id="five-points-or-a-thousand" class="level3" data-number="3.4">
+<h3 data-number="3.4" data-anchor-id="five-points-or-a-thousand"><span class="header-section-number">3.4</span> Five Points, or a Thousand</h3>
+<p>What if we add a fifth point, a sixth, or a thousand? We are still solving for only three coefficients, and as long as at least three of the <span class="math inline">\(x\)</span> values are different, the matrix still has rank 3. More points don’t give a quadratic a fourth parameter. They give it more conditions that we would like it to satisfy.</p>
+<p>Real data are noisy, so in general no single quadratic satisfies all of them. Instead of fitting three points exactly and ignoring the rest, we take all the observations into account and make the total error as small as possible. This is <strong>least squares</strong>:</p>
+<p><span class="math display">\[
+\min_{a,b,c}\sum_{i=1}^{m}\bigl[y_i-(ax_i^2+bx_i+c)\bigr]^2
+\]</span></p>
+<p>This is the problem from the previous section again: <span class="math inline">\(A\vec{w}\)</span> ranges over the column space, and we want the point of it closest to <span class="math inline">\(\vec{y}\)</span>. So the error has to be perpendicular to the column space, that is, to every column of <span class="math inline">\(A\)</span>. Written with the transpose, <span class="math inline">\(A^T(\vec{y}-A\hat{\vec{w}})=\vec{0}\)</span>. This says that the error lies in the nullspace of <span class="math inline">\(A^T\)</span>, the <strong>left nullspace</strong> <span class="math inline">\(N(A^T)\)</span>, another of the subspaces in chapter 3: it holds exactly the vectors perpendicular to the column space. Rearranged, this is</p>
+<p><span class="math display">\[
+A^TA\hat{\vec{w}}=A^T\vec{y}
+\]</span></p>
+<p>These are the <strong>normal equations</strong>, a square system with one equation per coefficient. If <span class="math inline">\(A\)</span> has full column rank, <span class="math inline">\(A^TA\)</span> is invertible and the least-squares coefficients are unique, even though the curve cannot pass through every point. If it doesn’t, we are back to the warning above: the closest point is still unique, but the coefficients are not.</p>
+<p>For the four points with <span class="math inline">\((2,6)\)</span>, the solution is <span class="math inline">\(y=1.25x^2+0.05x+0.85\)</span> (<a href="#fig-fit" class="quarto-xref">Figure&nbsp;4</a>). Fitting the first three points exactly misses the fourth by <span class="math inline">\(1\)</span>. Least squares misses each point by at most <span class="math inline">\(0.15\)</span>, and the squared errors add up to <span class="math inline">\(0.05\)</span> instead of <span class="math inline">\(1\)</span>.</p>
+<div id="fig-fit" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="p2d" id="p2-fit">
+<svg role="img" aria-label="Interactive figure: four points (−1, 2), (0, 1), (1, 2) and (2, y). A slider moves the fourth point. The least-squares parabola and its errors at each point are drawn, next to the dashed parabola y = x² + 1 through the first three points."></svg>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('p2-fit'), svg = root.querySelector('svg'), ctl = root.querySelector('.m3d-ctl');
+  var F = P2D(svg, { x0: -2.2, x1: 3.2, y0: -0.6, y1: 8.6 });
+  var pts = [[-1, 2], [0, 1], [1, 2], [2, 6]];
+  // least squares: solve the normal equations AᵀA w = Aᵀy for w = (a, b, c), with rows (x², x, 1)
+  function fit() {
+    var G = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], r = [0, 0, 0];
+    pts.forEach(function (p) {
+      var row = [p[0] * p[0], p[0], 1];
+      for (var i = 0; i < 3; i++) { r[i] += row[i] * p[1]; for (var j = 0; j < 3; j++) G[i][j] += row[i] * row[j]; }
+    });
+    var det = M.dot(G[0], M.cross(G[1], G[2]));
+    return [0, 1, 2].map(function (k) { var H = G.map(function (g, i) { var s = g.slice(); s[k] = r[i]; return s; }); return M.dot(H[0], M.cross(H[1], H[2])) / det; });
+  }
+  var w;
+  var f = function (x) { return w[0] * x * x + w[1] * x + w[2]; };
+  function draw() {
+    w = fit();
+    var h = F.grid() + '<path class="ghost" d="' + F.curve(function (x) { return x * x + 1; }) + '"/>';
+    h += '<path class="cv va" d="' + F.curve(f) + '"/>';
+    pts.forEach(function (p) { if (Math.abs(p[1] - f(p[0])) > 0.01) h += F.line(p, [p[0], f(p[0])], 'res'); });
+    pts.forEach(function (p, i) { h += F.dot(p, i === 3 ? 'db' : ''); });
+    svg.innerHTML = h;
+  }
+  var n = function (v) { return String(+v.toFixed(3)); };
+  var term = function (k, v, first) { k = +k.toFixed(3); if (!k) return ''; var s = k < 0 ? '-' : first ? '' : '+', m = Math.abs(k); return s + (m === 1 && v ? '' : n(m)) + v; };
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() {
+    var y = term(w[0], 'x^2', 1), d = pts[3][1] - 5, sse = pts.reduce(function (s, p) { return s + Math.pow(p[1] - f(p[0]), 2); }, 0);
+    var big = Math.max.apply(null, pts.map(function (p) { return Math.abs(p[1] - f(p[0])); }));
+    y += term(w[1], 'x', !y); y += term(w[2], '', !y);
+    var msg = Math.abs(d) < 0.05
+      ? { en: 'The fourth point lies on \\(y=x^2+1\\), so one parabola fits all four points exactly.', zh: '第四个点恰好在 \\(y=x^2+1\\) 上，所以一条抛物线就能精确经过全部四个点。' }
+      : { en: 'No parabola passes through all four points. The least-squares fit (solid) misses each point by at most \\(' + n(big) + '\\), with squared errors adding up to \\(' + n(sse) + '\\). The dashed \\(y=x^2+1\\) fits the first three exactly but misses the fourth by \\(' + n(Math.abs(d)) + '\\), a total of \\(' + n(d * d) + '\\).', zh: '没有一条抛物线能经过全部四个点。最小二乘拟合（实线）在每个点的误差都不超过 \\(' + n(big) + '\\)，误差平方和是 \\(' + n(sse) + '\\)。虚线 \\(y=x^2+1\\) 精确经过前三个点，但在第四个点差了 \\(' + n(Math.abs(d)) + '\\)，平方和是 \\(' + n(d * d) + '\\)。' };
+    read('\\(\\class{ca}{y=' + y + '}\\)<br>' + M.tr(msg));
+  }
+  M.slider(ctl, M.tr({ en: '<span>fourth point: <i>y</i></span>', zh: '<span>第四个点的 <i>y</i></span>' }), 3, 8, 0.1, pts[3][1], function (v) { pts[3][1] = v; draw(); show(); });
+  draw(); show();
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-fit-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4: <strong>Least squares spreads the error.</strong> The solid curve is the least-squares parabola through <span class="math inline">\((-1,2)\)</span>, <span class="math inline">\((0,1)\)</span>, <span class="math inline">\((1,2)\)</span> and the orange point <span class="math inline">\((2,y)\)</span>, and the short orange segments are its errors. The dashed curve is <span class="math inline">\(y=x^2+1\)</span>, which fits the first three points exactly. Move the slider: at <span class="math inline">\(y=5\)</span>, the two curves are the same.
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="higher-degrees-and-why-only-lines" class="level3" data-number="3.5">
+<h3 data-number="3.5" data-anchor-id="higher-degrees-and-why-only-lines"><span class="header-section-number">3.5</span> Higher Degrees, and Why Only Lines?</h3>
+<p>The same reasoning works for higher degrees. A cubic, <span class="math inline">\(y=ax^3+bx^2+cx+d\)</span>, has four coefficients, so four points with different <span class="math inline">\(x\)</span> values determine one polynomial of degree at most three. In general, <span class="math inline">\(y=a_nx^n+\cdots+a_1x+a_0\)</span> has <span class="math inline">\(n+1\)</span> coefficients, and <span class="math inline">\(n+1\)</span> points with different <span class="math inline">\(x\)</span> values determine one polynomial of degree at most <span class="math inline">\(n\)</span>. With more points than that, and no polynomial through all of them, we use least squares.</p>
+<p>Here I noticed something. I had always thought of least squares as fitting a straight line. But nothing requires that. Once a point is observed, <span class="math inline">\(x\)</span>, <span class="math inline">\(x^2\)</span> and <span class="math inline">\(x^3\)</span> are just known numbers. The unknowns are the coefficients, and the problem is still linear in them:</p>
+<p><span class="math display">\[
+\begin{bmatrix}
+x_1^3&amp;x_1^2&amp;x_1&amp;1\\
+x_2^3&amp;x_2^2&amp;x_2&amp;1\\
+\vdots&amp;\vdots&amp;\vdots&amp;\vdots\\
+x_m^3&amp;x_m^2&amp;x_m&amp;1
+\end{bmatrix}
+\begin{bmatrix}a\\b\\c\\d\end{bmatrix}
+\approx
+\begin{bmatrix}y_1\\y_2\\\vdots\\y_m\end{bmatrix}
+\]</span></p>
+<p>The functions don’t even have to be polynomials. Any combination of known functions with unknown coefficients works the same way.</p>
+<p>So in the end, my understanding of least squares is simple: <strong>first choose a way to describe the data, then find the parameters that bring its predictions as close as possible to what we observed.</strong></p>
+</section>
+</section>
+<section id="gramschmidt-and-qr-same-space-better-basis" class="level2" data-number="4">
+<h2 data-number="4" data-anchor-id="gramschmidt-and-qr-same-space-better-basis"><span class="header-section-number">4</span> Gram–Schmidt and QR: Same Space, Better Basis</h2>
+<p>Chapter 4 ends with Gram–Schmidt and the QR decomposition. I think the core idea is simple. Take</p>
+<p><span class="math display">\[
+\vec{v}_1=\begin{bmatrix}1\\2\end{bmatrix},
+\qquad
+\vec{v}_2=\begin{bmatrix}2\\1\end{bmatrix}
+\]</span></p>
+<p>They are independent, so they span the whole plane, but they are not perpendicular. They are just one basis for the plane, so why not use another one, such as <span class="math inline">\(\vec{e}_1=(1,0)\)</span> and <span class="math inline">\(\vec{e}_2=(0,1)\)</span>? It spans the same plane, and it is orthonormal. <strong>We change how we describe the space, not the space itself.</strong></p>
+<p>An orthonormal basis is convenient because the components don’t mix: the component of a vector along one direction contains nothing from the others, and it is just a dot product. That makes projections, and many other matrix computations, simpler.</p>
+<p>Gram–Schmidt is a systematic way to build an orthonormal basis. Start with the first vector. From each next vector, subtract its projections onto the directions found so far, keep the new direction that remains, and normalize it. For our two vectors (<a href="#fig-gs" class="quarto-xref">Figure&nbsp;5</a>),</p>
+<p><span class="math display">\[
+\vec{q}_1=\frac{1}{\sqrt5}\begin{bmatrix}1\\2\end{bmatrix},
+\qquad
+\vec{q}_2=\frac{1}{\sqrt5}\begin{bmatrix}2\\-1\end{bmatrix}
+\]</span></p>
+<div id="fig-gs" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-gs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="p2d" id="p2-gs">
+<svg role="img" aria-label="Interactive figure: Gram–Schmidt on v1 = (1, 2) and v2 = (2, 1) in three steps. Step 1 scales v1 to unit length, q1. Step 2 subtracts from v2 its projection p onto q1, leaving a vector perpendicular to q1. Step 3 scales that to unit length, q2."></svg>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('p2-gs'), svg = root.querySelector('svg'), ctl = root.querySelector('.m3d-ctl');
+  var F = P2D(svg, { w: 460, h: 340, x0: -1.2, x1: 3.4, y0: -1.15, y1: 2.35 });
+  var r5 = Math.sqrt(5), V1 = [1, 2], V2 = [2, 1], Q1 = [1 / r5, 2 / r5], P = [0.8, 1.6], W = [1.2, -0.6], Q2 = [2 / r5, -1 / r5];
+  // the two arrows after each step
+  var STATES = [[V1, V2], [Q1, V2], [Q1, W], [Q1, Q2]], cur = 0, A = V1.slice(), B = V2.slice();
+  var sub = function (s, i) { return s + '<tspan class="sb" dy="5">' + i + '</tspan>'; };
+  var LA = [sub('v', 1), sub('q', 1), sub('q', 1), sub('q', 1)];
+  var LB = [sub('v', 2), sub('v', 2), sub('v', 2) + '<tspan dy="-5"> − p</tspan>', sub('q', 2)];
+  var VB = ['0', '0', '0,5', '0'];
+  // a label just past the tip of the arrow from the origin to p, moved off the line to one side (+1 left, −1 right)
+  var tip = function (p, html, cls, vec, side) {
+    var l = Math.hypot(p[0], p[1]) || 1, u = [p[0] / l, p[1] / l], n = [-u[1] * side, u[0] * side];
+    return F.text(p, html, cls, u[0] * 8 + n[0] * 16, -(u[1] * 8 + n[1] * 16), vec);
+  };
+  function draw() {
+    var h = F.grid(), O = F.px([0, 0]);
+    h += '<circle class="fam" cx="' + O[0].toFixed(1) + '" cy="' + O[1].toFixed(1) + '" r="' + (F.px([1, 0])[0] - O[0]).toFixed(1) + '"/>';
+    if (cur >= 1) h += F.line([0, 0], V1, 'ghost');
+    if (cur === 2) {
+      // the part of v2 along q1, and what is left, at a right angle to it
+      var u = [-Q1[0] * .13, -Q1[1] * .13], v = [Q2[0] * .13, Q2[1] * .13];
+      h += F.line([0, 0], V2, 'ghost') + F.line([0, 0], P, 'dash vi') + F.line(P, V2, 'dash vb');
+      h += '<path class="mark" d="M' + F.xy([P[0] + u[0], P[1] + u[1]]) + ' L' + F.xy([P[0] + u[0] + v[0], P[1] + u[1] + v[1]]) + ' L' + F.xy([P[0] + v[0], P[1] + v[1]]) + '"/>';
+      h += F.text(P, 'p', 'v', -12, -6, '0');
+    }
+    if (cur === 3) h += F.line([0, 0], W, 'ghost');
+    h += F.arrow([0, 0], A, 'a') + F.arrow([0, 0], B, 'b');
+    h += tip(A, LA[cur], 'v ta', '0', 1) + tip(B, LB[cur], 'v tb', VB[cur], -1);
+    svg.innerHTML = h;
+    vecArrows(svg);
+  }
+  var MSG = [
+    { en: '\\(\\vec{v}_1=(1,2)\\) and \\(\\vec{v}_2=(2,1)\\) span the plane, but they are not perpendicular.', zh: '\\(\\vec{v}_1=(1,2)\\) 和 \\(\\vec{v}_2=(2,1)\\) 张成整个平面，但它们并不垂直。' },
+    { en: 'Keep the direction of \\(\\vec{v}_1\\) and make it unit length: \\(\\vec{q}_1=\\vec{v}_1/\\|\\vec{v}_1\\|=(1,2)/\\sqrt5\\).', zh: '保留 \\(\\vec{v}_1\\) 的方向，把长度变成 1：\\(\\vec{q}_1=\\vec{v}_1/\\|\\vec{v}_1\\|=(1,2)/\\sqrt5\\)。' },
+    { en: 'Remove the part of \\(\\vec{v}_2\\) along \\(\\vec{q}_1\\), \\(\\vec{p}=(\\vec{q}_1\\cdot\\vec{v}_2)\\,\\vec{q}_1=\\tfrac45(1,2)\\). What is left, \\(\\vec{v}_2-\\vec{p}=(1.2,-0.6)\\), is perpendicular to \\(\\vec{q}_1\\).', zh: '去掉 \\(\\vec{v}_2\\) 沿 \\(\\vec{q}_1\\) 方向的分量 \\(\\vec{p}=(\\vec{q}_1\\cdot\\vec{v}_2)\\,\\vec{q}_1=\\tfrac45(1,2)\\)。剩下的 \\(\\vec{v}_2-\\vec{p}=(1.2,-0.6)\\) 垂直于 \\(\\vec{q}_1\\)。' },
+    { en: 'Make it unit length: \\(\\vec{q}_2=(2,-1)/\\sqrt5\\). Now \\(\\vec{q}_1\\) and \\(\\vec{q}_2\\) are an orthonormal basis of the same plane.', zh: '把它的长度变成 1：\\(\\vec{q}_2=(2,-1)/\\sqrt5\\)。现在 \\(\\vec{q}_1\\)、\\(\\vec{q}_2\\) 是同一个平面的一组标准正交基。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read')), stop = null;
+  M.buttons(ctl, [{ en: 'Original', zh: '原向量' }, { en: 'Step 1', zh: '第 1 步' }, { en: 'Step 2', zh: '第 2 步' }, { en: 'Step 3', zh: '第 3 步' }], function (i) {
+    if (stop) stop();
+    var a0 = A.slice(), b0 = B.slice(), to = STATES[i];
+    cur = i; read(M.tr(MSG[i]));
+    stop = M.tween(900, function (s) {
+      A = [a0[0] + (to[0][0] - a0[0]) * s, a0[1] + (to[0][1] - a0[1]) * s];
+      B = [b0[0] + (to[1][0] - b0[0]) * s, b0[1] + (to[1][1] - b0[1]) * s];
+      draw();
+    }, function () { stop = null; });
+  }, 0);
+  if (document.fonts) document.fonts.ready.then(draw);
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  draw(); read(M.tr(MSG[0]));
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-gs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5: <strong>Gram–Schmidt in three steps.</strong> Step 1 shrinks <span class="math inline">\(\vec{v}_1\)</span> to unit length. Step 2 removes from <span class="math inline">\(\vec{v}_2\)</span> its projection <span class="math inline">\(\vec{p}\)</span> onto <span class="math inline">\(\vec{q}_1\)</span>; what is left is perpendicular to <span class="math inline">\(\vec{q}_1\)</span>. Step 3 shrinks that to unit length. The circle has radius 1.
+</figcaption>
+</figure>
+</div>
+<p>My first question was: if we can simply pick <span class="math inline">\(\vec{e}_1\)</span> and <span class="math inline">\(\vec{e}_2\)</span>, why do we need Gram–Schmidt at all? The answer is that the standard basis only works here because <span class="math inline">\(\vec{v}_1\)</span> and <span class="math inline">\(\vec{v}_2\)</span> span the whole plane. In the parabola fit, the three columns of the <span class="math inline">\(4\times3\)</span> matrix span a three-dimensional subspace of four-dimensional space, and none of the standard basis vectors lies in it. We have to build an orthonormal basis for that subspace from the vectors we have, and that is what Gram–Schmidt does. It also keeps their order: the first <span class="math inline">\(k\)</span> new directions span the same space as the first <span class="math inline">\(k\)</span> original vectors.</p>
+<p>QR records how the original vectors relate to the new directions:</p>
+<p><span class="math display">\[
+A=QR
+\]</span></p>
+<p>The columns of <span class="math inline">\(Q\)</span> are the new orthonormal directions, and <span class="math inline">\(R\)</span> records how to combine them into the original vectors. <span class="math inline">\(R\)</span> is upper triangular because of that order: the <span class="math inline">\(k\)</span>-th original vector only needs the first <span class="math inline">\(k\)</span> directions. For our two vectors,</p>
+<p><span class="math display">\[
+\begin{bmatrix}1&amp;2\\2&amp;1\end{bmatrix}
+=\underbrace{\frac{1}{\sqrt5}\begin{bmatrix}1&amp;2\\2&amp;-1\end{bmatrix}}_{Q}
+\underbrace{\begin{bmatrix}\sqrt5&amp;4/\sqrt5\\0&amp;3/\sqrt5\end{bmatrix}}_{R}
+\]</span></p>
+<p>When <span class="math inline">\(A\)</span> has full column rank, <span class="math inline">\(R\)</span> is invertible, because no independent direction of the original vectors has been lost. This pays off in least squares. Since <span class="math inline">\(Q^TQ=I\)</span>, putting <span class="math inline">\(A=QR\)</span> into the normal equations turns <span class="math inline">\(A^TA\hat{\vec{w}}=A^T\vec{y}\)</span> into</p>
+<p><span class="math display">\[
+R\hat{\vec{w}}=Q^T\vec{y}
+\]</span></p>
+<p>a triangular system, solved by back substitution, just like the triangular systems that LU gave us in the <a href="../../../posts/2026/linear-equations/index.html">previous post</a>.</p>
+<p>So what I take from this part is: <strong>if the space itself doesn’t change, we are free to describe it in a more convenient way.</strong> The problem stays the same, but a different description can change how much work it takes.</p>
+</section>
+<section id="dimension-information-and-large-models" class="level2" data-number="5">
+<h2 data-number="5" data-anchor-id="dimension-information-and-large-models"><span class="header-section-number">5</span> Dimension, Information and Large Models</h2>
+<p>While studying chapter 3, I also had some thoughts that go beyond the book. I haven’t studied any of these topics. What follows is what I thought, and what AI told me when I discussed it.</p>
+<p>My starting point was linear independence. If a matrix can’t tell some inputs apart because it erased an independent direction, could we add a new independent direction and make them distinguishable again? AI pointed out that there are two different cases here. If we get genuinely new information, such as a new measurement, then yes, inputs can become distinguishable. But if the information has already been lost in a transformation, mapping the output into more dimensions afterwards cannot bring it back.</p>
+<p>That made me ask another question: if no information has been lost, and only the representation is poor, can going to more dimensions make a hard problem easier? AI’s example was two groups of points in the plane that no straight line can separate, but that a plane can separate after a suitable nonlinear map into three dimensions. That adds no information, but it makes the problem easier (<a href="#fig-lift" class="quarto-xref">Figure&nbsp;6</a>). The parabola fit above is a small case of the same thing: <span class="math inline">\(x\)</span> is a single number, but sending it to <span class="math inline">\((x^2,x,1)\)</span> turns fitting a curve into a linear problem.</p>
+<div id="fig-lift" class="quarto-float quarto-figure quarto-figure-center">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-lift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="p2d" id="p2-lift">
+<svg role="img" aria-label="Interactive figure: blue points near zero and orange points on both sides of them on the number line, so no single cut separates them. A button sends each x to (x, x²), lifting the points onto a parabola, where a horizontal line separates the two groups."></svg>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('p2-lift'), svg = root.querySelector('svg'), ctl = root.querySelector('.m3d-ctl');
+  var F = P2D(svg, { w: 460, h: 300, x0: -2.6, x1: 2.6, y0: -0.9, y1: 5.1 });
+  var IN = [-0.9, -0.5, -0.1, 0.3, 0.7], OUT = [-2.1, -1.7, -1.4, 1.4, 1.8, 2.2], s = 0, CUT = 1.4;
+  function draw() {
+    var h = F.grid();
+    if (s > 0) h += '<path class="fam" style="opacity:' + (0.16 * s).toFixed(2) + '" d="' + F.curve(function (x) { return x * x; }) + '"/>';
+    if (s > 0.98) h += F.line([-2.6, CUT], [2.6, CUT], 'ghost');
+    IN.forEach(function (x) { h += F.dot([x, s * x * x], 'da'); });
+    OUT.forEach(function (x) { h += F.dot([x, s * x * x], 'db'); });
+    svg.innerHTML = h;
+  }
+  var MSG = [
+    { en: 'On the number line, the orange points lie on both sides of the blue ones, so no single cut separates them.', zh: '在数轴上，橙色点分布在蓝色点的两侧，所以无法用一个分界点把它们分开。' },
+    { en: 'Sending each \\(x\\) to \\((x,x^2)\\) lifts the points onto a parabola. Now the straight line \\(y=1.4\\) separates them, though each point still carries only its \\(x\\).', zh: '把每个 \\(x\\) 映射成 \\((x,x^2)\\)，这些点就被抬到一条抛物线上。现在直线 \\(y=1.4\\) 就能把它们分开，虽然每个点携带的仍然只有它的 \\(x\\)。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read')), stop = null;
+  M.buttons(ctl, [{ en: 'On the line', zh: '在数轴上' }, { en: 'Map to (x, x²)', zh: '映射到 (x, x²)' }], function (i) {
+    if (stop) stop();
+    var from = s; read(M.tr(MSG[i]));
+    stop = M.tween(900, function (t) { s = from + (i - from) * t; draw(); }, function () { stop = null; s = i; draw(); });
+  }, 0);
+  draw(); read(M.tr(MSG[0]));
+})();
+</script>
+
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-lift-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6: <strong>Going up a dimension.</strong> AI’s example one dimension lower. On the number line, no single cut separates the blue points from the orange ones. After sending each <span class="math inline">\(x\)</span> to <span class="math inline">\((x,x^2)\)</span>, a straight line does. No information has been added: each point is still described by its <span class="math inline">\(x\)</span> alone.
+</figcaption>
+</figure>
+</div>
+<section id="do-more-parameters-make-a-smarter-model" class="level3" data-number="5.1">
+<h3 data-number="5.1" data-anchor-id="do-more-parameters-make-a-smarter-model"><span class="header-section-number">5.1</span> Do More Parameters Make a Smarter Model?</h3>
+<p>The capability of large models is related to their number of parameters. My idea was that more capability might come from being able to represent information in more dimensions. And maybe there is a critical dimension or capacity, beyond which scale matters less than using the parameters better. AI pointed out that parameter count, representation dimension and model capacity are different things: a model with a trillion parameters does not represent each input in a trillion-dimensional space, and more parameters do not necessarily mean more intelligence.</p>
+<p>That led to a thought experiment. Take two models with the same architecture and the same number of parameters. If all of A’s parameters are zero and B is trained normally, they are obviously very different. Even two trained models can differ a lot, because of different data, training methods and parameter values. So how is capability stored in the parameters? Does a model memorize knowledge, or learn more general rules? And could better training and inference make a model much more capable, without adding parameters? AI said that effective representations, low-dimensional structure in parameter space, and the way training and inference compute affect capability are all active research directions, but that there is no generally accepted formula that defines intelligence by dimension or parameter count.</p>
+</section>
+<section id="could-a-model-discover-relativity" class="level3" data-number="5.2">
+<h3 data-number="5.2" data-anchor-id="could-a-model-discover-relativity"><span class="header-section-number">5.2</span> Could a Model Discover Relativity?</h3>
+<p>Another thought experiment. Suppose we train a model only on what physicists knew before 1905: mechanics, electromagnetism, the mathematics and experimental results of the time, but not special relativity. Given enough time to reason about the constancy of the speed of light and the principle of relativity, could it derive the theory on its own? Today’s models can explain relativity and re-derive its formulas, but that is very different from discovering it without knowing the answer.</p>
+<p>Compare two models of the same size: A has only seen science from before relativity, B has seen modern science. If B derives relativity easily and A can’t, what makes the difference? Did B just memorize more, does it reason more generally, or does A have the knowledge it needs but lack a way to organize it, search for hypotheses and test them? AI drew one distinction that I found important: <strong>knowing a theory that humans have already found is not the same as being able to discover it.</strong> To test discovery, a model has to face problems whose answers it hasn’t seen, propose hypotheses, derive their consequences and check them: by proof in mathematics, and by experiment and observation in the natural sciences.</p>
+<p>Many human discoveries took decades of observing, guessing, calculating, failing and correcting. If AI could speed all of that up, could a hundred years of discovery happen in ten days? This is the kind of “emergence” I care about: not a model suddenly scoring higher on a test, but proposing correct laws that no one had found. AI told me there are already attempts in this direction, such as generating many candidate hypotheses, filtering them by proofs, program tests or experiments, and improving them over and over. But that doesn’t mean models can reliably discover major theories, and discovery is limited not only by reasoning speed, but also by experiments, new data and the cost of checking.</p>
+<p>Looking back, the questions I started with are different questions. Whether information is lost in a transformation is one. Whether, if it isn’t lost, we can compute our way back efficiently is another. Whether a better representation makes a problem easier is a third, and whether all this can lead to new scientific laws is much harder still. I still think they are connected, but I can’t answer the most important ones yet:</p>
+<ul>
+<li>How does a model’s reasoning ability show up in its parameters and its computation?</li>
+<li>Is there an effective dimension or capacity threshold that matters for intelligence?</li>
+<li>Can changing how knowledge is represented and organized make a model much better at discovering new laws?</li>
+<li>How can we tell a model reproducing what it was trained on from one making a real discovery?</li>
+</ul>
+<p>These are questions I want to keep in mind when I study Transformers and LLMs.</p>
+</section>
+</section>
+<section id="looking-back" class="level2" data-number="6">
+<h2 data-number="6" data-anchor-id="looking-back"><span class="header-section-number">6</span> Looking Back</h2>
+<p>What I enjoyed most in these two chapters wasn’t a particular formula or theorem, but the process of understanding them again. Chapter 3 first looked like a pile of definitions about spaces, dimensions and bases. Picturing what one simple matrix does to three-dimensional space turned most of them into one question: what information a transformation keeps and what it loses. In chapter 4, I only wanted to know why two points can’t determine a quadratic but three can. Following that question, I met rank, the nullspace, invertibility, the Vandermonde matrix and least squares again. They were all in the textbook, but finding them from my own question felt completely different.</p>
+<p>That doesn’t make derivations and proofs less important. They tell us why a result holds and when. But after all this, what I want to keep is not only the formulas, but an intuition I can use without thinking. <strong>If I can describe a complicated idea in a few sentences, with a simple example or a natural picture, then I think I have started to understand it.</strong> And when that understanding connects to other fields, learning gets even more interesting.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script>
+// Margin footnotes come out as <div id="fnN"><p><sup>N</sup> ...: turn that number into a link back to the
+// reference in the text (id="fnrefN"), so every note and its marker point at each other.
+document.querySelectorAll('.column-margin div[id^="fn"]').forEach(function (note) {
+  var n = note.id.slice(2);
+  var ref = document.getElementById('fnref' + n);
+  var sup = note.querySelector('p > sup:first-child');
+  if (!ref || !sup) return;
+  var a = document.createElement('a');
+  a.href = '#fnref' + n;
+  a.className = 'note-back';
+  a.setAttribute('aria-label', 'Back to text, note ' + n);
+  a.textContent = sup.textContent;
+  sup.textContent = '';
+  sup.appendChild(a);
+});
+
+// Reference list: the [N] in front of each entry links back to where the text first cites it.
+document.querySelectorAll('#refs .csl-entry[id^="ref-"]').forEach(function (entry) {
+  var cite = document.querySelector('main a[href="#' + entry.id + '"]:not(#refs a)');
+  var label = entry.querySelector('.csl-left-margin');
+  if (!cite || !label) return;
+  if (!cite.id) cite.id = 'cite-' + entry.id.slice(4);
+  var a = document.createElement('a');
+  a.href = '#' + cite.id;
+  a.setAttribute('aria-label', 'Back to first citation');
+  a.textContent = label.textContent.trim();
+  label.textContent = '';
+  label.appendChild(a);
+});
+</script>
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    // Ensure there is a toggle, if there isn't float one in the top right
+    if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+      const a = window.document.createElement('a');
+      a.classList.add('top-right');
+      a.classList.add('quarto-color-scheme-toggle');
+      a.href = "";
+      a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+      const i = window.document.createElement("i");
+      i.classList.add('bi');
+      a.appendChild(i);
+      window.document.body.appendChild(a);
+    }
+    setColorSchemeToggle(hasAlternateSentinel())
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp("https:\/\/yukang-lian\.github\.io\/");
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>© Yukang Lian</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>
