@@ -1,0 +1,338 @@
+---
+title: "Vector Spaces and Least Squares"
+subtitle: "What a matrix keeps, what it loses, and the closest it can get"
+date: 2026-10-29
+categories: [Linear algebra]
+number-sections: true
+---
+
+```{=html}
+{{< include /_includes/m3d.html >}}
+{{< include _plot2d.html >}}
+```
+
+I recently worked through chapters 3 and 4 of Gilbert Strang's *Introduction to Linear Algebra*: vector spaces and subspaces, rank and dimension, orthogonality, least squares and the QR decomposition. I won't go through the definitions in the book's order. What I wanted was to see, with a few small examples, what they actually describe.
+
+Chapter 3 confused me at first, because I didn't see why we needed so many different spaces. Then, on my way home one evening, I put the definitions aside and asked a simpler question: what does a matrix actually do to space? Most of the chapter turned out to be less complicated than it looked.
+
+## What a Matrix Does to Space
+
+Think of three-dimensional space, where every vector has three coordinates, and apply one linear transformation to all of it. If the matrix is $3\times3$ with full rank, all three independent directions survive. Vectors may be stretched and turned, but two different inputs never end up at the same output.
+
+Now take
+
+$$
+A=\begin{bmatrix}1&0&0\\0&1&0\\0&0&0\end{bmatrix},
+\qquad
+A\vec{x}=\begin{bmatrix}x_1\\x_2\\0\end{bmatrix}
+$$
+
+Whatever the third coordinate was, it becomes zero. Every vector in space lands on the plane $z=0$: **one independent direction has been erased.** So two different inputs, such as
+
+$$
+\vec{x}_a=\begin{bmatrix}1\\2\\3\end{bmatrix},
+\qquad
+\vec{x}_b=\begin{bmatrix}1\\2\\100\end{bmatrix},
+$$
+
+give the same output, $A\vec{x}_a=A\vec{x}_b=(1,2,0)$. The transformation can no longer see any difference in the third direction (@fig-rank).
+
+::: {#fig-rank}
+```{=html}
+{{< include _fig-rank.html >}}
+```
+**Many inputs, one output.** The dots are 27 inputs, and the orange ones are all the inputs that end up at the same output as $(1,2,2)$. Press Play to apply the matrix. With rank 2, our $A$, they form a line that collapses to a single point; with rank 1, a whole plane collapses to a point; with rank 3, only the point itself is left. The dimension of the orange set plus the rank is always 3.
+:::
+
+I already met this in the [previous post on matrices](../matrices/index.qmd#fig-collapse), with a less tidy matrix. What chapter 3 adds is names for the pieces, and the rules behind them.
+
+### The Nullspace
+
+Now go backwards. Suppose the output is $\vec{b}=(1,2,0)$. Which inputs could have produced it? The first two coordinates must be $1$ and $2$, but the third can be anything:
+
+$$
+\vec{x}=\begin{bmatrix}1\\2\\t\end{bmatrix}
+=\underbrace{\begin{bmatrix}1\\2\\0\end{bmatrix}}_{\text{a particular solution}}
++\,t\underbrace{\begin{bmatrix}0\\0\\1\end{bmatrix}}_{\text{the erased direction}}
+$$
+
+Whatever $t$ is, $A$ sends the second part to zero. That is what the **nullspace** $N(A)$ is: the set of inputs that a transformation sends to zero, or in other words, the changes in the input that it cannot see. To find every input that gives a certain output, take one particular solution and add anything from the nullspace:
+
+$$
+\vec{x}=\vec{x}_p+\vec{x}_n,\qquad \vec{x}_n\in N(A)
+$$
+
+This is the complete solution of $A\vec{x}=\vec{b}$, and seen this way, it is no surprise: the transformation threw part of the input away, so the output cannot tell us what that part was.
+
+### Rank and Dimension
+
+This $A$ happens to erase one coordinate. A general matrix erases directions that mix several coordinates, but the counting is the same. A $3\times3$ matrix of rank 2 produces outputs with two independent directions and erases one input direction. Rank 1 produces one and erases two (switch @fig-rank to rank 1). For a matrix with $n$ columns, that is, $n$ input coordinates,
+
+$$
+\operatorname{rank}(A)+\dim N(A)=n
+$$
+
+In the last post this was a note I hadn't studied. Elimination shows why it holds: after elimination, each of the $n$ columns is either a pivot column or a free column. The pivot columns count the rank, and each free column gives one independent direction of the nullspace.
+
+This also changed how I see linear independence, basis and dimension. We may describe a space with many vectors, but the number of vectors is not the number of independent directions. A vector that is a combination of the others adds nothing new. A set of vectors that describes the whole space with nothing redundant is a **basis**, and the number of vectors in it is the **dimension**.
+
+So for me, chapter 3 comes down to one question: **how many independent directions does a transformation keep, and how many does it erase?** On the input side, we ask which different inputs end up at the same output; that is the nullspace. On the output side, we ask which outputs the transformation can produce at all; that is the column space. The subspaces in chapter 3 are a precise way of describing these two ends.
+
+## When the Target Can't Be Reached
+
+This leads straight into chapter 4. The same $A$ only produces outputs whose third coordinate is zero. Suppose our target is
+
+$$
+\vec{b}=\begin{bmatrix}2\\3\\5\end{bmatrix}
+$$
+
+No input reaches it, because $A$ never outputs a vector with a third coordinate of $5$. But if we don't need an exact answer, we can look for the reachable point closest to $\vec{b}$. All outputs lie on the plane $z=0$, so we drop a perpendicular from $\vec{b}$ to the plane, and the closest point is $\vec{p}=(2,3,0)$ (@fig-project). This is **orthogonal projection**.
+
+::: {#fig-project}
+```{=html}
+{{< include _fig-project.html >}}
+```
+**The closest output.** Every output of $A$ lies on the grey plane $z=0$, and the target $\vec{b}=(2,3,5)$ does not. The perpendicular from $\vec{b}$ meets the plane at $\vec{p}=(2,3,0)$, and the error $\vec{e}=\vec{b}-\vec{p}$ stands at a right angle to the plane. Use the sliders to move another output $A\vec{x}$ around the plane: it is always farther from $\vec{b}$ than $\vec{p}$ is.
+:::
+
+The idea behind it is simple: not every target can be reached exactly, but we can still find the best result within what is possible. And when the possible results form a subspace, the best point has a special property: the error $\vec{e}=\vec{b}-\vec{p}$ is perpendicular to the whole subspace, not just to one line in it.
+
+One more detail. The closest point $\vec{p}$ is unique, but the input that produces it is not: every $\vec{x}=(2,3,t)$ gives $A\vec{x}=\vec{p}$. That is the nullspace again, and it will matter below.
+
+## Fitting a Parabola
+
+This is an example I came up with myself while studying chapter 4. Suppose we want to find a quadratic function through some observed points:
+
+$$
+y=ax^2+bx+c
+$$
+
+The points $(x_i,y_i)$ are the data. The unknowns are the three coefficients $a$, $b$ and $c$, which I'll write as $\vec{w}=(a,b,c)$. How many points does it take to pin down the function?
+
+### Two Points: Infinitely Many Parabolas
+
+Take the points $(1,2)$ and $(-1,2)$:
+
+$$
+\begin{cases}
+a+b+c=2,\\
+a-b+c=2.
+\end{cases}
+$$
+
+Subtracting gives $b=0$, which leaves $a+c=2$. So $y=x^2+1$ passes through both points, and so does $y=2x^2$, and so does one parabola for every value of $a$ (@fig-twopoints). In matrix form,
+
+$$
+\begin{bmatrix}1&1&1\\1&-1&1\end{bmatrix}
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}2\\2\end{bmatrix}
+$$
+
+This $2\times3$ matrix has rank 2, but there are three unknowns, so one direction is left free:
+
+$$
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}1\\0\\1\end{bmatrix}
++t\begin{bmatrix}1\\0\\-1\end{bmatrix}
+$$
+
+This is exactly the $\vec{x}_p+\vec{x}_n$ from the first section. And the nullspace direction $(1,0,-1)$ is itself a polynomial, $x^2-1$, which is zero at both $x=1$ and $x=-1$. Adding any amount of it changes the curve, but not its values at the two points we observed. **When there are fewer independent conditions than unknowns, different inputs produce the same observations.**
+
+::: {#fig-twopoints}
+```{=html}
+{{< include _fig-twopoints.html >}}
+```
+**Two points, infinitely many parabolas.** Every curve $y=ax^2+(2-a)$ passes through $(-1,2)$ and $(1,2)$; the faint ones are a few of them. Moving the slider adds more or less of the nullspace polynomial $x^2-1$. Press "Add (0, 1)": a third point leaves only $a=1$, the parabola $y=x^2+1$.
+:::
+
+### Three Points: Exactly One Parabola
+
+Now add the point $(0,1)$, so that we have $(-1,2)$, $(0,1)$ and $(1,2)$:
+
+$$
+\begin{cases}
+a-b+c=2,\\
+c=1,\\
+a+b+c=2.
+\end{cases}
+$$
+
+So $c=1$, then $a=1$ and $b=0$, and the parabola is $y=x^2+1$. Its three coefficients are now determined. In matrix form,
+
+$$
+\underbrace{\begin{bmatrix}1&-1&1\\0&0&1\\1&1&1\end{bmatrix}}_{A}
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}2\\1\\2\end{bmatrix}
+$$
+
+But do three equations in three unknowns always have exactly one solution? No, the equations also have to be independent. If two of the points share the same $x$, two rows of the matrix are the same, and there aren't three independent conditions. If the three $x$ values are all different, things are fine:
+
+$$
+A=\begin{bmatrix}x_1^2&x_1&1\\x_2^2&x_2&1\\x_3^2&x_3&1\end{bmatrix},
+\qquad
+\det(A)=(x_1-x_2)(x_1-x_3)(x_2-x_3)
+$$
+
+The determinant is nonzero exactly when the three $x$ values are different, and then $A$ is invertible. So **three points with different $x$ values determine exactly one polynomial of degree at most two.** "At most", because $a$ may turn out to be zero.
+
+When I discussed this with AI, I learned that this matrix has a name: the **Vandermonde matrix**. I had seen it before, when I first learned linear algebra, and I had computed its determinant, without knowing why anyone would study such a special matrix. This time it went the other way around. I started from a question, why two points aren't enough but three are, wrote down the equations, and the matrix appeared on its own. Only afterwards did I find out it was a matrix from the textbook. I would probably have forgotten the definition again, but I don't think I'll forget where the matrix comes from: whenever we pin down a polynomial with observed points, it shows up.
+
+### Four Points: Maybe No Solution
+
+The three points above already determine $y=x^2+1$. If we add a fourth point, $(2,5)$, it happens to lie on the same curve, so with four conditions and three unknowns there is still an exact solution. But if the fourth point is $(2,6)$, it doesn't fit, and no $a$, $b$, $c$ satisfy all four equations:
+
+$$
+\begin{bmatrix}1&-1&1\\0&0&1\\1&1&1\\4&2&1\end{bmatrix}
+\begin{bmatrix}a\\b\\c\end{bmatrix}
+=\begin{bmatrix}2\\1\\2\\6\end{bmatrix}
+$$
+
+Interestingly, this $4\times3$ matrix still has rank 3. The fourth point adds a condition, but not a parameter. **We now have four observations, but a quadratic has only three coefficients to adjust.** In the four-dimensional space of observations, everything a quadratic can predict, $A\vec{w}$, forms a three-dimensional subspace: the column space of $A$. If the observations $\vec{y}$ lie in it, there is an exact solution. If not, there isn't. We are back at the projection problem.
+
+### Five Points, or a Thousand
+
+What if we add a fifth point, a sixth, or a thousand? We are still solving for only three coefficients, and as long as at least three of the $x$ values are different, the matrix still has rank 3. More points don't give a quadratic a fourth parameter. They give it more conditions that we would like it to satisfy.
+
+Real data are noisy, so in general no single quadratic satisfies all of them. Instead of fitting three points exactly and ignoring the rest, we take all the observations into account and make the total error as small as possible. This is **least squares**:
+
+$$
+\min_{a,b,c}\sum_{i=1}^{m}\bigl[y_i-(ax_i^2+bx_i+c)\bigr]^2
+$$
+
+This is the problem from the previous section again: $A\vec{w}$ ranges over the column space, and we want the point of it closest to $\vec{y}$. So the error has to be perpendicular to the column space, that is, to every column of $A$. Written with the transpose, $A^T(\vec{y}-A\hat{\vec{w}})=\vec{0}$, or
+
+$$
+A^TA\hat{\vec{w}}=A^T\vec{y}
+$$
+
+These are the **normal equations**, a square system with one equation per coefficient. If $A$ has full column rank, $A^TA$ is invertible and the least-squares coefficients are unique, even though the curve cannot pass through every point. If it doesn't, we are back to the warning above: the closest point is still unique, but the coefficients are not.
+
+For the four points with $(2,6)$, the solution is $y=1.25x^2+0.05x+0.85$ (@fig-fit). Fitting the first three points exactly misses the fourth by $1$. Least squares misses each point by at most $0.15$, and the squared errors add up to $0.05$ instead of $1$.
+
+::: {#fig-fit}
+```{=html}
+{{< include _fig-fit.html >}}
+```
+**Least squares spreads the error.** The solid curve is the least-squares parabola through $(-1,2)$, $(0,1)$, $(1,2)$ and the orange point $(2,y)$, and the short orange segments are its errors. The dashed curve is $y=x^2+1$, which fits the first three points exactly. Move the slider: at $y=5$, the two curves are the same.
+:::
+
+### Higher Degrees, and Why Only Lines?
+
+The same reasoning works for higher degrees. A cubic, $y=ax^3+bx^2+cx+d$, has four coefficients, so four points with different $x$ values determine one polynomial of degree at most three. In general, $y=a_nx^n+\cdots+a_1x+a_0$ has $n+1$ coefficients, and $n+1$ points with different $x$ values determine one polynomial of degree at most $n$. With more points than that, and no polynomial through all of them, we use least squares.
+
+Here I noticed something. I had always thought of least squares as fitting a straight line. But nothing requires that. Once a point is observed, $x$, $x^2$ and $x^3$ are just known numbers. The unknowns are the coefficients, and the problem is still linear in them:
+
+$$
+\begin{bmatrix}
+x_1^3&x_1^2&x_1&1\\
+x_2^3&x_2^2&x_2&1\\
+\vdots&\vdots&\vdots&\vdots\\
+x_m^3&x_m^2&x_m&1
+\end{bmatrix}
+\begin{bmatrix}a\\b\\c\\d\end{bmatrix}
+\approx
+\begin{bmatrix}y_1\\y_2\\\vdots\\y_m\end{bmatrix}
+$$
+
+The functions don't even have to be polynomials. Any combination of known functions with unknown coefficients works the same way.
+
+So in the end, my understanding of least squares is simple: **first choose a way to describe the data, then find the parameters that bring its predictions as close as possible to what we observed.**
+
+## Gram–Schmidt and QR: Same Space, Better Basis
+
+Chapter 4 ends with Gram–Schmidt and the QR decomposition. I think the core idea is simple. Take
+
+$$
+\vec{v}_1=\begin{bmatrix}1\\2\end{bmatrix},
+\qquad
+\vec{v}_2=\begin{bmatrix}2\\1\end{bmatrix}
+$$
+
+They are independent, so they span the whole plane, but they are not perpendicular. They are just one basis for the plane, so why not use another one, such as $\vec{e}_1=(1,0)$ and $\vec{e}_2=(0,1)$? It spans the same plane, and it is orthonormal. **We change how we describe the space, not the space itself.**
+
+An orthonormal basis is convenient because the components don't mix: the component of a vector along one direction contains nothing from the others, and it is just a dot product. That makes projections, and many other matrix computations, simpler.
+
+Gram–Schmidt is a systematic way to build an orthonormal basis. Start with the first vector. From each next vector, subtract its projections onto the directions found so far, keep the new direction that remains, and normalize it. For our two vectors (@fig-gs),
+
+$$
+\vec{q}_1=\frac{1}{\sqrt5}\begin{bmatrix}1\\2\end{bmatrix},
+\qquad
+\vec{q}_2=\frac{1}{\sqrt5}\begin{bmatrix}2\\-1\end{bmatrix}
+$$
+
+::: {#fig-gs}
+```{=html}
+{{< include _fig-gs.html >}}
+```
+**Gram–Schmidt in three steps.** Step 1 shrinks $\vec{v}_1$ to unit length. Step 2 removes from $\vec{v}_2$ its projection $\vec{p}$ onto $\vec{q}_1$; what is left is perpendicular to $\vec{q}_1$. Step 3 shrinks that to unit length. The circle has radius 1.
+:::
+
+My first question was: if we can simply pick $\vec{e}_1$ and $\vec{e}_2$, why do we need Gram–Schmidt at all? The answer is that the standard basis only works here because $\vec{v}_1$ and $\vec{v}_2$ span the whole plane. In the parabola fit, the three columns of the $4\times3$ matrix span a three-dimensional subspace of four-dimensional space, and none of the standard basis vectors lies in it. We have to build an orthonormal basis for that subspace from the vectors we have, and that is what Gram–Schmidt does. It also keeps their order: the first $k$ new directions span the same space as the first $k$ original vectors.
+
+QR records how the original vectors relate to the new directions:
+
+$$
+A=QR
+$$
+
+The columns of $Q$ are the new orthonormal directions, and $R$ records how to combine them into the original vectors. $R$ is upper triangular because of that order: the $k$-th original vector only needs the first $k$ directions. For our two vectors,
+
+$$
+\begin{bmatrix}1&2\\2&1\end{bmatrix}
+=\underbrace{\frac{1}{\sqrt5}\begin{bmatrix}1&2\\2&-1\end{bmatrix}}_{Q}
+\underbrace{\begin{bmatrix}\sqrt5&4/\sqrt5\\0&3/\sqrt5\end{bmatrix}}_{R}
+$$
+
+When $A$ has full column rank, $R$ is invertible, because no independent direction of the original vectors has been lost. This pays off in least squares. Since $Q^TQ=I$, putting $A=QR$ into the normal equations turns $A^TA\hat{\vec{w}}=A^T\vec{y}$ into
+
+$$
+R\hat{\vec{w}}=Q^T\vec{y}
+$$
+
+a triangular system, solved by back substitution, just like the triangular systems that LU gave us in the [previous post](../linear-equations/index.qmd).
+
+So what I take from this part is: **if the space itself doesn't change, we are free to describe it in a more convenient way.** The problem stays the same, but a different description can change how much work it takes.
+
+## Dimension, Information and Large Models
+
+While studying chapter 3, I also had some thoughts that go beyond the book. I haven't studied any of these topics. What follows is what I thought, and what AI told me when I discussed it.
+
+My starting point was linear independence. If a matrix can't tell some inputs apart because it erased an independent direction, could we add a new independent direction and make them distinguishable again? AI pointed out that there are two different cases here. If we get genuinely new information, such as a new measurement, then yes, inputs can become distinguishable. But if the information has already been lost in a transformation, mapping the output into more dimensions afterwards cannot bring it back.
+
+That made me ask another question: if no information has been lost, and only the representation is poor, can going to more dimensions make a hard problem easier? AI's example was two groups of points in the plane that no straight line can separate, but that a plane can separate after a suitable nonlinear map into three dimensions. That adds no information, but it makes the problem easier (@fig-lift). The parabola fit above is a small case of the same thing: $x$ is a single number, but sending it to $(x^2,x,1)$ turns fitting a curve into a linear problem.
+
+::: {#fig-lift}
+```{=html}
+{{< include _fig-lift.html >}}
+```
+**Going up a dimension.** AI's example one dimension lower. On the number line, no single cut separates the blue points from the orange ones. After sending each $x$ to $(x,x^2)$, a straight line does. No information has been added: each point is still described by its $x$ alone.
+:::
+
+### Do More Parameters Make a Smarter Model?
+
+The capability of large models is related to their number of parameters. My idea was that more capability might come from being able to represent information in more dimensions. And maybe there is a critical dimension or capacity, beyond which scale matters less than using the parameters better. AI pointed out that parameter count, representation dimension and model capacity are different things: a model with a trillion parameters does not represent each input in a trillion-dimensional space, and more parameters do not necessarily mean more intelligence.
+
+That led to a thought experiment. Take two models with the same architecture and the same number of parameters. If all of A's parameters are zero and B is trained normally, they are obviously very different. Even two trained models can differ a lot, because of different data, training methods and parameter values. So how is capability stored in the parameters? Does a model memorize knowledge, or learn more general rules? And could better training and inference make a model much more capable, without adding parameters? AI said that effective representations, low-dimensional structure in parameter space, and the way training and inference compute affect capability are all active research directions, but that there is no generally accepted formula that defines intelligence by dimension or parameter count.
+
+### Could a Model Discover Relativity?
+
+Another thought experiment. Suppose we train a model only on what physicists knew before 1905: mechanics, electromagnetism, the mathematics and experimental results of the time, but not special relativity. Given enough time to reason about the constancy of the speed of light and the principle of relativity, could it derive the theory on its own? Today's models can explain relativity and re-derive its formulas, but that is very different from discovering it without knowing the answer.
+
+Compare two models of the same size: A has only seen science from before relativity, B has seen modern science. If B derives relativity easily and A can't, what makes the difference? Did B just memorize more, does it reason more generally, or does A have the knowledge it needs but lack a way to organize it, search for hypotheses and test them? AI drew one distinction that I found important: **knowing a theory that humans have already found is not the same as being able to discover it.** To test discovery, a model has to face problems whose answers it hasn't seen, propose hypotheses, derive their consequences and check them: by proof in mathematics, and by experiment and observation in the natural sciences.
+
+Many human discoveries took decades of observing, guessing, calculating, failing and correcting. If AI could speed all of that up, could a hundred years of discovery happen in ten days? This is the kind of "emergence" I care about: not a model suddenly scoring higher on a test, but proposing correct laws that no one had found. AI told me there are already attempts in this direction, such as generating many candidate hypotheses, filtering them by proofs, program tests or experiments, and improving them over and over. But that doesn't mean models can reliably discover major theories, and discovery is limited not only by reasoning speed, but also by experiments, new data and the cost of checking.
+
+Looking back, the questions I started with are different questions. Whether information is lost in a transformation is one. Whether, if it isn't lost, we can compute our way back efficiently is another. Whether a better representation makes a problem easier is a third, and whether all this can lead to new scientific laws is much harder still. I still think they are connected, but I can't answer the most important ones yet:
+
+- How does a model's reasoning ability show up in its parameters and its computation?
+- Is there an effective dimension or capacity threshold that matters for intelligence?
+- Can changing how knowledge is represented and organized make a model much better at discovering new laws?
+- How can we tell a model reproducing what it was trained on from one making a real discovery?
+
+These are questions I want to keep in mind when I study Transformers and LLMs.
+
+## Looking Back
+
+What I enjoyed most in these two chapters wasn't a particular formula or theorem, but the process of understanding them again. Chapter 3 first looked like a pile of definitions about spaces, dimensions and bases. Picturing what one simple matrix does to three-dimensional space turned most of them into one question: what information a transformation keeps and what it loses. In chapter 4, I only wanted to know why two points can't determine a quadratic but three can. Following that question, I met rank, the nullspace, invertibility, the Vandermonde matrix and least squares again. They were all in the textbook, but finding them from my own question felt completely different.
+
+That doesn't make derivations and proofs less important. They tell us why a result holds and when. But after all this, what I want to keep is not only the formulas, but an intuition I can use without thinking. **If I can describe a complicated idea in a few sentences, with a simple example or a natural picture, then I think I have started to understand it.** And when that understanding connects to other fields, learning gets even more interesting.

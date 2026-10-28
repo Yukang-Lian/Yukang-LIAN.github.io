@@ -1,0 +1,73 @@
+<style>
+/* Flat figures in this post; the controls and readouts reuse the .m3d-ctl / .m3d-read styles. */
+.p2d { --va:#2a78d6; --vb:#eb6834; --vc:#1d9a6c; margin-bottom:.9rem; }
+body.quarto-dark .p2d { --va:#3987e5; --vb:#d95926; --vc:#2fb383; }
+.p2d svg { display:block; margin:0 auto; max-width:100%; height:auto; color:inherit; }
+.p2d .grid0 { stroke:currentColor; stroke-width:1; opacity:.07; }
+.p2d .axis0 { stroke:currentColor; stroke-width:1; opacity:.3; }
+.p2d text { fill:currentColor; font-family:inherit; font-size:16px; }
+.p2d text.tick { opacity:.45; font-size:12px; }
+.p2d text.v { font-style:italic; font-size:17px; }
+.p2d text .sb { font-size:12px; font-style:normal; }
+.p2d text.ta { fill:var(--va); } .p2d text.tb { fill:var(--vb); } .p2d text.tm { opacity:.6; }
+.p2d .cv { fill:none; stroke-width:2.2; stroke-linecap:round; }
+.p2d .fam { fill:none; stroke:currentColor; stroke-width:1; opacity:.16; }
+.p2d .ghost { fill:none; stroke:currentColor; stroke-width:1.3; stroke-dasharray:5 5; opacity:.45; }
+.p2d .dash { fill:none; stroke-width:1.6; stroke-dasharray:5 4; }
+.p2d .res { stroke:var(--vb); stroke-width:2; }
+.p2d .arr { stroke-width:2.4; stroke-linecap:round; }
+.p2d .va { stroke:var(--va); } .p2d .vb { stroke:var(--vb); } .p2d .vi { stroke:currentColor; }
+.p2d .ha { fill:var(--va); } .p2d .hb { fill:var(--vb); } .p2d .hi { fill:currentColor; }
+.p2d .dot { fill:currentColor; } .p2d .dot.da { fill:var(--va); } .p2d .dot.db { fill:var(--vb); }
+.p2d .mark { fill:none; stroke:currentColor; stroke-width:1; opacity:.6; }
+.p2d .vecarrow { fill:none; stroke:currentColor; stroke-width:1.1; stroke-linecap:round; stroke-linejoin:round; }
+</style>
+<script>
+// A small 2D frame for the flat figures in this post: math coordinates to SVG, a grid, curves, arrows and labels.
+window.P2D = window.P2D || function (svg, o) {
+  var W = o.w || 460, H = o.h || 330, SX = W / (o.x1 - o.x0), SY = H / (o.y1 - o.y0);
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('width', W);
+  var px = function (p) { return [(p[0] - o.x0) * SX, (o.y1 - p[1]) * SY]; };
+  var xy = function (p) { var q = px(p); return q[0].toFixed(1) + ',' + q[1].toFixed(1); };
+  var num = function (k) { return k < 0 ? '−' + -k : k; };
+  function grid() {
+    var h = '', O = px([0, 0]);
+    for (var x = Math.ceil(o.x0); x <= o.x1; x++) {
+      var X = px([x, 0])[0].toFixed(1);
+      h += '<line class="' + (x ? 'grid0' : 'axis0') + '" x1="' + X + '" y1="0" x2="' + X + '" y2="' + H + '"/>';
+      if (x) h += '<text class="tick" x="' + X + '" y="' + (O[1] + 15).toFixed(1) + '" text-anchor="middle">' + num(x) + '</text>';
+    }
+    for (var y = Math.ceil(o.y0); y <= o.y1; y++) {
+      var Y = px([0, y])[1].toFixed(1);
+      h += '<line class="' + (y ? 'grid0' : 'axis0') + '" x1="0" y1="' + Y + '" x2="' + W + '" y2="' + Y + '"/>';
+      if (y) h += '<text class="tick" x="' + (O[0] - 7).toFixed(1) + '" y="' + (+Y + 4) + '" text-anchor="end">' + num(y) + '</text>';
+    }
+    return h;
+  }
+  // the graph of f across the frame, as path data
+  function curve(f) {
+    var d = '', n = 160, lo = o.y0 - 3, hi = o.y1 + 3;
+    for (var i = 0; i <= n; i++) {
+      var x = o.x0 + (o.x1 - o.x0) * i / n;
+      d += (i ? ' L' : 'M') + xy([x, Math.max(lo, Math.min(hi, f(x)))]);
+    }
+    return d;
+  }
+  // an arrow from a to b; c is 'a', 'b' or 'i' (ink)
+  function arrow(a, b, c) {
+    var p = px(a), q = px(b), d = Math.hypot(q[0] - p[0], q[1] - p[1]);
+    if (d < 3) return '';
+    var ux = (q[0] - p[0]) / d, uy = (q[1] - p[1]) / d, L = Math.min(12, d * .5), Wd = L * .42, bx = q[0] - ux * L, by = q[1] - uy * L;
+    return '<line class="arr v' + c + '" x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + (bx + ux * 2).toFixed(1) + '" y2="' + (by + uy * 2).toFixed(1) + '"/>' +
+      '<path class="h' + c + '" d="M' + q[0].toFixed(1) + ',' + q[1].toFixed(1) + ' L' + (bx - uy * Wd).toFixed(1) + ',' + (by + ux * Wd).toFixed(1) + ' L' + (bx + uy * Wd).toFixed(1) + ',' + (by - ux * Wd).toFixed(1) + ' Z"/>';
+  }
+  function line(a, b, cls) { var p = px(a), q = px(b); return '<line class="' + cls + '" x1="' + p[0].toFixed(1) + '" y1="' + p[1].toFixed(1) + '" x2="' + q[0].toFixed(1) + '" y2="' + q[1].toFixed(1) + '"/>'; }
+  function dot(p, cls, r) { var q = px(p); return '<circle class="dot ' + (cls || '') + '" cx="' + q[0].toFixed(1) + '" cy="' + q[1].toFixed(1) + '" r="' + (r || 4.5) + '"/>'; }
+  // a label at p shifted by (dx, dy) pixels; vec lists the letters that get an arrow on top
+  function text(p, html, cls, dx, dy, vec) {
+    var q = px(p);
+    return '<text class="' + cls + '" x="' + (q[0] + (dx || 0)).toFixed(1) + '" y="' + (q[1] + (dy || 0)).toFixed(1) + '" text-anchor="middle" dominant-baseline="middle"' + (vec != null ? ' data-vec="' + vec + '"' : '') + '>' + html + '</text>';
+  }
+  return { px: px, xy: xy, grid: grid, curve: curve, arrow: arrow, line: line, dot: dot, text: text, W: W, H: H };
+};
+</script>

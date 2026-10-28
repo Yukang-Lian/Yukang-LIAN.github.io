@@ -1,0 +1,48 @@
+<style>
+.m3d .pdim { opacity:.45; }
+.m3d .hdot { fill:var(--vb); }
+.m3d .hset { fill:none; stroke:var(--vb); stroke-width:2.2; opacity:.85; }
+</style>
+<div class="m3d" id="m3-rank">
+<svg role="img" aria-label="Interactive 3D figure: 27 input points and the inputs that share one output with (1, 2, 2). With rank 3 that is one point; with rank 2, A = diag(1, 1, 0), it is the line (1, 2, t), which collapses to (1, 2, 0); with rank 1, A = diag(1, 0, 0), it is the plane x = 1, which collapses to (1, 0, 0). Press Play to apply the matrix. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-rank'), ctl = root.querySelector('.m3d-ctl');
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  // rank 3, 2 and 1: the identity, diag(1, 1, 0) and diag(1, 0, 0)
+  var MATS = [[[1, 0, 0], [0, 1, 0], [0, 0, 1]], [[1, 0, 0], [0, 1, 0], [0, 0, 0]], [[1, 0, 0], [0, 0, 0], [0, 0, 0]]];
+  var r = 1, s = 0, pts = [];
+  for (var i = 0; i < 3; i++) for (var j = 0; j < 3; j++) for (var k = 0; k < 3; k++) pts.push([i, j, k]);
+  // the inputs that have the same output as (1, 2, 2): a point, a line or a plane
+  var same = function (p) { return r === 0 ? p[0] === 1 && p[1] === 2 && p[2] === 2 : r === 1 ? p[0] === 1 && p[1] === 2 : p[0] === 1; };
+  var lo = -0.5, hi = 2.5;
+  var fig = M.create(root, {
+    scale: 56, az: -35, el: 20, dy: 25, axes: ['x', 'y', 'z'], axisLen: 2.8, ticks: true,
+    scene: function () {
+      var T = M.toward(MATS[r], s), f = function (p) { return M.mul(T, p); }, it = [];
+      // where all the outputs end up, faded in as the matrix is applied
+      if (r === 1) it.push({ k: 'poly', pts: [[lo, lo, 0], [hi, lo, 0], [hi, hi, 0], [lo, hi, 0]], c: 'plane', op: s });
+      if (r === 2) it.push({ k: 'line', pts: [[lo, 0, 0], [hi, 0, 0]], c: 'meet', op: s });
+      if (r === 1) it.push({ k: 'line', pts: [f([1, 2, lo]), f([1, 2, hi])], c: 'hset' });
+      if (r === 2) it.push({ k: 'poly', pts: [f([1, lo, lo]), f([1, hi, lo]), f([1, hi, hi]), f([1, lo, hi])], c: 'plane pb' });
+      pts.forEach(function (p) { it.push(same(p) ? { k: 'dot', p: f(p), r: 4, c: 'hdot' } : { k: 'dot', p: f(p), r: 2.6, c: 'dot pdim' }); });
+      return it;
+    }
+  });
+  var MSG = [
+    { en: 'Full rank: nothing is erased. Only \\((1,2,2)\\) itself goes to \\((1,2,2)\\).', zh: '满秩：什么都没有被消除。只有 \\((1,2,2)\\) 自己会变成 \\((1,2,2)\\)。' },
+    { en: 'The \\(A\\) of this section erases the \\(z\\)-direction. Every input on the orange line \\((1,2,t)\\) lands on the same output, \\((1,2,0)\\).', zh: '本节的 \\(A\\) 消除了 \\(z\\) 方向。橙色直线 \\((1,2,t)\\) 上的每个输入，都落到同一个输出 \\((1,2,0)\\)。' },
+    { en: 'This matrix keeps only \\(x\\). Every input on the orange plane \\(x=1\\) lands on the same output, \\((1,0,0)\\).', zh: '这个矩阵只保留 \\(x\\)。橙色平面 \\(x=1\\) 上的每个输入，都落到同一个输出 \\((1,0,0)\\)。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  function show() { read('\\(\\operatorname{rank}A=' + (3 - r) + ',\\quad \\dim N(A)=' + r + '\\)<br>' + M.tr(MSG[r])); }
+  var prog;
+  M.buttons(ctl, [{ en: 'Rank 3', zh: '秩 3' }, { en: 'Rank 2', zh: '秩 2' }, { en: 'Rank 1', zh: '秩 1' }], function (i) { r = i; show(); prog.set(0); prog.run(); }, 1);
+  prog = M.progress(ctl, function (v) { s = v; fig.render(); });
+  show();
+})();
+</script>

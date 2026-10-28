@@ -1,0 +1,60 @@
+<div class="p2d" id="p2-gs">
+<svg role="img" aria-label="Interactive figure: Gram–Schmidt on v1 = (1, 2) and v2 = (2, 1) in three steps. Step 1 scales v1 to unit length, q1. Step 2 subtracts from v2 its projection p onto q1, leaving a vector perpendicular to q1. Step 3 scales that to unit length, q2."></svg>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('p2-gs'), svg = root.querySelector('svg'), ctl = root.querySelector('.m3d-ctl');
+  var F = P2D(svg, { w: 460, h: 340, x0: -1.2, x1: 3.4, y0: -1.15, y1: 2.35 });
+  var r5 = Math.sqrt(5), V1 = [1, 2], V2 = [2, 1], Q1 = [1 / r5, 2 / r5], P = [0.8, 1.6], W = [1.2, -0.6], Q2 = [2 / r5, -1 / r5];
+  // the two arrows after each step
+  var STATES = [[V1, V2], [Q1, V2], [Q1, W], [Q1, Q2]], cur = 0, A = V1.slice(), B = V2.slice();
+  var sub = function (s, i) { return s + '<tspan class="sb" dy="5">' + i + '</tspan>'; };
+  var LA = [sub('v', 1), sub('q', 1), sub('q', 1), sub('q', 1)];
+  var LB = [sub('v', 2), sub('v', 2), sub('v', 2) + '<tspan dy="-5"> − p</tspan>', sub('q', 2)];
+  var VB = ['0', '0', '0,5', '0'];
+  // a label just past the tip of the arrow from the origin to p, moved off the line to one side (+1 left, −1 right)
+  var tip = function (p, html, cls, vec, side) {
+    var l = Math.hypot(p[0], p[1]) || 1, u = [p[0] / l, p[1] / l], n = [-u[1] * side, u[0] * side];
+    return F.text(p, html, cls, u[0] * 8 + n[0] * 16, -(u[1] * 8 + n[1] * 16), vec);
+  };
+  function draw() {
+    var h = F.grid(), O = F.px([0, 0]);
+    h += '<circle class="fam" cx="' + O[0].toFixed(1) + '" cy="' + O[1].toFixed(1) + '" r="' + (F.px([1, 0])[0] - O[0]).toFixed(1) + '"/>';
+    if (cur >= 1) h += F.line([0, 0], V1, 'ghost');
+    if (cur === 2) {
+      // the part of v2 along q1, and what is left, at a right angle to it
+      var u = [-Q1[0] * .13, -Q1[1] * .13], v = [Q2[0] * .13, Q2[1] * .13];
+      h += F.line([0, 0], V2, 'ghost') + F.line([0, 0], P, 'dash vi') + F.line(P, V2, 'dash vb');
+      h += '<path class="mark" d="M' + F.xy([P[0] + u[0], P[1] + u[1]]) + ' L' + F.xy([P[0] + u[0] + v[0], P[1] + u[1] + v[1]]) + ' L' + F.xy([P[0] + v[0], P[1] + v[1]]) + '"/>';
+      h += F.text(P, 'p', 'v', -12, -6, '0');
+    }
+    if (cur === 3) h += F.line([0, 0], W, 'ghost');
+    h += F.arrow([0, 0], A, 'a') + F.arrow([0, 0], B, 'b');
+    h += tip(A, LA[cur], 'v ta', '0', 1) + tip(B, LB[cur], 'v tb', VB[cur], -1);
+    svg.innerHTML = h;
+    vecArrows(svg);
+  }
+  var MSG = [
+    { en: '\\(\\vec{v}_1=(1,2)\\) and \\(\\vec{v}_2=(2,1)\\) span the plane, but they are not perpendicular.', zh: '\\(\\vec{v}_1=(1,2)\\) 和 \\(\\vec{v}_2=(2,1)\\) 张成整个平面，但它们并不垂直。' },
+    { en: 'Keep the direction of \\(\\vec{v}_1\\) and make it unit length: \\(\\vec{q}_1=\\vec{v}_1/\\|\\vec{v}_1\\|=(1,2)/\\sqrt5\\).', zh: '保留 \\(\\vec{v}_1\\) 的方向，把长度变成 1：\\(\\vec{q}_1=\\vec{v}_1/\\|\\vec{v}_1\\|=(1,2)/\\sqrt5\\)。' },
+    { en: 'Remove the part of \\(\\vec{v}_2\\) along \\(\\vec{q}_1\\), \\(\\vec{p}=(\\vec{q}_1\\cdot\\vec{v}_2)\\,\\vec{q}_1=\\tfrac45(1,2)\\). What is left, \\(\\vec{v}_2-\\vec{p}=(1.2,-0.6)\\), is perpendicular to \\(\\vec{q}_1\\).', zh: '去掉 \\(\\vec{v}_2\\) 沿 \\(\\vec{q}_1\\) 方向的分量 \\(\\vec{p}=(\\vec{q}_1\\cdot\\vec{v}_2)\\,\\vec{q}_1=\\tfrac45(1,2)\\)。剩下的 \\(\\vec{v}_2-\\vec{p}=(1.2,-0.6)\\) 垂直于 \\(\\vec{q}_1\\)。' },
+    { en: 'Make it unit length: \\(\\vec{q}_2=(2,-1)/\\sqrt5\\). Now \\(\\vec{q}_1\\) and \\(\\vec{q}_2\\) are an orthonormal basis of the same plane.', zh: '把它的长度变成 1：\\(\\vec{q}_2=(2,-1)/\\sqrt5\\)。现在 \\(\\vec{q}_1\\)、\\(\\vec{q}_2\\) 是同一个平面的一组标准正交基。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read')), stop = null;
+  M.buttons(ctl, [{ en: 'Original', zh: '原向量' }, { en: 'Step 1', zh: '第 1 步' }, { en: 'Step 2', zh: '第 2 步' }, { en: 'Step 3', zh: '第 3 步' }], function (i) {
+    if (stop) stop();
+    var a0 = A.slice(), b0 = B.slice(), to = STATES[i];
+    cur = i; read(M.tr(MSG[i]));
+    stop = M.tween(900, function (s) {
+      A = [a0[0] + (to[0][0] - a0[0]) * s, a0[1] + (to[0][1] - a0[1]) * s];
+      B = [b0[0] + (to[1][0] - b0[0]) * s, b0[1] + (to[1][1] - b0[1]) * s];
+      draw();
+    }, function () { stop = null; });
+  }, 0);
+  if (document.fonts) document.fonts.ready.then(draw);
+  new MutationObserver(function () { vecArrows(svg); }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  draw(); read(M.tr(MSG[0]));
+})();
+</script>

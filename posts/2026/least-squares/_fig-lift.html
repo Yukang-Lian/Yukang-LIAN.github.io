@@ -1,0 +1,31 @@
+<div class="p2d" id="p2-lift">
+<svg role="img" aria-label="Interactive figure: blue points near zero and orange points on both sides of them on the number line, so no single cut separates them. A button sends each x to (x, x²), lifting the points onto a parabola, where a horizontal line separates the two groups."></svg>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('p2-lift'), svg = root.querySelector('svg'), ctl = root.querySelector('.m3d-ctl');
+  var F = P2D(svg, { w: 460, h: 300, x0: -2.6, x1: 2.6, y0: -0.9, y1: 5.1 });
+  var IN = [-0.9, -0.5, -0.1, 0.3, 0.7], OUT = [-2.1, -1.7, -1.4, 1.4, 1.8, 2.2], s = 0, CUT = 1.4;
+  function draw() {
+    var h = F.grid();
+    if (s > 0) h += '<path class="fam" style="opacity:' + (0.16 * s).toFixed(2) + '" d="' + F.curve(function (x) { return x * x; }) + '"/>';
+    if (s > 0.98) h += F.line([-2.6, CUT], [2.6, CUT], 'ghost');
+    IN.forEach(function (x) { h += F.dot([x, s * x * x], 'da'); });
+    OUT.forEach(function (x) { h += F.dot([x, s * x * x], 'db'); });
+    svg.innerHTML = h;
+  }
+  var MSG = [
+    { en: 'On the number line, the orange points lie on both sides of the blue ones, so no single cut separates them.', zh: '在数轴上，橙色点分布在蓝色点的两侧，所以无法用一个分界点把它们分开。' },
+    { en: 'Sending each \\(x\\) to \\((x,x^2)\\) lifts the points onto a parabola. Now the straight line \\(y=1.4\\) separates them, though each point still carries only its \\(x\\).', zh: '把每个 \\(x\\) 映射成 \\((x,x^2)\\)，这些点就被抬到一条抛物线上。现在直线 \\(y=1.4\\) 就能把它们分开，虽然每个点携带的仍然只有它的 \\(x\\)。' }
+  ];
+  var read = M.typesetter(root.querySelector('.m3d-read')), stop = null;
+  M.buttons(ctl, [{ en: 'On the line', zh: '在数轴上' }, { en: 'Map to (x, x²)', zh: '映射到 (x, x²)' }], function (i) {
+    if (stop) stop();
+    var from = s; read(M.tr(MSG[i]));
+    stop = M.tween(900, function (t) { s = from + (i - from) * t; draw(); }, function () { stop = null; s = i; draw(); });
+  }, 0);
+  draw(); read(M.tr(MSG[0]));
+})();
+</script>

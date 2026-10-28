@@ -1,0 +1,47 @@
+<div class="m3d" id="m3-project">
+<svg role="img" aria-label="Interactive 3D figure: every output of A lies on the plane z = 0. The target b = (2, 3, 5) is off the plane, and dropping a perpendicular from it gives the closest output, p = (2, 3, 0). Sliders move another output Ax around the plane to compare its distance to b. Drag to rotate."></svg>
+<div class="m3d-hint"></div>
+<div class="m3d-ctl"></div>
+<div class="m3d-read tall"></div>
+</div>
+<script>
+(function () {
+  var M = M3D, root = document.getElementById('m3-project'), ctl = root.querySelector('.m3d-ctl');
+  root.querySelector('.m3d-hint').textContent = M.tr({ en: 'Drag the figure to rotate it.', zh: '拖动图形可以旋转视角。' });
+  var O = [0, 0, 0], B = [2, 3, 5], P = [2, 3, 0], x = [3.5, 0.5];
+  var fig = M.create(root, {
+    scale: 30, az: -35, el: 20, dy: 55, axes: ['x', 'y', 'z'], axisLen: 5.4, ticks: true,
+    scene: function () {
+      var lo = -1, hi = 4, at = function (u, v) { return [u, v, 0]; }, it = [];
+      it.push({ k: 'poly', pts: [at(lo, lo), at(hi, lo), at(hi, hi), at(lo, hi)], c: 'plane' });
+      for (var t = lo + 1; t < hi; t++) it.push({ k: 'line', pts: [at(t, lo), at(t, hi)], c: 'grid' }, { k: 'line', pts: [at(lo, t), at(hi, t)], c: 'grid' });
+      // the right angle between the error and the plane
+      var u = M.scale(0.35, M.unit([-2, -3, 0])), z = [0, 0, 0.35];
+      it.push({ k: 'line', pts: [M.add(P, u), M.add(M.add(P, u), z), M.add(P, z)], c: 'wire' });
+      it.push({ k: 'arrow', a: O, b: B, c: 'b', label: 'b', vec: 0 }, { k: 'arrow', a: O, b: P, c: 'a', label: 'p', vec: 0, off: 18 });
+      it.push({ k: 'line', pts: [P, B], c: 'dash' }, { k: 'text', p: [2, 3, 2.5], t: 'e', c: 'v', vec: '0', dx: 13 });
+      // another output A x, for comparison
+      var q = [x[0], x[1], 0];
+      if (Math.hypot(q[0] - P[0], q[1] - P[1]) > 0.05) it.push({ k: 'line', pts: [q, B], c: 'trail' }, { k: 'dot', p: q, r: 4, c: 'hole' }, { k: 'text', p: q, t: 'Ax', c: 'v', vec: '1', dx: -4, dy: 16 });
+      return it;
+    }
+  });
+  var read = M.typesetter(root.querySelector('.m3d-read'));
+  var n = function (v) { return String(+v.toFixed(1)).replace('-', '−'); };
+  function show() {
+    var d = Math.hypot(B[0] - x[0], B[1] - x[1], B[2]), at = Math.hypot(x[0] - P[0], x[1] - P[1]) < 0.05;
+    read('\\(A\\vec{x}=(' + n(x[0]) + ',' + n(x[1]) + ',0)\\)&emsp;\\(\\|\\vec{b}-A\\vec{x}\\|=' + d.toFixed(2) + '\\)<br>' + M.tr(at
+      ? { en: 'This is \\(\\vec{p}\\). The error \\(\\vec{e}=\\vec{b}-\\vec{p}=(0,0,5)\\) is perpendicular to the plane, and no output gets closer.', zh: '这就是 \\(\\vec{p}\\)。误差 \\(\\vec{e}=\\vec{b}-\\vec{p}=(0,0,5)\\) 垂直于整个平面，没有哪个输出比它更近。' }
+      : { en: 'Every other output is farther from \\(\\vec{b}\\) than \\(\\vec{p}\\), whose distance is \\(5\\).', zh: '其他任何输出离 \\(\\vec{b}\\) 都比 \\(\\vec{p}\\) 远，而 \\(\\vec{p}\\) 的距离是 \\(5\\)。' }));
+  }
+  var s1 = M.slider(ctl, '<span><i>x</i>₁</span>', -1, 4, 0.1, x[0], function (v) { x[0] = v; fig.render(); show(); });
+  var s2 = M.slider(ctl, '<span><i>x</i>₂</span>', -1, 4, 0.1, x[1], function (v) { x[1] = v; fig.render(); show(); });
+  var stop = null;
+  M.button(ctl, { en: 'Go to p', zh: '移到 p' }, function () {
+    if (stop) stop();
+    var from = x.slice();
+    stop = M.tween(800, function (s) { x = [from[0] + (P[0] - from[0]) * s, from[1] + (P[1] - from[1]) * s]; s1.set(x[0]); s2.set(x[1]); fig.render(); }, function () { stop = null; x = [P[0], P[1]]; show(); });
+  });
+  show();
+})();
+</script>
