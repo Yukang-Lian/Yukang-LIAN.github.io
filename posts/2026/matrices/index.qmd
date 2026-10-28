@@ -296,6 +296,8 @@ $$
     $$
     and a matrix satisfying it is called an **orthogonal matrix**. AI also told me that breaking a matrix into rotations, reflections, and scaling along different directions is related to **singular value decomposition (SVD)**, $A=U\Sigma V^T$. I haven't studied any of these yet, so I'll leave them here and explore them later.
 
+    **Update (2026-10-29):** Chapter 4 explained the first part. The squared length of $A\vec{x}$ is $(A\vec{x})^T(A\vec{x})=\vec{x}^TA^TA\vec{x}$, which equals $\vec{x}^T\vec{x}$, the squared length of $\vec{x}$, for every $\vec{x}$ exactly when $A^TA=I$. A determinant of 1 says nothing like this: the shear $\begin{bmatrix}1&1\\0&1\end{bmatrix}$ keeps every area but stretches $(0,1)$ to $(1,1)$. I still haven't studied the SVD.
+
 ### A Thought About Neural Networks and Computation
 
 Understanding matrices as linear transformations also reminds me of neural networks.
@@ -586,6 +588,8 @@ Interestingly, the direction that gets erased is perpendicular to the output pla
 
 [^perp]: **The lost direction and the output plane.** I first assumed that the erased direction is always perpendicular to the output plane. AI pointed out that this is not true in general: the null space and the image of a matrix are not necessarily perpendicular. Here it just happens to be the case. I don't understand why yet, so I'll leave it for later.
 
+    **Update (2026-10-29):** Chapter 4 of Strang answers this. $C\vec{x}=\vec{0}$ means that every row of $C$ has a zero dot product with $\vec{x}$, so the null space is always perpendicular to the *row space*, the space spanned by the rows. The output plane is the column space, a different subspace. The rows of $C$ lie on the same plane $b_1+b_2+b_3=0$ as its columns, so here the two spaces coincide, and the erased direction is perpendicular to both. In general they differ: $\begin{bmatrix}1&1\\0&0\end{bmatrix}$ erases the direction $(1,-1)$, which is perpendicular to its rows, $(1,1)$, but not to its outputs, which all lie along $(1,0)$.
+
 ### Looking at the Columns of the Matrix
 
 Now let's return to the matrix $C$ itself.
@@ -704,6 +708,8 @@ Of course, this is about the dimension of the entire output space, not the numbe
     \operatorname{rank}(A)+\operatorname{nullity}(A)=n
     $$
     where $n$ is the dimension of the input space and the nullity is the dimension of the inputs that get mapped to zero. I haven't studied it yet.
+
+    **Update (2026-10-29):** I studied it in chapter 3. After elimination, each of the $n$ columns is either a pivot column or a free column. The pivot columns count the rank, and each free column gives one independent direction of the null space, so the two add up to $n$. I wrote about it in [Vector Spaces and Least Squares](../least-squares/index.qmd).
 
 ## Rank, Linear Dependence, and Invertibility
 
